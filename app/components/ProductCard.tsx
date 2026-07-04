@@ -3,6 +3,7 @@ import Image from "next/image";
 import { MessageCircle } from "lucide-react";
 import LikeButton from "./LikeButton";
 import SaveButton from "./SaveButton";
+import BrandBadge from "./BrandBadge";
 
 type Product = {
   id: number | string;
@@ -12,6 +13,7 @@ type Product = {
   username: string;
   avatar_url?: string | null;
   comment_count?: number;
+  account_type?: string | null;
 };
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -35,9 +37,10 @@ export default function ProductCard({ product }: { product: Product }) {
         </Link>
         <Link
           href={`/profile/${product.username}`}
-          className="text-sm font-medium hover:underline"
+          className="flex items-center gap-1 text-sm font-medium hover:underline"
         >
           @{product.username}
+          {product.account_type === "brand" && <BrandBadge />}
         </Link>
       </div>
 

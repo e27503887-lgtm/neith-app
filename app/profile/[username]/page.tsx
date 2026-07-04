@@ -1,5 +1,6 @@
 import Image from "next/image";
 import ProductCard from "../../components/ProductCard";
+import BrandBadge from "../../components/BrandBadge";
 import { supabase } from "../../utils/supabase";
 import EditProfileButton from "./EditProfileButton";
 import StartChatButton from "../../components/StartChatButton";
@@ -60,9 +61,15 @@ export default async function ProfilePage({ params }: Props) {
           )}
 
           <div className="flex-1">
-            <h1 className="text-xl font-bold tracking-tight">{profile.username}</h1>
+            <h1 className="text-xl font-bold tracking-tight flex items-center gap-1.5">
+              {profile.username}
+              {profile.account_type === "brand" && <BrandBadge />}
+            </h1>
             {profile.bio && (
               <p className="text-gray-500 text-sm mt-1">{profile.bio}</p>
+            )}
+            {profile.account_type === "brand" && (
+              <p className="text-gray-400 text-xs mt-1">Resmi Marka Hesabı</p>
             )}
           </div>
 
@@ -78,6 +85,7 @@ export default async function ProfilePage({ params }: Props) {
                 product={{
                   ...product,
                   avatar_url: profile.avatar_url,
+                  account_type: profile.account_type,
                   comment_count: commentCountByProduct.get(product.id) ?? 0,
                 }}
               />

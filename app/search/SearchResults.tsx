@@ -15,6 +15,7 @@ type Product = {
   username: string;
   avatar_url?: string | null;
   comment_count?: number;
+  account_type?: string | null;
 };
 
 type ProfileResult = {
@@ -50,12 +51,15 @@ export default function SearchResults() {
 
       const usernames = [...new Set((matchedProducts ?? []).map((p) => p.username))];
       const { data: profiles } = usernames.length
-        ? await supabase.from("profiles").select("username, avatar_url").in("username", usernames)
-        : { data: [] as { username: string; avatar_url: string | null }[] };
+        ? await supabase
+            .from("profiles")
+            .select("username, avatar_url, account_type")
+            .in("username", usernames)
+        : { data: [] as { username: string; avatar_url: string | null; account_type: string | null }[] };
 
       if (!active) return;
 
-      const avatarByUsername = new Map((profiles ?? []).map((p) => [p.username, p.avatar_url]));
+      const profileByUsername = new Map((profiles ?? []).map((p) => [p.username, p]));
 
       const productIds = (matchedProducts ?? []).map((p) => p.id);
       const { data: commentRows } = productIds.length
@@ -72,7 +76,8 @@ export default function SearchResults() {
       setProducts(
         (matchedProducts ?? []).map((p) => ({
           ...p,
-          avatar_url: avatarByUsername.get(p.username) ?? null,
+          avatar_url: profileByUsername.get(p.username)?.avatar_url ?? null,
+          account_type: profileByUsername.get(p.username)?.account_type ?? null,
           comment_count: commentCountByProduct.get(p.id) ?? 0,
         }))
       );

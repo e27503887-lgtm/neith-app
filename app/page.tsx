@@ -1,9 +1,17 @@
 import Link from "next/link";
 import Image from "next/image";
 import ProductCard from "./components/ProductCard";
+import BrandBadge from "./components/BrandBadge";
 import { supabase } from "./utils/supabase";
 
-export default async function Home() {
+type Props = {
+  searchParams: Promise<{ filter?: string }>;
+};
+
+export default async function Home({ searchParams }: Props) {
+  const { filter } = await searchParams;
+  const activeFilter = filter === "user" || filter === "brand" ? filter : "all";
+
   const { data: products } = await supabase
     .from("products")
     .select("*")
@@ -12,10 +20,13 @@ export default async function Home() {
   const usernames = [...new Set((products ?? []).map((p) => p.username))];
 
   const { data: profiles } = usernames.length
-    ? await supabase.from("profiles").select("username, avatar_url").in("username", usernames)
-    : { data: [] as { username: string; avatar_url: string | null }[] };
+    ? await supabase
+        .from("profiles")
+        .select("username, avatar_url, account_type")
+        .in("username", usernames)
+    : { data: [] as { username: string; avatar_url: string | null; account_type: string | null }[] };
 
-  const avatarByUsername = new Map((profiles ?? []).map((p) => [p.username, p.avatar_url]));
+  const profileByUsername = new Map((profiles ?? []).map((p) => [p.username, p]));
 
   const productIds = (products ?? []).map((p) => p.id);
   const { data: commentRows } = productIds.length
@@ -27,21 +38,51 @@ export default async function Home() {
     commentCountByProduct.set(c.product_id, (commentCountByProduct.get(c.product_id) ?? 0) + 1);
   });
 
-  const feed = (products ?? []).map((product) => ({
+  const allProducts = (products ?? []).map((product) => ({
     ...product,
-    avatar_url: avatarByUsername.get(product.username) ?? null,
+    avatar_url: profileByUsername.get(product.username)?.avatar_url ?? null,
+    account_type: profileByUsername.get(product.username)?.account_type ?? null,
     comment_count: commentCountByProduct.get(product.id) ?? 0,
   }));
 
-  const newArrivals = feed.slice(0, 4);
+  const feed =
+    activeFilter === "all"
+      ? allProducts
+      : allProducts.filter((p) => p.seller_type === activeFilter);
+
+  const brandShowcase = allProducts.filter((p) => p.seller_type === "brand").slice(0, 4);
+  const isBrandShowcase = brandShowcase.length > 0;
+  const sidePanelProducts = isBrandShowcase ? brandShowcase : allProducts.slice(0, 4);
+
+  const tabs = [
+    { label: "Tümü", value: "all", href: "/" },
+    { label: "Kombinler", value: "user", href: "/?filter=user" },
+    { label: "Marka Ürünleri", value: "brand", href: "/?filter=brand" },
+  ];
 
   return (
     <main className="min-h-screen bg-[#FAFAFA] pt-24 pb-12 px-6">
       <div className="max-w-6xl mx-auto flex items-start gap-8">
         <div className="flex-1 min-w-0">
-          <div className="mb-8">
+          <div className="mb-6">
             <h1 className="text-2xl font-bold tracking-tight text-gray-900">Sizin İçin Seçilenler</h1>
             <p className="text-gray-500 text-sm mt-1">En yeni kombinleri ve parçaları keşfedin.</p>
+          </div>
+
+          <div className="flex gap-6 border-b border-gray-200 mb-8">
+            {tabs.map((tab) => (
+              <Link
+                key={tab.value}
+                href={tab.href}
+                className={`pb-3 -mb-px border-b-2 text-sm font-medium ${
+                  activeFilter === tab.value
+                    ? "border-black text-gray-900"
+                    : "border-transparent text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                {tab.label}
+              </Link>
+            ))}
           </div>
 
           {feed.length > 0 ? (
@@ -63,12 +104,14 @@ export default async function Home() {
           )}
         </div>
 
-        {newArrivals.length > 0 && (
+        {sidePanelProducts.length > 0 && (
           <aside className="hidden lg:block w-72 shrink-0 sticky top-24">
             <div className="bg-white border border-gray-100 rounded-xl p-4">
-              <h2 className="text-sm font-semibold tracking-tight mb-3">Yeni Gelenler</h2>
+              <h2 className="text-sm font-semibold tracking-tight mb-3">
+                {isBrandShowcase ? "Marka Vitrini" : "Yeni Gelenler"}
+              </h2>
               <div className="flex flex-col gap-3">
-                {newArrivals.map((product) => (
+                {sidePanelProducts.map((product) => (
                   <Link
                     key={product.id}
                     href={`/product/${product.id}`}
@@ -84,7 +127,10 @@ export default async function Home() {
                       />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm truncate">{product.title}</p>
+                      <p className="text-sm truncate flex items-center gap-1">
+                        {product.title}
+                        {product.account_type === "brand" && <BrandBadge />}
+                      </p>
                       <p className="text-xs text-gray-500">
                         {product.price.toLocaleString("tr-TR")} ₺
                       </p>

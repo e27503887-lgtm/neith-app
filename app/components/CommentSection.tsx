@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Trash2 } from "lucide-react";
 import { supabase } from "../utils/supabase";
+import BrandBadge from "./BrandBadge";
 
 const MAX_LENGTH = 500;
 
@@ -15,12 +16,14 @@ type Comment = {
   user_id: string;
   username: string;
   avatar_url: string | null;
+  account_type: string | null;
 };
 
 type Profile = {
   id: string;
   username: string;
   avatar_url: string | null;
+  account_type: string | null;
 };
 
 export default function CommentSection({ productId }: { productId: number | string }) {
@@ -50,7 +53,10 @@ export default function CommentSection({ productId }: { productId: number | stri
       }
 
       const { data: profiles } = userIds.length
-        ? await supabase.from("profiles").select("id, username, avatar_url").in("id", userIds)
+        ? await supabase
+            .from("profiles")
+            .select("id, username, avatar_url, account_type")
+            .in("id", userIds)
         : { data: [] as Profile[] };
 
       if (!active) return;
@@ -64,6 +70,7 @@ export default function CommentSection({ productId }: { productId: number | stri
           ...r,
           username: profileById.get(r.user_id)?.username ?? "Bilinmeyen kullanıcı",
           avatar_url: profileById.get(r.user_id)?.avatar_url ?? null,
+          account_type: profileById.get(r.user_id)?.account_type ?? null,
         }))
       );
       setLoaded(true);
@@ -97,6 +104,7 @@ export default function CommentSection({ productId }: { productId: number | stri
         ...inserted,
         username: myProfile?.username ?? "Sen",
         avatar_url: myProfile?.avatar_url ?? null,
+        account_type: myProfile?.account_type ?? null,
       },
       ...prev,
     ]);
@@ -149,9 +157,10 @@ export default function CommentSection({ productId }: { productId: number | stri
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/profile/${c.username}`}
-                    className="text-sm font-medium hover:underline"
+                    className="flex items-center gap-1 text-sm font-medium hover:underline"
                   >
                     @{c.username}
+                    {c.account_type === "brand" && <BrandBadge />}
                   </Link>
                   <span className="text-xs text-gray-400">
                     {new Date(c.created_at).toLocaleDateString("tr-TR")}
