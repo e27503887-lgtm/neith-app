@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ProductCard from "./components/ProductCard";
 import OutfitCard from "./components/OutfitCard";
+import OutfitRecommendations from "./components/OutfitRecommendations";
 import BrandBadge from "./components/BrandBadge";
 import { supabase } from "./utils/supabase";
 
@@ -77,6 +78,10 @@ export default async function Home({ searchParams }: Props) {
     ...allOutfits.map((o): FeedItem => ({ kind: "outfit", created_at: o.created_at, data: o })),
   ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
+  const featuredOutfits = allOutfits.filter((o) => o.is_featured).slice(0, 6);
+  const communityOutfits = allOutfits.filter((o) => o.creator_type === "user").slice(0, 6);
+  const brandCreatorOutfits = allOutfits.filter((o) => o.creator_type === "brand").slice(0, 6);
+
   const brandProducts = allProducts.filter((p) => p.seller_type === "brand");
 
   const brandShowcase = brandProducts.slice(0, 4);
@@ -98,6 +103,14 @@ export default async function Home({ searchParams }: Props) {
 
   return (
     <main className="min-h-screen bg-[#FAFAFA] pt-24 pb-12 px-6">
+      <div className="max-w-6xl mx-auto">
+        <OutfitRecommendations
+          featured={featuredOutfits}
+          community={communityOutfits}
+          brand={brandCreatorOutfits}
+        />
+      </div>
+
       <div className="max-w-6xl mx-auto flex items-start gap-8">
         <div className="flex-1 min-w-0">
           <div className="mb-6">
