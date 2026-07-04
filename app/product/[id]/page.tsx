@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "../../utils/supabase";
 import LikeButton from "../../components/LikeButton";
+import SaveButton from "../../components/SaveButton";
 import StartChatButton from "../../components/StartChatButton";
 import ProductActions from "./ProductActions";
 
@@ -55,8 +56,9 @@ export default async function ProductDetailPage({ params }: Props) {
               @{product.username}
             </Link>
             <StartChatButton otherUserId={product.user_id} />
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-3">
               <LikeButton productId={product.id} />
+              <SaveButton productId={product.id} />
             </div>
           </div>
 

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle, Bookmark } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import LikeButton from "./LikeButton";
+import SaveButton from "./SaveButton";
 
 type Product = {
   id: number | string;
@@ -52,7 +53,9 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="flex items-center gap-4 px-3 pt-3">
         <LikeButton productId={product.id} />
         <MessageCircle size={20} className="text-gray-400" />
-        <Bookmark size={20} className="text-gray-400 ml-auto" />
+        <div className="ml-auto">
+          <SaveButton productId={product.id} />
+        </div>
       </div>
 
       <div className="px-3 pt-2">

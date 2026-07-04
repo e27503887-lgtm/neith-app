@@ -56,7 +56,9 @@ export default function Navbar() {
           İlan Ver
         </Link>
 
-        <Heart size={20} className="text-gray-500" />
+        <Link href="/favorites">
+          <Heart size={20} className="text-gray-500 hover:text-gray-700" />
+        </Link>
         <Link href="/messages">
           <Mail size={20} className="text-gray-500 hover:text-gray-700" />
         </Link>
