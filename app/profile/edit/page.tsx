@@ -16,6 +16,7 @@ export default function EditProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [allowDms, setAllowDms] = useState(true);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -32,7 +33,7 @@ export default function EditProfilePage() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("username, bio, avatar_url")
+        .select("username, bio, avatar_url, allow_dms")
         .eq("id", data.user.id)
         .single();
 
@@ -40,6 +41,7 @@ export default function EditProfilePage() {
         setUsername(profile.username ?? "");
         setBio(profile.bio ?? "");
         setAvatarUrl(profile.avatar_url ?? null);
+        setAllowDms(profile.allow_dms ?? true);
       }
 
       setCheckingAuth(false);
@@ -96,7 +98,7 @@ export default function EditProfilePage() {
 
     const { error: updateError } = await supabase
       .from("profiles")
-      .update({ username, bio, avatar_url: newAvatarUrl })
+      .update({ username, bio, avatar_url: newAvatarUrl, allow_dms: allowDms })
       .eq("id", user.id);
 
     setLoading(false);
@@ -167,6 +169,33 @@ export default function EditProfilePage() {
             rows={4}
             className="w-full p-3 border rounded-md resize-none"
           />
+
+          <div className="pt-4 border-t border-gray-100">
+            <h2 className="text-sm font-semibold text-gray-700 mb-2">Gizlilik</h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-900">Kimler bana mesaj gönderebilir?</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {allowDms ? "Herkes" : "Hiç kimse (mevcut sohbetlerim devam eder)"}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={allowDms}
+                onClick={() => setAllowDms((prev) => !prev)}
+                className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
+                  allowDms ? "bg-black" : "bg-gray-300"
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                    allowDms ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
 
           <button
             disabled={loading}

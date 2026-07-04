@@ -8,21 +8,49 @@ export default function StartChatButton({ otherUserId }: { otherUserId: string |
   const router = useRouter();
   const [checked, setChecked] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [allowDms, setAllowDms] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setCurrentUserId(data.user?.id ?? null);
-      setChecked(true);
-    });
-  }, []);
+    let active = true;
 
-  if (!checked || !otherUserId) {
+    async function load() {
+      if (!otherUserId) {
+        if (active) setChecked(true);
+        return;
+      }
+
+      const [{ data: userData }, { data: targetProfile }] = await Promise.all([
+        supabase.auth.getUser(),
+        supabase.from("profiles").select("allow_dms").eq("id", otherUserId).maybeSingle(),
+      ]);
+
+      if (!active) return;
+      setCurrentUserId(userData.user?.id ?? null);
+      setAllowDms(targetProfile?.allow_dms ?? true);
+      setChecked(true);
+    }
+
+    load();
+    return () => {
+      active = false;
+    };
+  }, [otherUserId]);
+
+  if (!checked || !otherUserId || currentUserId === otherUserId) {
     return null;
   }
 
-  if (currentUserId === otherUserId) {
-    return null;
+  if (!allowDms) {
+    return (
+      <button
+        disabled
+        className="border px-4 py-1.5 rounded-md text-sm text-gray-400 cursor-not-allowed"
+      >
+        Mesajlara Kapalı
+      </button>
+    );
   }
 
   async function handleClick() {
@@ -30,8 +58,10 @@ export default function StartChatButton({ otherUserId }: { otherUserId: string |
       router.push("/login");
       return;
     }
+    if (loading) return;
 
     setLoading(true);
+    setError("");
 
     const { data: existing } = await supabase
       .from("conversations")
@@ -44,14 +74,15 @@ export default function StartChatButton({ otherUserId }: { otherUserId: string |
     let conversationId = existing?.id;
 
     if (!conversationId) {
-      const { data: created, error } = await supabase
+      const { data: created, error: insertError } = await supabase
         .from("conversations")
         .insert([{ user1_id: currentUserId, user2_id: otherUserId }])
         .select("id")
         .single();
 
-      if (error || !created) {
+      if (insertError || !created) {
         setLoading(false);
+        setError("Bu kullanıcı yeni mesajlara kapalı.");
         return;
       }
 
@@ -62,12 +93,15 @@ export default function StartChatButton({ otherUserId }: { otherUserId: string |
   }
 
   return (
-    <button
-      onClick={handleClick}
-      disabled={loading}
-      className="border px-4 py-1.5 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50"
-    >
-      {loading ? "Açılıyor..." : "Mesaj At"}
-    </button>
+    <div>
+      <button
+        onClick={handleClick}
+        disabled={loading}
+        className="border px-4 py-1.5 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50"
+      >
+        {loading ? "Açılıyor..." : "Mesaj At"}
+      </button>
+      {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
+    </div>
   );
 }
