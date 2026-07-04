@@ -9,6 +9,7 @@ import type { User } from "@supabase/supabase-js";
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
+  const [query, setQuery] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -33,6 +34,13 @@ export default function Navbar() {
     router.refresh();
   }
 
+  function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key !== "Enter") return;
+    const q = query.trim();
+    if (!q) return;
+    router.push(`/search?q=${encodeURIComponent(q)}`);
+  }
+
   return (
     <nav className="fixed w-full z-40 flex items-center gap-4 px-8 py-4 bg-white border-b border-gray-100">
       <Link href="/" className="text-xl font-serif tracking-tight shrink-0">
@@ -45,8 +53,10 @@ export default function Navbar() {
           <input
             type="text"
             placeholder="Ara..."
-            readOnly
-            className="w-full bg-gray-50 border border-gray-100 rounded-full pl-9 pr-4 py-2 text-sm text-gray-500 cursor-default focus:outline-none"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            className="w-full bg-gray-50 border border-gray-100 rounded-full pl-9 pr-4 py-2 text-sm text-gray-700 focus:outline-none focus:border-gray-300"
           />
         </div>
       </div>
