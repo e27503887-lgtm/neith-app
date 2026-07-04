@@ -7,9 +7,11 @@ import { supabase } from "../../utils/supabase";
 export default function ProductActions({
   productId,
   ownerId,
+  sellerType,
 }: {
   productId: number | string;
   ownerId: string | null;
+  sellerType?: string | null;
 }) {
   const router = useRouter();
   const [checked, setChecked] = useState(false);
@@ -50,6 +52,10 @@ export default function ProductActions({
         {deleting ? "Siliniyor..." : "İlanı Sil"}
       </button>
     );
+  }
+
+  if (sellerType === "brand") {
+    return null;
   }
 
   return (
