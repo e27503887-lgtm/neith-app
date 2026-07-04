@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getEraLabel } from "@/lib/eras";
 import { supabase } from "../../utils/supabase";
 import LikeButton from "../../components/LikeButton";
 import SaveButton from "../../components/SaveButton";
@@ -64,6 +65,14 @@ export default async function ProductDetailPage({ params }: Props) {
                 <p className="text-gray-600 text-sm mt-3 whitespace-pre-line">
                   {product.description}
                 </p>
+              )}
+              {product.era && (
+                <Link
+                  href={`/era/${product.era}`}
+                  className="inline-block mt-3 text-xs uppercase tracking-wide text-gray-600 border border-neutral-300 px-2 py-0.5 hover:border-accent hover:text-accent transition-colors"
+                >
+                  {getEraLabel(product.era)}
+                </Link>
               )}
             </div>
 

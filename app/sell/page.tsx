@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 import { supabase } from "../utils/supabase";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
+import EraPicker from "../components/EraPicker";
 
 const MAX_FILES = 5;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
@@ -25,6 +26,7 @@ export default function SellPage() {
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   const [description, setDescription] = useState("");
+  const [era, setEra] = useState<string | null>(null);
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(
     null
@@ -149,6 +151,7 @@ export default function SellPage() {
           title,
           price,
           description,
+          era,
           image_url: coverImage,
           username,
           user_id: user.id,
@@ -184,6 +187,7 @@ export default function SellPage() {
     media.forEach((m) => URL.revokeObjectURL(m.previewUrl));
     setMedia([]);
     setDescription("");
+    setEra(null);
   }
 
   if (checkingAuth) {
@@ -227,6 +231,8 @@ export default function SellPage() {
               {description.length}/{MAX_DESCRIPTION}
             </p>
           </div>
+
+          <EraPicker value={era} onChange={setEra} />
 
           <div>
             <input

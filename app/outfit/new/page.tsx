@@ -7,6 +7,7 @@ import { Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../utils/supabase";
 import type { User } from "@supabase/supabase-js";
+import EraPicker from "../../components/EraPicker";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -27,6 +28,8 @@ export default function NewOutfitPage() {
 
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const [era, setEra] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -131,6 +134,7 @@ export default function NewOutfitPage() {
           user_id: user.id,
           title,
           description,
+          era,
           image_url: publicUrlData.publicUrl,
         },
       ])
@@ -194,6 +198,9 @@ export default function NewOutfitPage() {
             rows={3}
             className="w-full p-3 border rounded-md resize-none"
           />
+
+          <EraPicker value={era} onChange={setEra} />
+
           <input
             type="file"
             accept="image/*"

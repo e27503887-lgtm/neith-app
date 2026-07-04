@@ -48,7 +48,7 @@ export default function Navbar() {
         Neith
       </Link>
 
-      <div className="hidden md:flex flex-1 justify-center px-8">
+      <div className="hidden md:flex flex-1 items-center justify-center gap-4 px-8">
         <div className="relative w-full max-w-md">
           <Search
             size={15}
@@ -64,6 +64,12 @@ export default function Navbar() {
             className="w-full bg-transparent border-b border-neutral-300 pl-6 pr-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-ink transition-colors"
           />
         </div>
+        <Link
+          href="/era"
+          className="text-xs uppercase tracking-wide text-gray-500 hover:text-accent transition-colors whitespace-nowrap"
+        >
+          Dönemler
+        </Link>
       </div>
 
       <div className="flex items-center gap-5 text-sm ml-auto">

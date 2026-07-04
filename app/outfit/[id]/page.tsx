@@ -3,6 +3,7 @@ import Image from "next/image";
 import ProductCard from "../../components/ProductCard";
 import BrandBadge from "../../components/BrandBadge";
 import OutfitActions from "./OutfitActions";
+import { getEraLabel } from "@/lib/eras";
 import { supabase } from "../../utils/supabase";
 
 type Props = {
@@ -96,6 +97,14 @@ export default async function OutfitDetailPage({ params }: Props) {
               <h1 className="text-2xl font-bold tracking-tight">{outfit.title}</h1>
               {outfit.description && (
                 <p className="text-gray-600 mt-2">{outfit.description}</p>
+              )}
+              {outfit.era && (
+                <Link
+                  href={`/era/${outfit.era}`}
+                  className="inline-block mt-3 text-xs uppercase tracking-wide text-gray-600 border border-neutral-300 px-2 py-0.5 hover:border-accent hover:text-accent transition-colors"
+                >
+                  {getEraLabel(outfit.era)}
+                </Link>
               )}
             </div>
 
