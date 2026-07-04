@@ -94,7 +94,7 @@ export default function SearchResults() {
 
   if (!q) {
     return (
-      <main className="min-h-screen bg-[#FAFAFA] pt-24 px-6">
+      <main className="min-h-screen bg-paper pt-24 px-6">
         <div className="max-w-5xl mx-auto text-center text-gray-500 py-24">
           Kombin, ürün veya kullanıcı ara
         </div>
@@ -109,7 +109,7 @@ export default function SearchResults() {
   const totalCount = products.length + users.length;
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA] pt-24 pb-12 px-6">
+    <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-xl font-bold mb-8">
           &ldquo;{q}&rdquo; için {totalCount} sonuç
@@ -121,8 +121,8 @@ export default function SearchResults() {
           <div className="flex flex-col gap-10">
             {users.length > 0 && (
               <section>
-                <h2 className="text-sm font-semibold text-gray-500 mb-3">Kullanıcılar</h2>
-                <div className="bg-white border border-gray-100 rounded-xl divide-y divide-gray-100 overflow-hidden">
+                <h3 className="section-label mb-3">Kullanıcılar</h3>
+                <div className="bg-paper border border-neutral-200 rounded-xl divide-y divide-neutral-200 overflow-hidden">
                   {users.map((u) => (
                     <div key={u.id} className="flex items-center gap-3 p-4 hover:bg-gray-50">
                       <Link
@@ -153,7 +153,7 @@ export default function SearchResults() {
 
             {products.length > 0 && (
               <section>
-                <h2 className="text-sm font-semibold text-gray-500 mb-3">Ürünler</h2>
+                <h3 className="section-label mb-3">Ürünler</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {products.map((p) => (
                     <ProductCard key={p.id} product={p} />

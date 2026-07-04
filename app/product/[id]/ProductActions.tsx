@@ -46,11 +46,7 @@ export default function ProductActions({
 
   if (isOwner) {
     return (
-      <button
-        onClick={handleDelete}
-        disabled={deleting}
-        className="w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-800 disabled:opacity-50"
-      >
+      <button onClick={handleDelete} disabled={deleting} className="btn-primary w-full">
         {deleting ? "Siliniyor..." : "İlanı Sil"}
       </button>
     );
@@ -60,7 +56,7 @@ export default function ProductActions({
     <div>
       <button
         onClick={() => setOfferMessage("Teklif özelliği çok yakında!")}
-        className="w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-800"
+        className="btn-primary w-full"
       >
         Teklif Ver
       </button>

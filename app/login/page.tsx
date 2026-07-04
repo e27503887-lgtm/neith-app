@@ -59,8 +59,8 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
-      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 w-96 space-y-4">
+    <main className="min-h-screen flex items-center justify-center bg-paper">
+      <div className="bg-paper p-8 rounded-xl shadow-sm border border-neutral-200 w-96 space-y-4">
         <h1 className="text-xl font-bold">Neith&apos;e Hoş Geldin</h1>
 
         <input
@@ -88,20 +88,20 @@ export default function LoginPage() {
           </p>
         )}
 
-        <div className="flex gap-2">
+        <div className="flex flex-col items-center gap-3 pt-1">
           <button
             onClick={() => handleAuth("signin")}
             disabled={loading}
-            className="flex-1 bg-black text-white py-2 rounded-md disabled:opacity-50"
+            className="btn-primary w-full"
           >
             {loading ? "Bekleyin..." : "Giriş Yap"}
           </button>
           <button
             onClick={() => handleAuth("signup")}
             disabled={loading}
-            className="flex-1 border py-2 rounded-md disabled:opacity-50"
+            className="btn-secondary disabled:opacity-50"
           >
-            Kayıt Ol
+            Hesabın yok mu? Kayıt Ol
           </button>
         </div>
       </div>

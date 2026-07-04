@@ -90,7 +90,7 @@ export default function FollowButton({
     router.refresh();
   }
 
-  const sizeClasses = compact ? "px-3 py-1 text-xs" : "px-4 py-1.5 text-sm";
+  const sizeClasses = compact ? "px-3 py-1 text-[11px]" : "px-4 py-1.5 text-xs";
 
   return (
     <button
@@ -98,10 +98,10 @@ export default function FollowButton({
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       disabled={busy}
-      className={`${sizeClasses} rounded-md font-medium disabled:opacity-50 ${
+      className={`${sizeClasses} uppercase tracking-wide font-medium border transition-colors duration-300 disabled:opacity-50 ${
         following
-          ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          : "bg-black text-white hover:bg-gray-800"
+          ? "border-neutral-300 text-gray-600 hover:border-accent hover:text-accent"
+          : "border-ink text-ink hover:bg-ink hover:text-paper"
       }`}
     >
       {following ? (hovering ? "Takibi Bırak" : "Takiptesin") : "Takip Et"}

@@ -106,7 +106,21 @@ export default async function Home({ searchParams }: Props) {
     (activeFilter === "brand" && brandProducts.length === 0);
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA] pt-24 pb-12 px-6">
+    <main className="min-h-screen bg-paper pt-24 pb-16 px-6">
+      <section className="max-w-6xl mx-auto pt-6 pb-10 md:pb-14 border-b border-neutral-200 mb-12">
+        <div className="max-w-xl">
+          <h1 className="font-serif text-3xl md:text-4xl tracking-tight text-ink leading-tight">
+            Stilini paylaş, gardırobunu sat.
+          </h1>
+          <p className="text-gray-500 text-sm mt-3">
+            Kombinlerini keşfettir, sevmediğin parçalara yeni bir sahip bul — hepsi tek bir yerde.
+          </p>
+          <a href="#feed" className="btn-primary mt-6">
+            Keşfet
+          </a>
+        </div>
+      </section>
+
       <div className="max-w-6xl mx-auto">
         <OutfitRecommendations
           featured={featuredOutfits}
@@ -115,22 +129,22 @@ export default async function Home({ searchParams }: Props) {
         />
       </div>
 
-      <div className="max-w-6xl mx-auto flex items-start gap-8">
+      <div id="feed" className="max-w-6xl mx-auto flex items-start gap-8 pt-16 scroll-mt-24">
         <div className="flex-1 min-w-0">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900">Sizin İçin Seçilenler</h1>
+            <h2 className="text-2xl tracking-tight text-ink">Sizin İçin Seçilenler</h2>
             <p className="text-gray-500 text-sm mt-1">En yeni kombinleri ve parçaları keşfedin.</p>
           </div>
 
-          <div className="flex gap-6 border-b border-gray-200 mb-8 overflow-x-auto">
+          <div className="flex gap-6 border-b border-neutral-200 mb-8 overflow-x-auto">
             {tabs.map((tab) => (
               <Link
                 key={tab.value}
                 href={tab.href}
                 className={`pb-3 -mb-px border-b-2 text-sm font-medium whitespace-nowrap ${
                   activeFilter === tab.value
-                    ? "border-black text-gray-900"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
+                    ? "border-accent text-ink"
+                    : "border-transparent text-gray-500 hover:text-accent"
                 }`}
               >
                 {tab.label}
@@ -143,10 +157,7 @@ export default async function Home({ searchParams }: Props) {
           ) : showEmptyState ? (
             <div className="flex flex-col items-center justify-center text-center py-24 gap-4">
               <p className="text-gray-500">Henüz ilan yok. İlk kombini sen paylaş!</p>
-              <Link
-                href="/sell"
-                className="bg-black text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors"
-              >
+              <Link href="/sell" className="btn-primary">
                 İlan Ver
               </Link>
             </div>
@@ -172,10 +183,10 @@ export default async function Home({ searchParams }: Props) {
 
         {sidePanelProducts.length > 0 && (
           <aside className="hidden lg:block w-72 shrink-0 sticky top-24">
-            <div className="bg-white border border-gray-100 rounded-xl p-4">
-              <h2 className="text-sm font-semibold tracking-tight mb-3">
+            <div className="bg-paper border border-neutral-200 p-4">
+              <h3 className="section-label mb-3">
                 {isBrandShowcase ? "Marka Vitrini" : "Yeni Gelenler"}
-              </h2>
+              </h3>
               <div className="flex flex-col gap-3">
                 {sidePanelProducts.map((product) => (
                   <Link
@@ -210,7 +221,7 @@ export default async function Home({ searchParams }: Props) {
       </div>
 
       {/* İlan Ekle Butonu */}
-      <a href="/sell" className="fixed bottom-8 right-8 bg-black text-white px-6 py-3 rounded-full font-medium shadow-lg hover:scale-105 transition-transform z-50">
+      <a href="/sell" className="fixed bottom-8 right-8 bg-ink text-paper px-6 py-3 rounded-full font-medium shadow-lg hover:scale-105 transition-transform z-50">
         + İlan Ekle
       </a>
 

@@ -90,16 +90,16 @@ export default function MessagesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA] pt-24 pb-12 px-6">
+    <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
       <div className="max-w-lg mx-auto">
         <h1 className="text-xl font-bold mb-6">Mesajlar</h1>
 
         {conversations.length === 0 ? (
-          <div className="bg-white border border-gray-100 rounded-xl p-10 text-center text-gray-500">
+          <div className="bg-paper border border-neutral-200 rounded-xl p-10 text-center text-gray-500">
             Henüz mesajın yok.
           </div>
         ) : (
-          <div className="bg-white border border-gray-100 rounded-xl divide-y divide-gray-100 overflow-hidden">
+          <div className="bg-paper border border-neutral-200 rounded-xl divide-y divide-neutral-200 overflow-hidden">
             {conversations.map((c) => (
               <Link
                 key={c.id}

@@ -59,12 +59,12 @@ export default function FollowStats({
   return (
     <>
       <div className="flex items-center gap-1.5 text-sm text-gray-500 mt-1">
-        <button type="button" onClick={() => openModal("followers")} className="hover:underline">
-          <span className="font-medium text-gray-900">{followerCount}</span> Takipçi
+        <button type="button" onClick={() => openModal("followers")} className="hover:text-accent transition-colors">
+          <span className="font-medium text-ink">{followerCount}</span> Takipçi
         </button>
         <span>·</span>
-        <button type="button" onClick={() => openModal("following")} className="hover:underline">
-          <span className="font-medium text-gray-900">{followingCount}</span> Takip
+        <button type="button" onClick={() => openModal("following")} className="hover:text-accent transition-colors">
+          <span className="font-medium text-ink">{followingCount}</span> Takip
         </button>
       </div>
 
@@ -74,10 +74,10 @@ export default function FollowStats({
           onClick={closeModal}
         >
           <div
-            className="bg-white rounded-xl max-w-sm w-full max-h-[70vh] overflow-hidden flex flex-col"
+            className="bg-paper rounded-xl max-w-sm w-full max-h-[70vh] overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+            <div className="flex items-center justify-between p-4 border-b border-neutral-200">
               <h3 className="text-sm font-semibold">
                 {modal === "followers" ? "Takipçiler" : "Takip Edilenler"}
               </h3>
@@ -86,7 +86,7 @@ export default function FollowStats({
               </button>
             </div>
 
-            <div className="overflow-y-auto divide-y divide-gray-100">
+            <div className="overflow-y-auto divide-y divide-neutral-200">
               {loading ? (
                 <p className="text-sm text-gray-500 text-center py-8">Yükleniyor...</p>
               ) : people.length === 0 ? (

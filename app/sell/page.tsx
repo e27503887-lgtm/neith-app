@@ -123,13 +123,13 @@ export default function SellPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA] pt-24 px-6">
-      <div className="max-w-md mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-        <div className="flex gap-6 border-b border-gray-100 mb-6">
-          <span className="pb-3 -mb-px border-b-2 border-black text-sm font-medium text-gray-900">
+    <main className="min-h-screen bg-paper pt-24 px-6">
+      <div className="max-w-md mx-auto bg-paper p-8 rounded-xl shadow-sm border border-neutral-200">
+        <div className="flex gap-6 border-b border-neutral-200 mb-6">
+          <span className="pb-3 -mb-px border-b-2 border-accent text-sm font-medium text-ink">
             Ürün
           </span>
-          <Link href="/outfit/new" className="pb-3 -mb-px border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700">
+          <Link href="/outfit/new" className="pb-3 -mb-px border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-accent transition-colors">
             Kombin
           </Link>
         </div>
@@ -158,14 +158,11 @@ export default function SellPage() {
               alt="Önizleme"
               width={96}
               height={96}
-              className="w-24 h-24 object-cover rounded-md border border-gray-100"
+              className="w-24 h-24 object-cover rounded-md border border-neutral-200"
             />
           )}
 
-          <button
-            disabled={loading}
-            className="w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-800 disabled:opacity-50"
-          >
+          <button disabled={loading} className="btn-primary w-full">
             {uploading ? "Fotoğraf yükleniyor..." : loading ? "Ekleniyor..." : "İlanı Yayınla"}
           </button>
         </form>

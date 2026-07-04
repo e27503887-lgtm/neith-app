@@ -43,44 +43,48 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="fixed w-full z-40 flex items-center gap-4 px-8 py-4 bg-white border-b border-gray-100">
-      <Link href="/" className="text-xl font-serif tracking-tight shrink-0">
+    <nav className="fixed w-full z-40 flex items-center gap-4 px-8 py-5 bg-paper border-b border-neutral-200">
+      <Link href="/" className="text-2xl font-serif tracking-wide shrink-0">
         Neith
       </Link>
 
       <div className="hidden md:flex flex-1 justify-center px-8">
         <div className="relative w-full max-w-md">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search
+            size={15}
+            strokeWidth={1.5}
+            className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400"
+          />
           <input
             type="text"
             placeholder="Ara..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleSearchKeyDown}
-            className="w-full bg-gray-50 border border-gray-100 rounded-full pl-9 pr-4 py-2 text-sm text-gray-700 focus:outline-none focus:border-gray-300"
+            className="w-full bg-transparent border-b border-neutral-300 pl-6 pr-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-ink transition-colors"
           />
         </div>
       </div>
 
-      <div className="flex items-center gap-4 text-sm ml-auto">
-        <Link href="/sell" className="hover:text-gray-600">
+      <div className="flex items-center gap-5 text-sm ml-auto">
+        <Link href="/sell" className="hover:text-accent transition-colors">
           İlan Ver
         </Link>
 
         <Link href="/favorites">
-          <Heart size={20} className="text-gray-500 hover:text-gray-700" />
+          <Heart size={19} strokeWidth={1.5} className="text-gray-500 hover:text-accent transition-colors" />
         </Link>
         <Link href="/messages">
-          <Mail size={20} className="text-gray-500 hover:text-gray-700" />
+          <Mail size={19} strokeWidth={1.5} className="text-gray-500 hover:text-accent transition-colors" />
         </Link>
         <NotificationBell />
 
         {user ? (
           <>
-            <span className="text-gray-500">{user.email}</span>
+            <span className="text-gray-500 text-xs">{user.email}</span>
             <button
               onClick={handleLogout}
-              className="border px-4 py-1.5 rounded-md hover:bg-gray-50"
+              className="border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300"
             >
               Çıkış
             </button>
@@ -88,7 +92,7 @@ export default function Navbar() {
         ) : (
           <Link
             href="/login"
-            className="bg-black text-white px-4 py-1.5 rounded-md hover:bg-gray-800"
+            className="border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300"
           >
             Giriş Yap
           </Link>

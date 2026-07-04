@@ -154,10 +154,7 @@ export default function FollowingFeed() {
     return (
       <div className="flex flex-col items-center justify-center text-center py-24 gap-4">
         <p className="text-gray-500">Takip ettiklerini görmek için giriş yap.</p>
-        <Link
-          href="/login"
-          className="bg-black text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors"
-        >
+        <Link href="/login" className="btn-primary">
           Giriş Yap
         </Link>
       </div>
@@ -168,10 +165,7 @@ export default function FollowingFeed() {
     return (
       <div className="flex flex-col items-center justify-center text-center py-24 gap-4">
         <p className="text-gray-500">Henüz kimseyi takip etmiyorsun. Toplulukta keşfet!</p>
-        <Link
-          href="/"
-          className="bg-black text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors"
-        >
+        <Link href="/" className="btn-primary">
           Tümünü Keşfet
         </Link>
       </div>

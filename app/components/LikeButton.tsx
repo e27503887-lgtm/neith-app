@@ -90,11 +90,12 @@ export default function LikeButton({ productId }: { productId: number | string }
   return (
     <button
       onClick={handleClick}
-      className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900"
+      className="flex items-center gap-1 text-sm text-gray-600 hover:text-accent transition-colors"
     >
       <Heart
         size={18}
-        className={liked ? "text-black" : "text-gray-400"}
+        strokeWidth={1.5}
+        className={liked ? "text-accent" : "text-gray-400"}
         fill={liked ? "currentColor" : "none"}
       />
       <span>{count}</span>

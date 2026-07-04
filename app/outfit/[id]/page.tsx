@@ -28,7 +28,7 @@ export default async function OutfitDetailPage({ params }: Props) {
 
   if (!outfit) {
     return (
-      <main className="min-h-screen bg-[#FAFAFA] pt-24 px-6 flex items-center justify-center">
+      <main className="min-h-screen bg-paper pt-24 px-6 flex items-center justify-center">
         <p className="text-gray-500">Kombin bulunamadı.</p>
       </main>
     );
@@ -78,9 +78,9 @@ export default async function OutfitDetailPage({ params }: Props) {
   }));
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA] pt-24 pb-12 px-6">
+    <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
       <div className="max-w-4xl mx-auto flex flex-col gap-6">
-        <div className="bg-white border border-gray-100 rounded-xl p-6 md:p-10 flex flex-col md:flex-row gap-8">
+        <div className="bg-paper border border-neutral-200 p-6 md:p-10 flex flex-col md:flex-row gap-8">
           <div className="relative w-full md:w-1/2 aspect-square">
             <Image
               src={outfit.image_url}
@@ -101,7 +101,7 @@ export default async function OutfitDetailPage({ params }: Props) {
 
             <Link
               href={`/profile/${owner?.username ?? ""}`}
-              className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 hover:underline w-fit"
+              className="flex items-center gap-1 text-sm text-gray-500 hover:text-accent transition-colors w-fit"
             >
               @{owner?.username ?? "Bilinmeyen kullanıcı"}
               {owner?.account_type === "brand" && <BrandBadge />}
@@ -111,10 +111,10 @@ export default async function OutfitDetailPage({ params }: Props) {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-100 rounded-xl p-6 md:p-10">
-          <h2 className="text-sm font-semibold text-gray-500 mb-4">
+        <div className="bg-paper border border-neutral-200 p-6 md:p-10">
+          <h3 className="section-label mb-4">
             Bu Kombindeki Parçalar
-          </h2>
+          </h3>
 
           {enrichedProducts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

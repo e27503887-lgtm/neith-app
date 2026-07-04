@@ -156,28 +156,28 @@ export default function NotificationBell() {
 
   return (
     <div className="relative" ref={containerRef}>
-      <button onClick={togglePanel} className="relative text-gray-500 hover:text-gray-700">
-        <Bell size={20} />
+      <button onClick={togglePanel} className="relative text-gray-500 hover:text-accent transition-colors">
+        <Bell size={19} strokeWidth={1.5} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 bg-black text-white text-[10px] leading-none rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
+          <span className="absolute -top-1.5 -right-1.5 bg-ink text-paper text-[10px] leading-none rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-100 rounded-xl shadow-lg overflow-hidden z-50 text-left">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <span className="text-sm font-semibold text-gray-900">Bildirimler</span>
+        <div className="absolute right-0 mt-2 w-80 bg-paper border border-neutral-200 rounded-xl shadow-lg overflow-hidden z-50 text-left">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200">
+            <span className="text-sm font-semibold text-ink">Bildirimler</span>
             <button
               onClick={handleMarkAllRead}
-              className="text-xs text-gray-500 hover:text-gray-700"
+              className="text-xs text-gray-500 hover:text-accent transition-colors"
             >
               Tümünü okundu işaretle
             </button>
           </div>
 
-          <div className="max-h-96 overflow-y-auto divide-y divide-gray-100">
+          <div className="max-h-96 overflow-y-auto divide-y divide-neutral-200">
             {notifications.length === 0 ? (
               <p className="text-sm text-gray-500 text-center py-8">Henüz bildirimin yok.</p>
             ) : (
@@ -186,10 +186,10 @@ export default function NotificationBell() {
                   key={n.id}
                   onClick={() => handleNotificationClick(n)}
                   className={`block w-full text-left px-4 py-3 text-sm hover:bg-gray-100 ${
-                    n.is_read ? "bg-white" : "bg-gray-50"
+                    n.is_read ? "bg-paper" : "bg-gray-50"
                   }`}
                 >
-                  <p className="text-gray-900">{formatMessage(n)}</p>
+                  <p className="text-ink">{formatMessage(n)}</p>
                   <p className="text-xs text-gray-400 mt-0.5">
                     {new Date(n.created_at).toLocaleDateString("tr-TR")}
                   </p>

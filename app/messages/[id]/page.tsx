@@ -132,19 +132,19 @@ export default function ConversationPage({ params }: Props) {
 
   if (notFound) {
     return (
-      <main className="min-h-screen bg-[#FAFAFA] pt-24 px-6 flex items-center justify-center">
+      <main className="min-h-screen bg-paper pt-24 px-6 flex items-center justify-center">
         <p className="text-gray-500">Sohbet bulunamadı.</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA] pt-24 pb-6 px-6 flex flex-col">
-      <div className="max-w-lg mx-auto w-full flex-1 flex flex-col bg-white border border-gray-100 rounded-xl overflow-hidden">
-        <div className="border-b border-gray-100 p-4">
+    <main className="min-h-screen bg-paper pt-24 pb-6 px-6 flex flex-col">
+      <div className="max-w-lg mx-auto w-full flex-1 flex flex-col bg-paper border border-neutral-200 rounded-xl overflow-hidden">
+        <div className="border-b border-neutral-200 p-4">
           <Link
             href={`/profile/${otherUser?.username ?? ""}`}
-            className="font-medium hover:underline"
+            className="font-medium hover:text-accent transition-colors"
           >
             @{otherUser?.username ?? "Bilinmeyen kullanıcı"}
           </Link>
@@ -157,7 +157,7 @@ export default function ConversationPage({ params }: Props) {
               <div
                 key={m.id}
                 className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm ${
-                  isOwn ? "bg-black text-white self-end" : "bg-gray-100 text-gray-900 self-start"
+                  isOwn ? "bg-ink text-paper self-end" : "bg-gray-100 text-ink self-start"
                 }`}
               >
                 {m.content}
@@ -167,7 +167,7 @@ export default function ConversationPage({ params }: Props) {
           <div ref={bottomRef} />
         </div>
 
-        <form onSubmit={handleSend} className="border-t border-gray-100 p-3 flex gap-2">
+        <form onSubmit={handleSend} className="border-t border-neutral-200 p-3 flex gap-2">
           <input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
@@ -176,7 +176,7 @@ export default function ConversationPage({ params }: Props) {
           />
           <button
             disabled={sending || !draft.trim()}
-            className="bg-black text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
+            className="bg-ink text-paper px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
           >
             Gönder
           </button>

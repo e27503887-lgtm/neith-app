@@ -76,10 +76,10 @@ export default function FavoritesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA] pt-24 pb-12 px-6">
+    <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Favoriler</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-ink">Favoriler</h1>
           <p className="text-gray-500 text-sm mt-1">Kaydettiğin ilanlar burada.</p>
         </div>
 
@@ -94,10 +94,7 @@ export default function FavoritesPage() {
             <p className="text-gray-500">
               Henüz bir şey kaydetmedin. Beğendiğin kombinleri buradan takip et!
             </p>
-            <Link
-              href="/"
-              className="bg-black text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors"
-            >
+            <Link href="/" className="btn-primary">
               Ana Sayfaya Dön
             </Link>
           </div>

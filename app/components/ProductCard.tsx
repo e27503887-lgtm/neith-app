@@ -18,7 +18,7 @@ type Product = {
 
 export default function ProductCard({ product }: { product: Product }) {
   return (
-    <article className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+    <article className="bg-paper border border-neutral-200 overflow-hidden">
       <div className="flex items-center gap-3 p-3">
         <Link href={`/profile/${product.username}`} className="shrink-0">
           {product.avatar_url ? (
@@ -37,20 +37,23 @@ export default function ProductCard({ product }: { product: Product }) {
         </Link>
         <Link
           href={`/profile/${product.username}`}
-          className="flex items-center gap-1 text-sm font-medium hover:underline"
+          className="flex items-center gap-1 text-xs uppercase tracking-wide font-medium hover:text-accent transition-colors"
         >
           @{product.username}
           {product.account_type === "brand" && <BrandBadge />}
         </Link>
       </div>
 
-      <Link href={`/product/${product.id}`} className="relative block w-full aspect-square">
+      <Link
+        href={`/product/${product.id}`}
+        className="relative block w-full aspect-[3/4] overflow-hidden"
+      >
         <Image
           src={product.image_url}
           alt={product.title}
           fill
           sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-          className="object-cover"
+          className="object-cover transition-transform duration-500 ease-out hover:scale-105"
         />
       </Link>
 
@@ -58,9 +61,9 @@ export default function ProductCard({ product }: { product: Product }) {
         <LikeButton productId={product.id} />
         <Link
           href={`/product/${product.id}`}
-          className="flex items-center gap-1 text-gray-400 hover:text-gray-600"
+          className="flex items-center gap-1 text-gray-400 hover:text-accent transition-colors"
         >
-          <MessageCircle size={20} />
+          <MessageCircle size={19} strokeWidth={1.5} />
           <span className="text-sm">{product.comment_count ?? 0}</span>
         </Link>
         <div className="ml-auto">
@@ -69,17 +72,14 @@ export default function ProductCard({ product }: { product: Product }) {
       </div>
 
       <div className="px-3 pt-2">
-        <h2 className="text-sm font-semibold truncate">{product.title}</h2>
-        <p className="text-gray-900 text-sm font-medium mt-0.5">
+        <h2 className="text-sm truncate">{product.title}</h2>
+        <p className="font-serif text-ink text-xl mt-0.5">
           {product.price.toLocaleString("tr-TR")} ₺
         </p>
       </div>
 
       <div className="p-3">
-        <Link
-          href={`/product/${product.id}`}
-          className="block w-full bg-black text-white text-center py-2.5 rounded-md font-medium hover:bg-gray-800"
-        >
+        <Link href={`/product/${product.id}`} className="btn-primary w-full">
           Ürüne Git
         </Link>
       </div>

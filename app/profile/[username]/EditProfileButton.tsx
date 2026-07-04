@@ -18,7 +18,7 @@ export default function EditProfileButton({ profileId }: { profileId: string }) 
   return (
     <Link
       href="/profile/edit"
-      className="border px-4 py-1.5 rounded-md text-sm hover:bg-gray-50"
+      className="border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300"
     >
       Profili Düzenle
     </Link>

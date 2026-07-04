@@ -49,7 +49,7 @@ export default function OutfitActions({
     <button
       onClick={handleDelete}
       disabled={deleting}
-      className="w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-800 disabled:opacity-50"
+      className="btn-primary w-full"
     >
       {deleting ? "Siliniyor..." : "Kombini Sil"}
     </button>

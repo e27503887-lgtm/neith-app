@@ -127,9 +127,9 @@ export default function CommentSection({ productId }: { productId: number | stri
 
   return (
     <div>
-      <h2 className="text-sm font-semibold text-gray-500 mb-4">
+      <h3 className="section-label mb-4">
         Yorumlar ({comments.length})
-      </h2>
+      </h3>
 
       {comments.length === 0 ? (
         <p className="text-gray-500 text-sm mb-4">İlk yorumu sen yaz!</p>
@@ -157,7 +157,7 @@ export default function CommentSection({ productId }: { productId: number | stri
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/profile/${c.username}`}
-                    className="flex items-center gap-1 text-sm font-medium hover:underline"
+                    className="flex items-center gap-1 text-sm font-medium hover:text-accent transition-colors"
                   >
                     @{c.username}
                     {c.account_type === "brand" && <BrandBadge />}
@@ -193,13 +193,13 @@ export default function CommentSection({ productId }: { productId: number | stri
           />
           <button
             disabled={submitting || !draft.trim()}
-            className="bg-black text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
+            className="bg-ink text-paper px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
           >
             Gönder
           </button>
         </form>
       ) : (
-        <Link href="/login" className="text-sm text-gray-500 hover:underline">
+        <Link href="/login" className="text-sm text-gray-500 hover:text-accent transition-colors">
           Yorum yapmak için giriş yap
         </Link>
       )}

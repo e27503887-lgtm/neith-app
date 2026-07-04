@@ -168,13 +168,13 @@ export default function NewOutfitPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA] pt-24 px-6 pb-12">
-      <div className="max-w-md mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-        <div className="flex gap-6 border-b border-gray-100 mb-6">
-          <Link href="/sell" className="pb-3 -mb-px border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700">
+    <main className="min-h-screen bg-paper pt-24 px-6 pb-12">
+      <div className="max-w-md mx-auto bg-paper p-8 rounded-xl shadow-sm border border-neutral-200">
+        <div className="flex gap-6 border-b border-neutral-200 mb-6">
+          <Link href="/sell" className="pb-3 -mb-px border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-accent transition-colors">
             Ürün
           </Link>
-          <span className="pb-3 -mb-px border-b-2 border-black text-sm font-medium text-gray-900">
+          <span className="pb-3 -mb-px border-b-2 border-accent text-sm font-medium text-ink">
             Kombin
           </span>
         </div>
@@ -208,7 +208,7 @@ export default function NewOutfitPage() {
               alt="Önizleme"
               width={96}
               height={96}
-              className="w-24 h-24 object-cover rounded-md border border-gray-100"
+              className="w-24 h-24 object-cover rounded-md border border-neutral-200"
             />
           )}
 
@@ -218,7 +218,7 @@ export default function NewOutfitPage() {
             {ownProducts.length === 0 ? (
               <p className="text-sm text-gray-500">
                 Henüz bir ilanın yok.{" "}
-                <Link href="/sell" className="underline hover:text-gray-700">
+                <Link href="/sell" className="underline hover:text-accent transition-colors">
                   Önce ürün ekle
                 </Link>
                 .
@@ -233,7 +233,7 @@ export default function NewOutfitPage() {
                       key={p.id}
                       onClick={() => toggleProduct(p.id)}
                       className={`relative aspect-square rounded-md overflow-hidden border-2 ${
-                        selected ? "border-black" : "border-transparent"
+                        selected ? "border-ink" : "border-transparent"
                       }`}
                     >
                       <Image
@@ -245,7 +245,7 @@ export default function NewOutfitPage() {
                       />
                       {selected && (
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                          <Check size={18} className="text-white" />
+                          <Check size={18} className="text-paper" />
                         </div>
                       )}
                     </button>
@@ -255,10 +255,7 @@ export default function NewOutfitPage() {
             )}
           </div>
 
-          <button
-            disabled={loading}
-            className="w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-800 disabled:opacity-50"
-          >
+          <button disabled={loading} className="btn-primary w-full">
             {uploading ? "Fotoğraf yükleniyor..." : loading ? "Paylaşılıyor..." : "Kombini Paylaş"}
           </button>
         </form>

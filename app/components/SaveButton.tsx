@@ -77,10 +77,11 @@ export default function SaveButton({ productId }: { productId: number | string }
   }
 
   return (
-    <button onClick={handleClick} className="text-gray-600 hover:text-gray-900">
+    <button onClick={handleClick} className="text-gray-600 hover:text-accent transition-colors">
       <Bookmark
         size={20}
-        className={saved ? "text-black" : "text-gray-400"}
+        strokeWidth={1.5}
+        className={saved ? "text-accent" : "text-gray-400"}
         fill={saved ? "currentColor" : "none"}
       />
     </button>

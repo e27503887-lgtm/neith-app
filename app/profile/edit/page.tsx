@@ -122,8 +122,8 @@ export default function EditProfilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA] pt-24 px-6">
-      <div className="max-w-md mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+    <main className="min-h-screen bg-paper pt-24 px-6">
+      <div className="max-w-md mx-auto bg-paper p-8 rounded-xl shadow-sm border border-neutral-200">
         <h1 className="text-xl font-bold mb-6">Profili Düzenle</h1>
 
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
@@ -139,7 +139,7 @@ export default function EditProfilePage() {
                 alt="Avatar önizleme"
                 width={64}
                 height={64}
-                className="w-16 h-16 rounded-full object-cover border border-gray-100"
+                className="w-16 h-16 rounded-full object-cover border border-neutral-200"
               />
             ) : (
               <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-xl font-semibold text-gray-600">
@@ -170,11 +170,11 @@ export default function EditProfilePage() {
             className="w-full p-3 border rounded-md resize-none"
           />
 
-          <div className="pt-4 border-t border-gray-100">
-            <h2 className="text-sm font-semibold text-gray-700 mb-2">Gizlilik</h2>
+          <div className="pt-4 border-t border-neutral-200">
+            <h3 className="section-label mb-2">Gizlilik</h3>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-900">Kimler bana mesaj gönderebilir?</p>
+                <p className="text-sm text-ink">Kimler bana mesaj gönderebilir?</p>
                 <p className="text-xs text-gray-500 mt-0.5">
                   {allowDms ? "Herkes" : "Hiç kimse (mevcut sohbetlerim devam eder)"}
                 </p>
@@ -185,11 +185,11 @@ export default function EditProfilePage() {
                 aria-checked={allowDms}
                 onClick={() => setAllowDms((prev) => !prev)}
                 className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
-                  allowDms ? "bg-black" : "bg-gray-300"
+                  allowDms ? "bg-accent" : "bg-gray-300"
                 }`}
               >
                 <span
-                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-paper rounded-full transition-transform ${
                     allowDms ? "translate-x-5" : "translate-x-0"
                   }`}
                 />
@@ -197,10 +197,7 @@ export default function EditProfilePage() {
             </div>
           </div>
 
-          <button
-            disabled={loading}
-            className="w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-800 disabled:opacity-50"
-          >
+          <button disabled={loading} className="btn-primary w-full">
             {loading ? "Kaydediliyor..." : "Kaydet"}
           </button>
         </form>

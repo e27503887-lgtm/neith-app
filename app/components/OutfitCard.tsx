@@ -13,7 +13,7 @@ type Outfit = {
 
 export default function OutfitCard({ outfit }: { outfit: Outfit }) {
   return (
-    <article className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+    <article className="bg-paper border border-neutral-200 overflow-hidden">
       <div className="flex items-center gap-3 p-3">
         <Link href={`/profile/${outfit.username}`} className="shrink-0">
           {outfit.avatar_url ? (
@@ -32,15 +32,18 @@ export default function OutfitCard({ outfit }: { outfit: Outfit }) {
         </Link>
         <Link
           href={`/profile/${outfit.username}`}
-          className="flex items-center gap-1 text-sm font-medium hover:underline"
+          className="flex items-center gap-1 text-xs uppercase tracking-wide font-medium hover:text-accent transition-colors"
         >
           @{outfit.username}
           {outfit.account_type === "brand" && <BrandBadge />}
         </Link>
       </div>
 
-      <Link href={`/outfit/${outfit.id}`} className="relative block w-full aspect-square">
-        <span className="absolute top-2 left-2 z-10 bg-white/90 text-gray-900 text-xs font-medium px-2 py-1 rounded-md">
+      <Link
+        href={`/outfit/${outfit.id}`}
+        className="relative block w-full aspect-[3/4] overflow-hidden"
+      >
+        <span className="absolute top-2 left-2 z-10 bg-paper/90 text-accent text-xs uppercase tracking-wide font-medium px-2 py-1">
           Kombin
         </span>
         <Image
@@ -48,19 +51,16 @@ export default function OutfitCard({ outfit }: { outfit: Outfit }) {
           alt={outfit.title}
           fill
           sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-          className="object-cover"
+          className="object-cover transition-transform duration-500 ease-out hover:scale-105"
         />
       </Link>
 
       <div className="px-3 pt-2">
-        <h2 className="text-sm font-semibold truncate">{outfit.title}</h2>
+        <h2 className="text-sm truncate">{outfit.title}</h2>
       </div>
 
       <div className="p-3">
-        <Link
-          href={`/outfit/${outfit.id}`}
-          className="block w-full bg-black text-white text-center py-2.5 rounded-md font-medium hover:bg-gray-800"
-        >
+        <Link href={`/outfit/${outfit.id}`} className="btn-primary w-full">
           Shop the Outfit
         </Link>
       </div>

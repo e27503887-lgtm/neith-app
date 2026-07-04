@@ -46,7 +46,7 @@ export default function StartChatButton({ otherUserId }: { otherUserId: string |
     return (
       <button
         disabled
-        className="border px-4 py-1.5 rounded-md text-sm text-gray-400 cursor-not-allowed"
+        className="border border-neutral-300 text-gray-400 text-xs uppercase tracking-wide px-4 py-1.5 cursor-not-allowed"
       >
         Mesajlara Kapalı
       </button>
@@ -97,7 +97,7 @@ export default function StartChatButton({ otherUserId }: { otherUserId: string |
       <button
         onClick={handleClick}
         disabled={loading}
-        className="border px-4 py-1.5 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50"
+        className="border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300 disabled:opacity-50"
       >
         {loading ? "Açılıyor..." : "Mesaj At"}
       </button>

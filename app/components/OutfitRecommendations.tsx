@@ -42,9 +42,9 @@ export default function OutfitRecommendations({ featured, community, brand }: Pr
 
   return (
     <section className="mb-10">
-      <h2 className="text-lg font-bold tracking-tight text-gray-900 mb-3">Kombin Önerileri</h2>
+      <h3 className="section-label mb-3">Kombin Önerileri</h3>
 
-      <div className="flex gap-6 border-b border-gray-200 mb-4 overflow-x-auto">
+      <div className="flex gap-6 border-b border-neutral-200 mb-4 overflow-x-auto">
         {TABS.map((tab) => (
           <button
             key={tab.value}
@@ -52,8 +52,8 @@ export default function OutfitRecommendations({ featured, community, brand }: Pr
             onClick={() => setActiveTab(tab.value)}
             className={`pb-3 -mb-px border-b-2 text-sm font-medium whitespace-nowrap ${
               activeTab === tab.value
-                ? "border-black text-gray-900"
-                : "border-transparent text-gray-500 hover:text-gray-700"
+                ? "border-accent text-ink"
+                : "border-transparent text-gray-500 hover:text-accent"
             }`}
           >
             {tab.label}
@@ -69,12 +69,12 @@ export default function OutfitRecommendations({ featured, community, brand }: Pr
             <Link
               key={outfit.id}
               href={`/outfit/${outfit.id}`}
-              className="shrink-0 w-40 snap-start bg-white border border-gray-100 rounded-xl overflow-hidden hover:border-gray-200"
+              className="shrink-0 w-40 snap-start bg-paper border border-neutral-200 overflow-hidden hover:border-neutral-400 transition-colors"
             >
-              <div className="relative w-full aspect-square">
+              <div className="relative w-full aspect-[3/4] overflow-hidden">
                 {activeTab === "featured" && (
-                  <span className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-white/90 text-gray-900 text-[11px] font-medium px-2 py-1 rounded-md">
-                    <Star size={12} className="fill-black text-black" />
+                  <span className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-paper/90 text-accent text-[11px] font-medium px-2 py-1">
+                    <Star size={12} className="fill-accent text-accent" />
                     Seçki
                   </span>
                 )}
@@ -83,7 +83,7 @@ export default function OutfitRecommendations({ featured, community, brand }: Pr
                   alt={outfit.title}
                   fill
                   sizes="160px"
-                  className="object-cover"
+                  className="object-cover transition-transform duration-500 ease-out hover:scale-105"
                 />
               </div>
               <div className="p-2">

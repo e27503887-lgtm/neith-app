@@ -23,7 +23,7 @@ export default async function ProfilePage({ params }: Props) {
 
   if (!profile) {
     return (
-      <main className="min-h-screen bg-[#FAFAFA] pt-24 px-6 flex items-center justify-center">
+      <main className="min-h-screen bg-paper pt-24 px-6 flex items-center justify-center">
         <p className="text-gray-500">Kullanıcı bulunamadı.</p>
       </main>
     );
@@ -62,9 +62,9 @@ export default async function ProfilePage({ params }: Props) {
     .eq("follower_id", profile.id);
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA] pt-24 pb-12 px-6">
+    <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
       <div className="max-w-5xl mx-auto">
-        <div className="bg-white border border-gray-100 rounded-xl p-6 flex items-center gap-4 mb-8">
+        <div className="bg-paper border border-neutral-200 rounded-xl p-6 flex items-center gap-4 mb-8">
           {profile.avatar_url ? (
             <Image
               src={profile.avatar_url}
@@ -104,6 +104,8 @@ export default async function ProfilePage({ params }: Props) {
           <StartChatButton otherUserId={profile.id} />
         </div>
 
+        <h3 className="section-label mb-4">Ürünler</h3>
+
         {products && products.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((product) => (
@@ -125,7 +127,7 @@ export default async function ProfilePage({ params }: Props) {
         )}
 
         <div className="mt-10">
-          <h2 className="text-sm font-semibold text-gray-500 mb-4">Kombinler</h2>
+          <h3 className="section-label mb-4">Kombinler</h3>
 
           {outfits && outfits.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
