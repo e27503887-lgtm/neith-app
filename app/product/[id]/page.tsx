@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "../../utils/supabase";
 import LikeButton from "../../components/LikeButton";
+import StartChatButton from "../../components/StartChatButton";
 import ProductActions from "./ProductActions";
 
 type Props = {
@@ -46,14 +47,17 @@ export default async function ProductDetailPage({ params }: Props) {
             </p>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <Link
               href={`/profile/${product.username}`}
               className="text-sm text-gray-500 hover:text-gray-700 hover:underline"
             >
               @{product.username}
             </Link>
-            <LikeButton productId={product.id} />
+            <StartChatButton otherUserId={product.user_id} />
+            <div className="ml-auto">
+              <LikeButton productId={product.id} />
+            </div>
           </div>
 
           <ProductActions productId={product.id} ownerId={product.user_id} />

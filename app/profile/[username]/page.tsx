@@ -2,6 +2,7 @@ import Image from "next/image";
 import ProductCard from "../../components/ProductCard";
 import { supabase } from "../../utils/supabase";
 import EditProfileButton from "./EditProfileButton";
+import StartChatButton from "../../components/StartChatButton";
 
 type Props = {
   params: Promise<{ username: string }>;
@@ -56,6 +57,7 @@ export default async function ProfilePage({ params }: Props) {
           </div>
 
           <EditProfileButton profileId={profile.id} />
+          <StartChatButton otherUserId={profile.id} />
         </div>
 
         {products && products.length > 0 ? (
