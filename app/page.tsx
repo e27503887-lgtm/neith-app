@@ -3,6 +3,7 @@ import Image from "next/image";
 import ProductCard from "./components/ProductCard";
 import OutfitCard from "./components/OutfitCard";
 import OutfitRecommendations from "./components/OutfitRecommendations";
+import PopularProducts from "./components/PopularProducts";
 import FollowingFeed from "./components/FollowingFeed";
 import SuggestedUsers from "./components/SuggestedUsers";
 import BrandBadge from "./components/BrandBadge";
@@ -93,6 +94,15 @@ export default async function Home({ searchParams }: Props) {
   const communityOutfits = allOutfits.filter((o) => o.creator_type === "user").slice(0, 6);
   const brandCreatorOutfits = allOutfits.filter((o) => o.creator_type === "brand").slice(0, 6);
 
+  const { data: popularProductsRaw } = await supabase
+    .from("popular_products")
+    .select("*")
+    .gt("popularity_score", 0)
+    .order("popularity_score", { ascending: false })
+    .limit(8);
+
+  const popularProducts = popularProductsRaw ?? [];
+
   const brandProducts = allProducts.filter((p) => p.seller_type === "brand");
 
   const brandShowcase = brandProducts.slice(0, 4);
@@ -135,6 +145,8 @@ export default async function Home({ searchParams }: Props) {
           community={communityOutfits}
           brand={brandCreatorOutfits}
         />
+
+        <PopularProducts products={popularProducts} />
       </div>
 
       <div id="feed" className="max-w-6xl mx-auto flex items-start gap-8 pt-16 scroll-mt-24">
