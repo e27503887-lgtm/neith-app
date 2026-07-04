@@ -7,9 +7,11 @@ import { supabase } from "../utils/supabase";
 export default function FollowButton({
   targetUserId,
   compact = false,
+  onFollow,
 }: {
   targetUserId: string;
   compact?: boolean;
+  onFollow?: () => void;
 }) {
   const router = useRouter();
   const [checked, setChecked] = useState(false);
@@ -83,6 +85,8 @@ export default function FollowButton({
 
       if (error) {
         setFollowing(false);
+      } else {
+        onFollow?.();
       }
     }
 

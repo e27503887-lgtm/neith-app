@@ -4,6 +4,7 @@ import ProductCard from "./components/ProductCard";
 import OutfitCard from "./components/OutfitCard";
 import OutfitRecommendations from "./components/OutfitRecommendations";
 import FollowingFeed from "./components/FollowingFeed";
+import SuggestedUsers from "./components/SuggestedUsers";
 import BrandBadge from "./components/BrandBadge";
 import { supabase } from "./utils/supabase";
 
@@ -80,6 +81,13 @@ export default async function Home({ searchParams }: Props) {
     ...allProducts.map((p): FeedItem => ({ kind: "product", created_at: p.created_at, data: p })),
     ...allOutfits.map((o): FeedItem => ({ kind: "outfit", created_at: o.created_at, data: o })),
   ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  const renderFeedItem = (item: FeedItem) =>
+    item.kind === "product" ? (
+      <ProductCard key={`p-${item.data.id}`} product={item.data} />
+    ) : (
+      <OutfitCard key={`o-${item.data.id}`} outfit={item.data} />
+    );
 
   const featuredOutfits = allOutfits.filter((o) => o.is_featured).slice(0, 6);
   const communityOutfits = allOutfits.filter((o) => o.creator_type === "user").slice(0, 6);
@@ -163,14 +171,15 @@ export default async function Home({ searchParams }: Props) {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {activeFilter === "all" &&
-                mixedFeed.map((item) =>
-                  item.kind === "product" ? (
-                    <ProductCard key={`p-${item.data.id}`} product={item.data} />
-                  ) : (
-                    <OutfitCard key={`o-${item.data.id}`} outfit={item.data} />
-                  )
-                )}
+              {activeFilter === "all" && (
+                <>
+                  {mixedFeed.slice(0, 4).map(renderFeedItem)}
+                  <div className="col-span-full lg:hidden">
+                    <SuggestedUsers variant="mobile" />
+                  </div>
+                  {mixedFeed.slice(4).map(renderFeedItem)}
+                </>
+              )}
               {activeFilter === "products" &&
                 allProducts.map((p) => <ProductCard key={p.id} product={p} />)}
               {activeFilter === "outfits" &&
@@ -182,7 +191,7 @@ export default async function Home({ searchParams }: Props) {
         </div>
 
         {sidePanelProducts.length > 0 && (
-          <aside className="hidden lg:block w-72 shrink-0 sticky top-24">
+          <aside className="hidden lg:flex flex-col gap-6 w-72 shrink-0 sticky top-24">
             <div className="bg-paper border border-neutral-200 p-4">
               <h3 className="section-label mb-3">
                 {isBrandShowcase ? "Marka Vitrini" : "Yeni Gelenler"}
@@ -216,6 +225,8 @@ export default async function Home({ searchParams }: Props) {
                 ))}
               </div>
             </div>
+
+            <SuggestedUsers />
           </aside>
         )}
       </div>
