@@ -17,9 +17,20 @@ export default async function Home() {
 
   const avatarByUsername = new Map((profiles ?? []).map((p) => [p.username, p.avatar_url]));
 
+  const productIds = (products ?? []).map((p) => p.id);
+  const { data: commentRows } = productIds.length
+    ? await supabase.from("comments").select("product_id").in("product_id", productIds)
+    : { data: [] as { product_id: number | string }[] };
+
+  const commentCountByProduct = new Map<number | string, number>();
+  (commentRows ?? []).forEach((c) => {
+    commentCountByProduct.set(c.product_id, (commentCountByProduct.get(c.product_id) ?? 0) + 1);
+  });
+
   const feed = (products ?? []).map((product) => ({
     ...product,
     avatar_url: avatarByUsername.get(product.username) ?? null,
+    comment_count: commentCountByProduct.get(product.id) ?? 0,
   }));
 
   const newArrivals = feed.slice(0, 4);

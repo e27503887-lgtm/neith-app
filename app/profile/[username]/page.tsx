@@ -31,6 +31,16 @@ export default async function ProfilePage({ params }: Props) {
     .eq("user_id", profile.id)
     .order("created_at", { ascending: false });
 
+  const productIds = (products ?? []).map((p) => p.id);
+  const { data: commentRows } = productIds.length
+    ? await supabase.from("comments").select("product_id").in("product_id", productIds)
+    : { data: [] as { product_id: number | string }[] };
+
+  const commentCountByProduct = new Map<number | string, number>();
+  (commentRows ?? []).forEach((c) => {
+    commentCountByProduct.set(c.product_id, (commentCountByProduct.get(c.product_id) ?? 0) + 1);
+  });
+
   return (
     <main className="min-h-screen bg-[#FAFAFA] pt-24 pb-12 px-6">
       <div className="max-w-5xl mx-auto">
@@ -65,7 +75,11 @@ export default async function ProfilePage({ params }: Props) {
             {products.map((product) => (
               <ProductCard
                 key={product.id}
-                product={{ ...product, avatar_url: profile.avatar_url }}
+                product={{
+                  ...product,
+                  avatar_url: profile.avatar_url,
+                  comment_count: commentCountByProduct.get(product.id) ?? 0,
+                }}
               />
             ))}
           </div>

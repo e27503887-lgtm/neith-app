@@ -14,6 +14,7 @@ type Product = {
   image_url: string;
   username: string;
   avatar_url?: string | null;
+  comment_count?: number;
 };
 
 type ProfileResult = {
@@ -56,10 +57,23 @@ export default function SearchResults() {
 
       const avatarByUsername = new Map((profiles ?? []).map((p) => [p.username, p.avatar_url]));
 
+      const productIds = (matchedProducts ?? []).map((p) => p.id);
+      const { data: commentRows } = productIds.length
+        ? await supabase.from("comments").select("product_id").in("product_id", productIds)
+        : { data: [] as { product_id: number | string }[] };
+
+      if (!active) return;
+
+      const commentCountByProduct = new Map<number | string, number>();
+      (commentRows ?? []).forEach((c) => {
+        commentCountByProduct.set(c.product_id, (commentCountByProduct.get(c.product_id) ?? 0) + 1);
+      });
+
       setProducts(
         (matchedProducts ?? []).map((p) => ({
           ...p,
           avatar_url: avatarByUsername.get(p.username) ?? null,
+          comment_count: commentCountByProduct.get(p.id) ?? 0,
         }))
       );
       setUsers(matchedUsers ?? []);

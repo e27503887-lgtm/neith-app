@@ -11,6 +11,7 @@ type Product = {
   image_url: string;
   username: string;
   avatar_url?: string | null;
+  comment_count?: number;
 };
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -52,7 +53,13 @@ export default function ProductCard({ product }: { product: Product }) {
 
       <div className="flex items-center gap-4 px-3 pt-3">
         <LikeButton productId={product.id} />
-        <MessageCircle size={20} className="text-gray-400" />
+        <Link
+          href={`/product/${product.id}`}
+          className="flex items-center gap-1 text-gray-400 hover:text-gray-600"
+        >
+          <MessageCircle size={20} />
+          <span className="text-sm">{product.comment_count ?? 0}</span>
+        </Link>
         <div className="ml-auto">
           <SaveButton productId={product.id} />
         </div>
