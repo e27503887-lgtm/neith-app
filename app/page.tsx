@@ -3,6 +3,7 @@ import Image from "next/image";
 import ProductCard from "./components/ProductCard";
 import OutfitCard from "./components/OutfitCard";
 import OutfitRecommendations from "./components/OutfitRecommendations";
+import FollowingFeed from "./components/FollowingFeed";
 import BrandBadge from "./components/BrandBadge";
 import { supabase } from "./utils/supabase";
 
@@ -13,7 +14,9 @@ type Props = {
 export default async function Home({ searchParams }: Props) {
   const { filter } = await searchParams;
   const activeFilter =
-    filter === "products" || filter === "outfits" || filter === "brand" ? filter : "all";
+    filter === "products" || filter === "outfits" || filter === "brand" || filter === "following"
+      ? filter
+      : "all";
 
   const { data: products } = await supabase
     .from("products")
@@ -90,6 +93,7 @@ export default async function Home({ searchParams }: Props) {
 
   const tabs = [
     { label: "Tümü", value: "all", href: "/" },
+    { label: "Takip Ettiklerim", value: "following", href: "/?filter=following" },
     { label: "Ürünler", value: "products", href: "/?filter=products" },
     { label: "Kombinler", value: "outfits", href: "/?filter=outfits" },
     { label: "Marka Ürünleri", value: "brand", href: "/?filter=brand" },
@@ -134,7 +138,9 @@ export default async function Home({ searchParams }: Props) {
             ))}
           </div>
 
-          {showEmptyState ? (
+          {activeFilter === "following" ? (
+            <FollowingFeed />
+          ) : showEmptyState ? (
             <div className="flex flex-col items-center justify-center text-center py-24 gap-4">
               <p className="text-gray-500">Henüz ilan yok. İlk kombini sen paylaş!</p>
               <Link

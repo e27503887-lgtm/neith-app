@@ -7,7 +7,7 @@ import { supabase } from "../utils/supabase";
 
 type Notification = {
   id: number | string;
-  type: "like" | "comment" | "offer" | "message";
+  type: "like" | "comment" | "offer" | "message" | "follow";
   actor_username: string;
   product_id: number | string | null;
   conversation_id: number | string | null;
@@ -25,6 +25,8 @@ function formatMessage(n: Notification) {
       return `${n.actor_username} ürününe teklif verdi`;
     case "message":
       return `${n.actor_username} sana mesaj gönderdi`;
+    case "follow":
+      return `${n.actor_username} seni takip etmeye başladı`;
     default:
       return "";
   }
@@ -147,6 +149,8 @@ export default function NotificationBell() {
       router.push(`/product/${n.product_id}`);
     } else if (n.conversation_id) {
       router.push(`/messages/${n.conversation_id}`);
+    } else if (n.type === "follow") {
+      router.push(`/profile/${n.actor_username}`);
     }
   }
 

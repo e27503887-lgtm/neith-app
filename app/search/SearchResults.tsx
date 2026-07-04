@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import ProductCard from "../components/ProductCard";
+import FollowButton from "../components/FollowButton";
 import { supabase } from "../utils/supabase";
 
 type Product = {
@@ -123,26 +124,28 @@ export default function SearchResults() {
                 <h2 className="text-sm font-semibold text-gray-500 mb-3">Kullanıcılar</h2>
                 <div className="bg-white border border-gray-100 rounded-xl divide-y divide-gray-100 overflow-hidden">
                   {users.map((u) => (
-                    <Link
-                      key={u.id}
-                      href={`/profile/${u.username}`}
-                      className="flex items-center gap-3 p-4 hover:bg-gray-50"
-                    >
-                      {u.avatar_url ? (
-                        <Image
-                          src={u.avatar_url}
-                          alt={u.username}
-                          width={40}
-                          height={40}
-                          className="w-10 h-10 rounded-full object-cover shrink-0"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 shrink-0">
-                          {u.username?.[0]?.toUpperCase()}
-                        </div>
-                      )}
-                      <p className="text-sm font-medium">@{u.username}</p>
-                    </Link>
+                    <div key={u.id} className="flex items-center gap-3 p-4 hover:bg-gray-50">
+                      <Link
+                        href={`/profile/${u.username}`}
+                        className="flex items-center gap-3 flex-1 min-w-0"
+                      >
+                        {u.avatar_url ? (
+                          <Image
+                            src={u.avatar_url}
+                            alt={u.username}
+                            width={40}
+                            height={40}
+                            className="w-10 h-10 rounded-full object-cover shrink-0"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 shrink-0">
+                            {u.username?.[0]?.toUpperCase()}
+                          </div>
+                        )}
+                        <p className="text-sm font-medium truncate">@{u.username}</p>
+                      </Link>
+                      <FollowButton targetUserId={u.id} compact />
+                    </div>
                   ))}
                 </div>
               </section>

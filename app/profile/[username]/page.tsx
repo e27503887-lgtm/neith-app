@@ -2,6 +2,8 @@ import Image from "next/image";
 import ProductCard from "../../components/ProductCard";
 import OutfitCard from "../../components/OutfitCard";
 import BrandBadge from "../../components/BrandBadge";
+import FollowButton from "../../components/FollowButton";
+import FollowStats from "../../components/FollowStats";
 import { supabase } from "../../utils/supabase";
 import EditProfileButton from "./EditProfileButton";
 import StartChatButton from "../../components/StartChatButton";
@@ -49,6 +51,16 @@ export default async function ProfilePage({ params }: Props) {
     .eq("user_id", profile.id)
     .order("created_at", { ascending: false });
 
+  const { count: followerCount } = await supabase
+    .from("follows")
+    .select("*", { count: "exact", head: true })
+    .eq("following_id", profile.id);
+
+  const { count: followingCount } = await supabase
+    .from("follows")
+    .select("*", { count: "exact", head: true })
+    .eq("follower_id", profile.id);
+
   return (
     <main className="min-h-screen bg-[#FAFAFA] pt-24 pb-12 px-6">
       <div className="max-w-5xl mx-auto">
@@ -68,10 +80,18 @@ export default async function ProfilePage({ params }: Props) {
           )}
 
           <div className="flex-1">
-            <h1 className="text-xl font-bold tracking-tight flex items-center gap-1.5">
-              {profile.username}
-              {profile.account_type === "brand" && <BrandBadge />}
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold tracking-tight flex items-center gap-1.5">
+                {profile.username}
+                {profile.account_type === "brand" && <BrandBadge />}
+              </h1>
+              <FollowButton targetUserId={profile.id} />
+            </div>
+            <FollowStats
+              userId={profile.id}
+              followerCount={followerCount ?? 0}
+              followingCount={followingCount ?? 0}
+            />
             {profile.bio && (
               <p className="text-gray-500 text-sm mt-1">{profile.bio}</p>
             )}
