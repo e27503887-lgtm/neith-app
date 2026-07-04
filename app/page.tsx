@@ -3,6 +3,8 @@ import Image from "next/image";
 import ProductCard from "./components/ProductCard";
 import OutfitCard from "./components/OutfitCard";
 import OutfitRecommendations from "./components/OutfitRecommendations";
+import TrendingSection from "./components/TrendingSection";
+import type { TrendingItem } from "./components/TrendingCard";
 import PopularProducts from "./components/PopularProducts";
 import FollowingFeed from "./components/FollowingFeed";
 import SuggestedUsers from "./components/SuggestedUsers";
@@ -103,6 +105,43 @@ export default async function Home({ searchParams }: Props) {
 
   const popularProducts = popularProductsRaw ?? [];
 
+  const [{ data: trendingProductsRaw }, { data: trendingOutfitsRaw }] = await Promise.all([
+    supabase
+      .from("trending_products")
+      .select("*")
+      .gt("trend_score", 0)
+      .order("trend_score", { ascending: false }),
+    supabase
+      .from("trending_outfits")
+      .select("*")
+      .gt("trend_score", 0)
+      .order("trend_score", { ascending: false }),
+  ]);
+
+  const rankedTrendingItems = [
+    ...(trendingProductsRaw ?? []).map((p) => ({
+      score: p.trend_score as number,
+      item: {
+        kind: "product" as const,
+        id: p.id,
+        title: p.title,
+        price: p.price,
+        image_url: p.image_url,
+      },
+    })),
+    ...(trendingOutfitsRaw ?? []).map((o) => ({
+      score: o.trend_score as number,
+      item: {
+        kind: "outfit" as const,
+        id: o.id,
+        title: o.title,
+        image_url: o.image_url,
+      },
+    })),
+  ].sort((a, b) => b.score - a.score);
+
+  const trendingItems: TrendingItem[] = rankedTrendingItems.slice(0, 8).map((r) => r.item);
+
   const brandProducts = allProducts.filter((p) => p.seller_type === "brand");
 
   const brandShowcase = brandProducts.slice(0, 4);
@@ -146,6 +185,7 @@ export default async function Home({ searchParams }: Props) {
           brand={brandCreatorOutfits}
         />
 
+        <TrendingSection items={trendingItems} />
         <PopularProducts products={popularProducts} />
       </div>
 
