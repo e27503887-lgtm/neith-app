@@ -1,3 +1,4 @@
+import Image from "next/image";
 import ProductCard from "../../components/ProductCard";
 import { supabase } from "../../utils/supabase";
 import EditProfileButton from "./EditProfileButton";
@@ -34,9 +35,11 @@ export default async function ProfilePage({ params }: Props) {
       <div className="max-w-5xl mx-auto">
         <div className="bg-white border border-gray-100 rounded-xl p-6 flex items-center gap-4 mb-8">
           {profile.avatar_url ? (
-            <img
+            <Image
               src={profile.avatar_url}
               alt={profile.username}
+              width={64}
+              height={64}
               className="w-16 h-16 rounded-full object-cover"
             />
           ) : (

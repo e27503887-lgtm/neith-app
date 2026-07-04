@@ -31,10 +31,25 @@ export default function LoginPage() {
         });
       }
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         setMessage({ text: "Giriş başarısız: E-posta veya şifre hatalı.", type: "error" });
       } else {
+        if (data.user) {
+          const { data: existingProfile } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("id", data.user.id)
+            .maybeSingle();
+
+          if (!existingProfile) {
+            const username = data.user.email?.split("@")[0] ?? `user_${data.user.id.slice(0, 8)}`;
+            await supabase
+              .from("profiles")
+              .insert([{ id: data.user.id, username, bio: "", avatar_url: null }]);
+          }
+        }
+
         router.push("/");
         router.refresh();
       }
@@ -46,7 +61,7 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
       <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 w-96 space-y-4">
-        <h1 className="text-xl font-bold">Neith'e Hoş Geldin</h1>
+        <h1 className="text-xl font-bold">Neith&apos;e Hoş Geldin</h1>
 
         <input
           type="email"

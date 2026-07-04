@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type SubmitEvent } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "../../utils/supabase";
 
@@ -62,7 +63,7 @@ export default function EditProfilePage() {
     setAvatarPreview(URL.createObjectURL(selected));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user) return;
 
@@ -131,9 +132,11 @@ export default function EditProfilePage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex items-center gap-4">
             {avatarPreview || avatarUrl ? (
-              <img
+              <Image
                 src={avatarPreview ?? avatarUrl ?? ""}
                 alt="Avatar önizleme"
+                width={64}
+                height={64}
                 className="w-16 h-16 rounded-full object-cover border border-gray-100"
               />
             ) : (

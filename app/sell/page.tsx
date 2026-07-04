@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type SubmitEvent } from "react";
+import Image from "next/image";
 import { supabase } from "../utils/supabase";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
@@ -55,7 +56,7 @@ export default function SellPage() {
     setPreviewUrl(URL.createObjectURL(selected));
   }
 
-  async function handleSubmit(e: any) {
+  async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user || !file) return;
 
@@ -142,9 +143,11 @@ export default function SellPage() {
           />
 
           {previewUrl && (
-            <img
+            <Image
               src={previewUrl}
               alt="Önizleme"
+              width={96}
+              height={96}
               className="w-24 h-24 object-cover rounded-md border border-gray-100"
             />
           )}
