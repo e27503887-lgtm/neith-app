@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, Heart, Mail, Bell } from "lucide-react";
+import { Search, Heart, Mail } from "lucide-react";
 import { supabase } from "./utils/supabase";
+import NotificationBell from "./components/NotificationBell";
 import type { User } from "@supabase/supabase-js";
 
 export default function Navbar() {
@@ -72,7 +73,7 @@ export default function Navbar() {
         <Link href="/messages">
           <Mail size={20} className="text-gray-500 hover:text-gray-700" />
         </Link>
-        <Bell size={20} className="text-gray-500" />
+        <NotificationBell />
 
         {user ? (
           <>
