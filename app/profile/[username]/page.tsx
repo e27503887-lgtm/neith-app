@@ -1,5 +1,6 @@
 import Image from "next/image";
 import ProductCard from "../../components/ProductCard";
+import OutfitCard from "../../components/OutfitCard";
 import BrandBadge from "../../components/BrandBadge";
 import { supabase } from "../../utils/supabase";
 import EditProfileButton from "./EditProfileButton";
@@ -41,6 +42,12 @@ export default async function ProfilePage({ params }: Props) {
   (commentRows ?? []).forEach((c) => {
     commentCountByProduct.set(c.product_id, (commentCountByProduct.get(c.product_id) ?? 0) + 1);
   });
+
+  const { data: outfits } = await supabase
+    .from("outfits")
+    .select("*")
+    .eq("user_id", profile.id)
+    .order("created_at", { ascending: false });
 
   return (
     <main className="min-h-screen bg-[#FAFAFA] pt-24 pb-12 px-6">
@@ -96,6 +103,28 @@ export default async function ProfilePage({ params }: Props) {
             Bu kullanıcının henüz ilanı yok.
           </p>
         )}
+
+        <div className="mt-10">
+          <h2 className="text-sm font-semibold text-gray-500 mb-4">Kombinler</h2>
+
+          {outfits && outfits.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {outfits.map((outfit) => (
+                <OutfitCard
+                  key={outfit.id}
+                  outfit={{
+                    ...outfit,
+                    username: profile.username,
+                    avatar_url: profile.avatar_url,
+                    account_type: profile.account_type,
+                  }}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-sm">Henüz kombin paylaşılmamış.</p>
+          )}
+        </div>
       </div>
     </main>
   );

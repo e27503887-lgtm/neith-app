@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type SubmitEvent } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "../utils/supabase";
 import { useRouter } from "next/navigation";
@@ -124,6 +125,15 @@ export default function SellPage() {
   return (
     <main className="min-h-screen bg-[#FAFAFA] pt-24 px-6">
       <div className="max-w-md mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+        <div className="flex gap-6 border-b border-gray-100 mb-6">
+          <span className="pb-3 -mb-px border-b-2 border-black text-sm font-medium text-gray-900">
+            Ürün
+          </span>
+          <Link href="/outfit/new" className="pb-3 -mb-px border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700">
+            Kombin
+          </Link>
+        </div>
+
         <h1 className="text-xl font-bold mb-6">Yeni İlan Ekle</h1>
 
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
