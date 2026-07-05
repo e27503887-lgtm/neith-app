@@ -256,7 +256,7 @@ export default async function Home({ searchParams }: Props) {
           {activeFilter === "following" ? (
             <FollowingFeed />
           ) : showEmptyState ? (
-            <div className="flex flex-col items-center justify-center text-center py-24 gap-4">
+            <div className="flex flex-col items-center text-center py-12 md:py-24 gap-4">
               <p className="text-gray-500">Henüz ilan yok. İlk kombini sen paylaş!</p>
               <Link href="/sell" className="btn-primary">
                 İlan Ver

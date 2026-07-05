@@ -150,7 +150,7 @@ export default function ChatWidget() {
     <>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-20 md:bottom-6 left-6 z-40 w-11 h-11 flex items-center justify-center bg-ink text-paper border border-ink shadow-[0_2px_14px_rgba(0,0,0,0.12)] hover:scale-105 transition-transform"
+        className="fixed bottom-40 md:bottom-6 left-6 z-40 w-11 h-11 flex items-center justify-center bg-ink text-paper border border-ink shadow-[0_2px_14px_rgba(0,0,0,0.12)] hover:scale-105 transition-transform"
       >
         {open ? <X size={18} /> : <MessageCircle size={18} strokeWidth={1.5} />}
         {!open && totalUnread > 0 && (
@@ -161,7 +161,7 @@ export default function ChatWidget() {
       </button>
 
       {open && (
-        <div className="fixed bottom-36 md:bottom-20 left-6 z-40 w-72 sm:w-80 h-[440px] bg-paper border border-neutral-200 shadow-[0_4px_24px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden">
+        <div className="fixed bottom-56 md:bottom-20 left-6 z-40 w-72 sm:w-80 h-[440px] bg-paper border border-neutral-200 shadow-[0_4px_24px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200 shrink-0">
             {activeContact ? (
               <button

@@ -90,7 +90,7 @@ export default function FavoritesPage() {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center text-center py-24 gap-4">
+          <div className="flex flex-col items-center text-center py-12 md:py-24 gap-4">
             <p className="text-gray-500">
               Henüz bir şey kaydetmedin. Beğendiğin kombinleri buradan takip et!
             </p>
