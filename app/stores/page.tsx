@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Search, Store as StoreIcon } from "lucide-react";
 import { supabase } from "../utils/supabase";
 import StoreCard, { type StoreCardData } from "../components/StoreCard";
+import SkeletonGrid from "../components/SkeletonGrid";
 
 type Store = StoreCardData & { joinedAt: string };
 
@@ -160,7 +161,7 @@ export default function StoresPage() {
         </div>
 
         {loading ? (
-          <p className="text-sm text-gray-500">Yükleniyor...</p>
+          <SkeletonGrid count={6} />
         ) : stores.length === 0 ? (
           <div className="flex flex-col items-center text-center py-20 gap-3">
             <StoreIcon size={28} strokeWidth={1.2} className="text-gray-300" />

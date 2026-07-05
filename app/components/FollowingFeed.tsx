@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Users } from "lucide-react";
 import ProductCard from "./ProductCard";
 import OutfitCard from "./OutfitCard";
 import { supabase } from "../utils/supabase";
@@ -153,6 +154,7 @@ export default function FollowingFeed() {
   if (!userId) {
     return (
       <div className="flex flex-col items-center text-center py-12 md:py-24 gap-4">
+        <Users size={28} strokeWidth={1} className="text-neutral-300" />
         <p className="text-gray-500">Takip ettiklerini görmek için giriş yap.</p>
         <Link href="/login" className="btn-primary">
           Giriş Yap
@@ -164,6 +166,7 @@ export default function FollowingFeed() {
   if (feed.length === 0) {
     return (
       <div className="flex flex-col items-center text-center py-12 md:py-24 gap-4">
+        <Users size={28} strokeWidth={1} className="text-neutral-300" />
         <p className="text-gray-500">Henüz kimseyi takip etmiyorsun. Toplulukta keşfet!</p>
         <Link href="/" className="btn-primary">
           Tümünü Keşfet

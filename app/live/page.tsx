@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle, X } from "lucide-react";
+import { MessageCircle, X, Shirt } from "lucide-react";
 import { supabase } from "../utils/supabase";
 import { STYLE_TAGS } from "@/lib/styleTags";
 import OutfitLikeButton from "../components/OutfitLikeButton";
@@ -154,9 +154,10 @@ export default function LivePage() {
         </div>
 
         {outfits.length === 0 && !loading ? (
-          <p className="text-gray-500 text-sm text-center py-16">
-            Bu stille paylaşılmış bir kombin yok.
-          </p>
+          <div className="flex flex-col items-center text-center py-16 gap-3">
+            <Shirt size={28} strokeWidth={1} className="text-neutral-300" />
+            <p className="text-gray-500 text-sm">Bu stille paylaşılmış bir kombin yok.</p>
+          </div>
         ) : (
           <div className="flex flex-col gap-10">
             {outfits.map((outfit) => (

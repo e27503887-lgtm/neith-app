@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Shirt } from "lucide-react";
 import ProductCard from "./components/ProductCard";
 import OutfitCard from "./components/OutfitCard";
 import OutfitRecommendations from "./components/OutfitRecommendations";
@@ -17,6 +18,7 @@ import OutfitBattle from "./components/OutfitBattle";
 import AIStylist from "./components/AIStylist";
 import BrandShowcase from "./components/BrandShowcase";
 import FashionEncyclopedia from "./components/FashionEncyclopedia";
+import FadeInSection from "./components/FadeInSection";
 import { supabase } from "./utils/supabase";
 
 type Props = {
@@ -213,29 +215,43 @@ export default async function Home({ searchParams }: Props) {
       </section>
 
       <div className="max-w-6xl mx-auto">
-        <OutfitRecommendations
-          featured={featuredOutfits}
-          community={communityOutfits}
-          brand={brandCreatorOutfits}
-        />
+        <FadeInSection>
+          <OutfitRecommendations
+            featured={featuredOutfits}
+            community={communityOutfits}
+            brand={brandCreatorOutfits}
+          />
+        </FadeInSection>
 
-        <TrendingSection items={trendingItems} />
-        <BrandPicks products={brandPicks} />
-        <PopularProducts products={popularProducts} />
+        <FadeInSection>
+          <TrendingSection items={trendingItems} />
+        </FadeInSection>
+        <FadeInSection>
+          <BrandPicks products={brandPicks} />
+        </FadeInSection>
+        <FadeInSection>
+          <PopularProducts products={popularProducts} />
+        </FadeInSection>
       </div>
 
       <div id="feed" className="max-w-6xl mx-auto flex flex-col lg:flex-row items-start gap-8 pt-16 scroll-mt-24">
         <div className="w-full lg:w-[65%] min-w-0">
-          <RecommendedItems />
+          <FadeInSection>
+            <RecommendedItems />
+          </FadeInSection>
 
-          <OutfitBattle />
+          <FadeInSection>
+            <OutfitBattle />
+          </FadeInSection>
 
-          <SocialFeed />
+          <FadeInSection>
+            <SocialFeed />
+          </FadeInSection>
 
-          <div className="mb-6">
+          <FadeInSection className="mb-6">
             <h2 className="text-2xl tracking-tight text-ink">Sizin İçin Seçilenler</h2>
             <p className="text-gray-500 text-sm mt-1">En yeni kombinleri ve parçaları keşfedin.</p>
-          </div>
+          </FadeInSection>
 
           <div className="flex gap-6 border-b border-neutral-200 mb-8 overflow-x-auto">
             {tabs.map((tab) => (
@@ -257,6 +273,7 @@ export default async function Home({ searchParams }: Props) {
             <FollowingFeed />
           ) : showEmptyState ? (
             <div className="flex flex-col items-center text-center py-12 md:py-24 gap-4">
+              <Shirt size={28} strokeWidth={1} className="text-neutral-300" />
               <p className="text-gray-500">Henüz ilan yok. İlk kombini sen paylaş!</p>
               <Link href="/sell" className="btn-primary">
                 İlan Ver

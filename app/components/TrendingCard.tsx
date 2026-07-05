@@ -23,7 +23,7 @@ export default function TrendingCard({ item }: { item: TrendingItem }) {
   const href = item.kind === "product" ? `/product/${item.id}` : `/outfit/${item.id}`;
 
   return (
-    <Link href={href} className="block bg-paper border border-neutral-200 overflow-hidden">
+    <Link href={href} className="card-hover block bg-paper border border-neutral-200 overflow-hidden">
       <div className="relative w-full aspect-[3/4] overflow-hidden">
         {item.kind === "outfit" && (
           <span className="absolute top-2 left-2 z-10 bg-paper/90 text-ink text-xs uppercase tracking-wide font-medium px-2 py-1">

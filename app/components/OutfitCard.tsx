@@ -14,7 +14,7 @@ type Outfit = {
 
 export default function OutfitCard({ outfit }: { outfit: Outfit }) {
   return (
-    <article className="bg-paper border border-neutral-200 overflow-hidden">
+    <article className="card-hover bg-paper border border-neutral-200 overflow-hidden">
       <div className="flex items-center gap-3 p-3">
         <Link href={`/profile/${outfit.username}`} className="shrink-0">
           {outfit.avatar_url ? (

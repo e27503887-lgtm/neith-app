@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Heart } from "lucide-react";
 import ProductCard from "../components/ProductCard";
 import { supabase } from "../utils/supabase";
 
@@ -91,6 +92,7 @@ export default function FavoritesPage() {
           </div>
         ) : (
           <div className="flex flex-col items-center text-center py-12 md:py-24 gap-4">
+            <Heart size={28} strokeWidth={1} className="text-neutral-300" />
             <p className="text-gray-500">
               Henüz bir şey kaydetmedin. Beğendiğin kombinleri buradan takip et!
             </p>

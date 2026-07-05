@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
+import { SearchX } from "lucide-react";
 import ProductCard from "../components/ProductCard";
 import FollowButton from "../components/FollowButton";
 import StoreCard, { type StoreCardData } from "../components/StoreCard";
+import SkeletonGrid from "../components/SkeletonGrid";
 import { supabase } from "../utils/supabase";
 
 type Product = {
@@ -160,7 +162,14 @@ export default function SearchResults() {
   }
 
   if (loading) {
-    return null;
+    return (
+      <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="h-6 w-48 bg-neutral-200 rounded animate-pulse mb-8" />
+          <SkeletonGrid count={6} />
+        </div>
+      </main>
+    );
   }
 
   function adjustStoreFollowerCount(id: string, delta: number) {
@@ -179,7 +188,10 @@ export default function SearchResults() {
         </h1>
 
         {totalCount === 0 ? (
-          <div className="text-center text-gray-500 py-24">Aradığın şey bulunamadı.</div>
+          <div className="flex flex-col items-center text-center text-gray-500 py-24 gap-3">
+            <SearchX size={28} strokeWidth={1} className="text-neutral-300" />
+            Aradığın şey bulunamadı.
+          </div>
         ) : (
           <div className="flex flex-col gap-10">
             {users.length > 0 && (

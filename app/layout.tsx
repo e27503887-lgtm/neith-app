@@ -6,6 +6,7 @@ import MobileTabBar from "./components/MobileTabBar";
 import PageTransition from "./components/PageTransition";
 import ChatWidget from "./components/ChatWidget";
 import NotificationSystem from "./components/NotificationSystem";
+import BrandSplash from "./components/BrandSplash";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <NotificationSystem />
         <ChatWidget />
         <MobileTabBar />
+        <BrandSplash />
       </body>
     </html>
   );

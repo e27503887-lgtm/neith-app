@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { Mail } from "lucide-react";
 import { supabase } from "../utils/supabase";
 
 type ConversationRow = {
@@ -95,7 +96,8 @@ export default function MessagesPage() {
         <h1 className="text-xl font-bold mb-6">Mesajlar</h1>
 
         {conversations.length === 0 ? (
-          <div className="bg-paper border border-neutral-200 rounded-xl p-10 text-center text-gray-500">
+          <div className="bg-paper border border-neutral-200 rounded-xl p-10 text-center text-gray-500 flex flex-col items-center gap-3">
+            <Mail size={28} strokeWidth={1} className="text-neutral-300" />
             Henüz mesajın yok.
           </div>
         ) : (

@@ -14,7 +14,7 @@ export default function BrandPickCard({ product }: { product: BrandPickProduct }
   return (
     <Link
       href={`/product/${product.id}`}
-      className="group block bg-paper border border-neutral-200 overflow-hidden"
+      className="card-hover group block bg-paper border border-neutral-200 overflow-hidden"
     >
       <div className="relative w-full aspect-[3/4] overflow-hidden">
         <Image

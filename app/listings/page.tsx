@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { ShoppingBag } from "lucide-react";
 import { supabase } from "../utils/supabase";
 import ProductCard from "../components/ProductCard";
+import SkeletonGrid from "../components/SkeletonGrid";
 
 const PAGE_SIZE = 20;
 
@@ -205,9 +207,10 @@ export default function ListingsPage() {
         </div>
 
         {loading ? (
-          <p className="text-sm text-gray-500">Yükleniyor...</p>
+          <SkeletonGrid />
         ) : products.length === 0 ? (
           <div className="flex flex-col items-center text-center py-20 gap-3">
+            <ShoppingBag size={28} strokeWidth={1} className="text-neutral-300" />
             <p className="text-neutral-500 text-sm">Henüz ilan yok.</p>
             {currentUserId && (
               <Link

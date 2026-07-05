@@ -179,7 +179,7 @@ export default function CommentSection({ productId, outfitId }: Props) {
               {c.user_id === userId && (
                 <button
                   onClick={() => handleDelete(c.id)}
-                  className="text-gray-400 hover:text-red-600 shrink-0"
+                  className="text-gray-400 hover:text-accent shrink-0"
                 >
                   <Trash2 size={16} />
                 </button>

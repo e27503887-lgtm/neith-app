@@ -17,6 +17,7 @@ export default function SaveButton({ productId, outfitId }: Props) {
   const [userId, setUserId] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [popping, setPopping] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -55,6 +56,8 @@ export default function SaveButton({ productId, outfitId }: Props) {
     if (busy) return;
 
     setBusy(true);
+    setPopping(true);
+    setTimeout(() => setPopping(false), 200);
 
     if (saved) {
       setSaved(false);
@@ -88,7 +91,7 @@ export default function SaveButton({ productId, outfitId }: Props) {
       <Bookmark
         size={20}
         strokeWidth={1.5}
-        className={saved ? "text-accent" : "text-gray-400"}
+        className={`${saved ? "text-accent" : "text-gray-400"} ${popping ? "animate-pop" : ""}`}
         fill={saved ? "currentColor" : "none"}
       />
     </button>

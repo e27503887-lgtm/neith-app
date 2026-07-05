@@ -11,6 +11,7 @@ export default function LikeButton({ productId }: { productId: number | string }
   const [liked, setLiked] = useState(false);
   const [count, setCount] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [popping, setPopping] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -55,6 +56,8 @@ export default function LikeButton({ productId }: { productId: number | string }
     if (busy) return;
 
     setBusy(true);
+    setPopping(true);
+    setTimeout(() => setPopping(false), 200);
 
     if (liked) {
       setLiked(false);
@@ -95,7 +98,7 @@ export default function LikeButton({ productId }: { productId: number | string }
       <Heart
         size={18}
         strokeWidth={1.5}
-        className={liked ? "text-accent" : "text-gray-400"}
+        className={`${liked ? "text-accent" : "text-gray-400"} ${popping ? "animate-pop" : ""}`}
         fill={liked ? "currentColor" : "none"}
       />
       <span>{count}</span>

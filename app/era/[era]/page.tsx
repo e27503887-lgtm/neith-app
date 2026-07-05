@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Shirt } from "lucide-react";
 import ProductCard from "../../components/ProductCard";
 import OutfitCard from "../../components/OutfitCard";
 import { ERAS } from "@/lib/eras";
@@ -109,6 +110,7 @@ export default async function EraDetailPage({ params, searchParams }: Props) {
       <div className="max-w-6xl mx-auto">
         {isEmpty ? (
           <div className="flex flex-col items-center text-center py-12 md:py-24 gap-4">
+            <Shirt size={28} strokeWidth={1} className="text-neutral-300" />
             <p className="text-gray-500">
               Bu dönemden henüz parça yok — ilk ekleyen sen ol!
             </p>

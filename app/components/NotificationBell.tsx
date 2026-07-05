@@ -40,6 +40,7 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [shaking, setShaking] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -85,6 +86,8 @@ export default function NotificationBell() {
           const newNotification = payload.new as Notification;
           setUnreadCount((c) => c + 1);
           setNotifications((prev) => [newNotification, ...prev].slice(0, 10));
+          setShaking(true);
+          setTimeout(() => setShaking(false), 500);
         }
       )
       .subscribe();
@@ -157,7 +160,7 @@ export default function NotificationBell() {
   return (
     <div className="relative" ref={containerRef}>
       <button onClick={togglePanel} className="relative text-gray-500 hover:text-accent transition-colors">
-        <Bell size={19} strokeWidth={1.5} />
+        <Bell size={19} strokeWidth={1.5} className={shaking ? "animate-bell-shake" : ""} />
         {unreadCount > 0 && (
           <span className="absolute -top-1.5 -right-1.5 bg-ink text-paper text-[10px] leading-none rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
             {unreadCount > 9 ? "9+" : unreadCount}

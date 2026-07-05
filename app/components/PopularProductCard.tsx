@@ -21,7 +21,7 @@ export default function PopularProductCard({
   return (
     <Link
       href={`/product/${product.id}`}
-      className="block bg-paper border border-neutral-200 overflow-hidden"
+      className="card-hover block bg-paper border border-neutral-200 overflow-hidden"
     >
       <div className="relative w-full aspect-[3/4] overflow-hidden">
         <span className="absolute top-2 left-2 z-10 bg-paper/90 px-2 py-1">

@@ -18,7 +18,7 @@ type Product = {
 
 export default function ProductCard({ product }: { product: Product }) {
   return (
-    <article className="bg-paper border border-neutral-200 overflow-hidden">
+    <article className="card-hover bg-paper border border-neutral-200 overflow-hidden">
       <div className="flex items-center gap-3 p-3">
         <Link href={`/profile/${product.username}`} className="shrink-0">
           {product.avatar_url ? (
