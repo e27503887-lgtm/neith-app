@@ -3,6 +3,7 @@ import Image from "next/image";
 import ProductCard from "../../components/ProductCard";
 import BrandBadge from "../../components/BrandBadge";
 import OutfitActions from "./OutfitActions";
+import OutfitLikeButton from "../../components/OutfitLikeButton";
 import { getEraLabel } from "@/lib/eras";
 import { supabase } from "../../utils/supabase";
 
@@ -117,6 +118,9 @@ export default async function OutfitDetailPage({ params }: Props) {
             </Link>
 
             <OutfitActions outfitId={outfit.id} ownerId={outfit.user_id} />
+            <div className="mt-2">
+              <OutfitLikeButton outfitId={outfit.id} />
+            </div>
           </div>
         </div>
 

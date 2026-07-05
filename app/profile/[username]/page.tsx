@@ -1,12 +1,13 @@
 import Image from "next/image";
 import ProductCard from "../../components/ProductCard";
-import OutfitCard from "../../components/OutfitCard";
 import BrandBadge from "../../components/BrandBadge";
 import FollowButton from "../../components/FollowButton";
-import FollowStats from "../../components/FollowStats";
 import { supabase } from "../../utils/supabase";
-import EditProfileButton from "./EditProfileButton";
 import StartChatButton from "../../components/StartChatButton";
+import UserProfileCard from "../../components/UserProfileCard";
+import EditorialHub from "../../components/EditorialHub";
+import StyleTags from "../../components/StyleTags";
+import WardrobeGrid from "../../components/WardrobeGrid";
 
 type Props = {
   params: Promise<{ username: string }>;
@@ -51,6 +52,24 @@ export default async function ProfilePage({ params }: Props) {
     .eq("user_id", profile.id)
     .order("created_at", { ascending: false });
 
+  const outfitIds = (outfits ?? []).map((o) => o.id);
+  const { data: outfitLikeRows } = outfitIds.length
+    ? await supabase.from("outfit_likes").select("outfit_id").in("outfit_id", outfitIds)
+    : { data: [] as { outfit_id: number | string }[] };
+
+  const likeCountByOutfit = new Map<number | string, number>();
+  (outfitLikeRows ?? []).forEach((l) => {
+    likeCountByOutfit.set(l.outfit_id, (likeCountByOutfit.get(l.outfit_id) ?? 0) + 1);
+  });
+
+  const wardrobeOutfits = (outfits ?? []).map((o) => ({
+    id: o.id,
+    title: o.title,
+    image_url: o.image_url,
+    like_count: likeCountByOutfit.get(o.id) ?? 0,
+    is_highlighted: o.is_highlighted ?? false,
+  }));
+
   const { count: followerCount } = await supabase
     .from("follows")
     .select("*", { count: "exact", head: true })
@@ -63,90 +82,44 @@ export default async function ProfilePage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
-      <div className="max-w-5xl mx-auto">
-        <div className="bg-paper border border-neutral-200 rounded-xl p-6 flex items-center gap-4 mb-8">
-          {profile.avatar_url ? (
-            <Image
-              src={profile.avatar_url}
-              alt={profile.username}
-              width={64}
-              height={64}
-              className="w-16 h-16 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-xl font-semibold text-gray-600">
-              {profile.username?.[0]?.toUpperCase()}
-            </div>
-          )}
+      <div className="max-w-6xl mx-auto grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
+        <div className="space-y-8">
+          <div>
+            <p className="section-label mb-2">Moda Kimliği</p>
+            <StyleTags profileId={profile.id} initialTags={profile.style_tags ?? []} />
+          </div>
 
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight flex items-center gap-1.5">
-                {profile.username}
-                {profile.account_type === "brand" && <BrandBadge />}
-              </h1>
+          <UserProfileCard
+            userId={profile.id}
+            username={profile.username}
+            avatar_url={profile.avatar_url}
+            bio={profile.bio}
+            account_type={profile.account_type}
+            followerCount={followerCount ?? 0}
+            followingCount={followingCount ?? 0}
+            outfits={
+              outfits?.map((outfit) => ({
+                id: outfit.id,
+                title: outfit.title,
+                image_url: outfit.image_url,
+              })) ?? []
+            }
+          />
+
+          <section id="outfits" className="bg-paper border border-neutral-200 p-6 scroll-mt-24">
+            <div className="flex items-center justify-between gap-4 mb-6">
+              <div>
+                <p className="section-label">Tarz Defteri</p>
+                <h2 className="mt-2 font-serif text-2xl text-ink">Kullanıcının Kombinleri</h2>
+              </div>
               <FollowButton targetUserId={profile.id} />
             </div>
-            <FollowStats
-              userId={profile.id}
-              followerCount={followerCount ?? 0}
-              followingCount={followingCount ?? 0}
-            />
-            {profile.bio && (
-              <p className="text-gray-500 text-sm mt-1">{profile.bio}</p>
-            )}
-            {profile.account_type === "brand" && (
-              <p className="text-gray-400 text-xs mt-1">Resmi Marka Hesabı</p>
-            )}
-          </div>
 
-          <EditProfileButton profileId={profile.id} />
-          <StartChatButton otherUserId={profile.id} />
+            <WardrobeGrid profileId={profile.id} outfits={wardrobeOutfits} />
+          </section>
         </div>
 
-        <h3 className="section-label mb-4">Ürünler</h3>
-
-        {products && products.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={{
-                  ...product,
-                  avatar_url: profile.avatar_url,
-                  account_type: profile.account_type,
-                  comment_count: commentCountByProduct.get(product.id) ?? 0,
-                }}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-500 text-center py-16">
-            Bu kullanıcının henüz ilanı yok.
-          </p>
-        )}
-
-        <div className="mt-10">
-          <h3 className="section-label mb-4">Kombinler</h3>
-
-          {outfits && outfits.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {outfits.map((outfit) => (
-                <OutfitCard
-                  key={outfit.id}
-                  outfit={{
-                    ...outfit,
-                    username: profile.username,
-                    avatar_url: profile.avatar_url,
-                    account_type: profile.account_type,
-                  }}
-                />
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-sm">Henüz kombin paylaşılmamış.</p>
-          )}
-        </div>
+        <EditorialHub />
       </div>
     </main>
   );

@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../utils/supabase";
 import type { User } from "@supabase/supabase-js";
 import EraPicker from "../../components/EraPicker";
+import StyleTagPicker from "../../components/StyleTagPicker";
+import ProductGalleryUploader, { type GalleryItem } from "../../components/ProductGalleryUploader";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -26,10 +28,10 @@ export default function NewOutfitPage() {
   const [ownProducts, setOwnProducts] = useState<OwnProduct[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<number | string>>(new Set());
 
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
 
   const [era, setEra] = useState<string | null>(null);
+  const [styleTag, setStyleTag] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -68,35 +70,40 @@ export default function NewOutfitPage() {
     });
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const selected = e.target.files?.[0] ?? null;
-
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
+  function handleAddFiles(files: File[]) {
+    const oversized = files.some((f) => f.size > MAX_FILE_SIZE);
+    if (oversized) {
+      setError("Her fotoğraf 5MB'dan küçük olmalı.");
+    } else {
+      setError("");
     }
 
-    if (!selected) {
-      setFile(null);
-      setPreviewUrl(null);
-      return;
-    }
+    const accepted = files.filter((f) => f.size <= MAX_FILE_SIZE);
+    const newItems: GalleryItem[] = accepted.map((file) => ({
+      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }));
 
-    if (selected.size > MAX_FILE_SIZE) {
-      setError("Fotoğraf 5MB'dan büyük olamaz.");
-      e.target.value = "";
-      setFile(null);
-      setPreviewUrl(null);
-      return;
-    }
+    setGalleryItems((prev) => [...prev, ...newItems]);
+  }
 
-    setError("");
-    setFile(selected);
-    setPreviewUrl(URL.createObjectURL(selected));
+  function handleRemoveItem(id: string) {
+    setGalleryItems((prev) => {
+      const target = prev.find((item) => item.id === id);
+      if (target) URL.revokeObjectURL(target.previewUrl);
+      return prev.filter((item) => item.id !== id);
+    });
   }
 
   async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!user || !file) return;
+    if (!user) return;
+
+    if (galleryItems.length === 0) {
+      setError("Lütfen en az bir ürün fotoğrafı yükle.");
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -108,24 +115,35 @@ export default function NewOutfitPage() {
 
     setUploading(true);
 
-    const extension = file.name.split(".").pop() || "jpg";
-    const path = `${user.id}/${Date.now()}.${extension}`;
+    const uploadResults = await Promise.all(
+      galleryItems.map(async (item) => {
+        const extension = item.file.name.split(".").pop() || "jpg";
+        const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from("product-images")
-      .upload(path, file);
+        const { error: uploadError } = await supabase.storage
+          .from("product-images")
+          .upload(path, item.file);
+
+        if (uploadError) return { error: uploadError };
+
+        const { data: publicUrlData } = supabase.storage
+          .from("product-images")
+          .getPublicUrl(path);
+
+        return { url: publicUrlData.publicUrl };
+      })
+    );
 
     setUploading(false);
 
-    if (uploadError) {
-      setError("Fotoğraf yüklenirken bir hata oluştu: " + uploadError.message);
+    const failed = uploadResults.find((r) => r.error);
+    if (failed?.error) {
+      setError("Fotoğraf yüklenirken bir hata oluştu: " + failed.error.message);
       setLoading(false);
       return;
     }
 
-    const { data: publicUrlData } = supabase.storage
-      .from("product-images")
-      .getPublicUrl(path);
+    const imageUrls = uploadResults.map((r) => r.url!);
 
     const { data: outfit, error: insertError } = await supabase
       .from("outfits")
@@ -135,7 +153,8 @@ export default function NewOutfitPage() {
           title,
           description,
           era,
-          image_url: publicUrlData.publicUrl,
+          style_tag: styleTag,
+          image_url: imageUrls[0],
         },
       ])
       .select("id")
@@ -143,6 +162,20 @@ export default function NewOutfitPage() {
 
     if (insertError || !outfit) {
       setError("Kombin paylaşılırken bir hata oluştu: " + insertError?.message);
+      setLoading(false);
+      return;
+    }
+
+    const { error: imagesError } = await supabase.from("outfit_images").insert(
+      imageUrls.map((url, index) => ({
+        outfit_id: outfit.id,
+        image_url: url,
+        position: index,
+      }))
+    );
+
+    if (imagesError) {
+      setError("Ürün görselleri kaydedilirken bir hata oluştu: " + imagesError.message);
       setLoading(false);
       return;
     }
@@ -200,24 +233,9 @@ export default function NewOutfitPage() {
           />
 
           <EraPicker value={era} onChange={setEra} />
+          <StyleTagPicker value={styleTag} onChange={setStyleTag} />
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="w-full p-3 border rounded-md"
-            required
-          />
-
-          {previewUrl && (
-            <Image
-              src={previewUrl}
-              alt="Önizleme"
-              width={96}
-              height={96}
-              className="w-24 h-24 object-cover rounded-md border border-neutral-200"
-            />
-          )}
+          <ProductGalleryUploader items={galleryItems} onAdd={handleAddFiles} onRemove={handleRemoveItem} />
 
           <div>
             <p className="text-sm font-medium text-gray-700 mb-2">Parçaları Seç</p>
@@ -263,7 +281,7 @@ export default function NewOutfitPage() {
           </div>
 
           <button disabled={loading} className="btn-primary w-full">
-            {uploading ? "Fotoğraf yükleniyor..." : loading ? "Paylaşılıyor..." : "Kombini Paylaş"}
+            {uploading ? "Fotoğraflar yükleniyor..." : loading ? "Paylaşılıyor..." : "Kombini Paylaş"}
           </button>
         </form>
       </div>

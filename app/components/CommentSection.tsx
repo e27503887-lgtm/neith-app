@@ -26,7 +26,14 @@ type Profile = {
   account_type: string | null;
 };
 
-export default function CommentSection({ productId }: { productId: number | string }) {
+type Props =
+  | { productId: number | string; outfitId?: undefined }
+  | { productId?: undefined; outfitId: number | string };
+
+export default function CommentSection({ productId, outfitId }: Props) {
+  const targetColumn = productId != null ? "product_id" : "outfit_id";
+  const targetId = (productId ?? outfitId) as number | string;
+
   const [loaded, setLoaded] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [myProfile, setMyProfile] = useState<Profile | null>(null);
@@ -44,7 +51,7 @@ export default function CommentSection({ productId }: { productId: number | stri
       const { data: rows } = await supabase
         .from("comments")
         .select("*")
-        .eq("product_id", productId)
+        .eq(targetColumn, targetId)
         .order("created_at", { ascending: false });
 
       const userIds = [...new Set((rows ?? []).map((r) => r.user_id))];
@@ -80,7 +87,7 @@ export default function CommentSection({ productId }: { productId: number | stri
     return () => {
       active = false;
     };
-  }, [productId]);
+  }, [targetColumn, targetId]);
 
   async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -91,7 +98,7 @@ export default function CommentSection({ productId }: { productId: number | stri
 
     const { data: inserted, error } = await supabase
       .from("comments")
-      .insert([{ product_id: productId, user_id: userId, content }])
+      .insert([{ [targetColumn]: targetId, user_id: userId, content }])
       .select("*")
       .single();
 

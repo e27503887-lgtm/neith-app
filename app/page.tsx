@@ -9,6 +9,13 @@ import PopularProducts from "./components/PopularProducts";
 import FollowingFeed from "./components/FollowingFeed";
 import SuggestedUsers from "./components/SuggestedUsers";
 import BrandBadge from "./components/BrandBadge";
+import GlobalTrends from "./components/GlobalTrends";
+import SocialFeed from "./components/SocialFeed";
+import RecommendedItems from "./components/RecommendedItems";
+import OutfitBattle from "./components/OutfitBattle";
+import AIStylist from "./components/AIStylist";
+import BrandShowcase from "./components/BrandShowcase";
+import FashionEncyclopedia from "./components/FashionEncyclopedia";
 import { supabase } from "./utils/supabase";
 
 type Props = {
@@ -87,7 +94,10 @@ export default async function Home({ searchParams }: Props) {
 
   const renderFeedItem = (item: FeedItem) =>
     item.kind === "product" ? (
-      <ProductCard key={`p-${item.data.id}`} product={item.data} />
+      <div key={`p-${item.data.id}`}>
+        <ProductCard product={item.data} />
+        <AIStylist productName={item.data.title} />
+      </div>
     ) : (
       <OutfitCard key={`o-${item.data.id}`} outfit={item.data} />
     );
@@ -142,6 +152,16 @@ export default async function Home({ searchParams }: Props) {
 
   const trendingItems: TrendingItem[] = rankedTrendingItems.slice(0, 8).map((r) => r.item);
 
+  // active fashion week for announcement strip
+  const now = new Date().toISOString();
+  const { data: activeWeeks } = await supabase
+    .from("fashion_weeks")
+    .select("*")
+    .lte("starts_at", now)
+    .gte("ends_at", now)
+    .limit(1);
+  const activeWeek = (activeWeeks && activeWeeks[0]) || null;
+
   const brandProducts = allProducts.filter((p) => p.seller_type === "brand");
 
   const brandShowcase = brandProducts.slice(0, 4);
@@ -164,6 +184,15 @@ export default async function Home({ searchParams }: Props) {
 
   return (
     <main className="min-h-screen bg-paper pt-24 pb-16 px-6">
+      {activeWeek && (
+        <div className="fixed top-16 left-0 right-0 bg-amber-50 border-b border-amber-100 text-sm text-amber-800 z-40">
+          <div className="max-w-6xl mx-auto py-2 px-6 flex items-center justify-center">
+            <Link href="/fashion-week" className="underline">
+              🎪 {activeWeek.title} başladı — Katıl →
+            </Link>
+          </div>
+        </div>
+      )}
       <section className="max-w-6xl mx-auto pt-6 pb-10 md:pb-14 border-b border-neutral-200 mb-12">
         <div className="max-w-xl">
           <h1 className="font-serif text-3xl md:text-4xl tracking-tight text-ink leading-tight">
@@ -189,8 +218,14 @@ export default async function Home({ searchParams }: Props) {
         <PopularProducts products={popularProducts} />
       </div>
 
-      <div id="feed" className="max-w-6xl mx-auto flex items-start gap-8 pt-16 scroll-mt-24">
-        <div className="flex-1 min-w-0">
+      <div id="feed" className="max-w-6xl mx-auto flex flex-col lg:flex-row items-start gap-8 pt-16 scroll-mt-24">
+        <div className="w-full lg:w-[65%] min-w-0">
+          <RecommendedItems />
+
+          <OutfitBattle />
+
+          <SocialFeed />
+
           <div className="mb-6">
             <h2 className="text-2xl tracking-tight text-ink">Sizin İçin Seçilenler</h2>
             <p className="text-gray-500 text-sm mt-1">En yeni kombinleri ve parçaları keşfedin.</p>
@@ -233,54 +268,29 @@ export default async function Home({ searchParams }: Props) {
                 </>
               )}
               {activeFilter === "products" &&
-                allProducts.map((p) => <ProductCard key={p.id} product={p} />)}
+                allProducts.map((p) => (
+                  <div key={p.id}>
+                    <ProductCard product={p} />
+                    <AIStylist productName={p.title} />
+                  </div>
+                ))}
               {activeFilter === "outfits" &&
                 allOutfits.map((o) => <OutfitCard key={o.id} outfit={o} />)}
               {activeFilter === "brand" &&
-                brandProducts.map((p) => <ProductCard key={p.id} product={p} />)}
+                brandProducts.map((p) => (
+                  <div key={p.id}>
+                    <ProductCard product={p} />
+                    <AIStylist productName={p.title} />
+                  </div>
+                ))}
             </div>
           )}
         </div>
 
-        {sidePanelProducts.length > 0 && (
-          <aside className="hidden lg:flex flex-col gap-6 w-72 shrink-0 sticky top-24">
-            <div className="bg-paper border border-neutral-200 p-4">
-              <h3 className="section-label mb-3">
-                {isBrandShowcase ? "Marka Vitrini" : "Yeni Gelenler"}
-              </h3>
-              <div className="flex flex-col gap-3">
-                {sidePanelProducts.map((product) => (
-                  <Link
-                    key={product.id}
-                    href={`/product/${product.id}`}
-                    className="flex items-center gap-3 hover:bg-gray-50 rounded-md -mx-1 p-1"
-                  >
-                    <div className="relative w-12 h-12 shrink-0 rounded-md overflow-hidden">
-                      <Image
-                        src={product.image_url}
-                        alt={product.title}
-                        fill
-                        sizes="48px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm truncate flex items-center gap-1">
-                        {product.title}
-                        {product.account_type === "brand" && <BrandBadge />}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {product.price.toLocaleString("tr-TR")} ₺
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <SuggestedUsers />
-          </aside>
-        )}
+        <aside id="brand-showcase" className="hidden lg:flex flex-col gap-6 lg:w-[35%] sticky top-24">
+          <BrandShowcase />
+          <FashionEncyclopedia />
+        </aside>
       </div>
 
       {/* İlan Ekle Butonu */}

@@ -5,7 +5,14 @@ import { Bookmark } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../utils/supabase";
 
-export default function SaveButton({ productId }: { productId: number | string }) {
+type Props =
+  | { productId: number | string; outfitId?: undefined }
+  | { productId?: undefined; outfitId: number | string };
+
+export default function SaveButton({ productId, outfitId }: Props) {
+  const targetColumn = productId != null ? "product_id" : "outfit_id";
+  const targetId = (productId ?? outfitId) as number | string;
+
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -23,7 +30,7 @@ export default function SaveButton({ productId }: { productId: number | string }
         const { data: existing } = await supabase
           .from("saves")
           .select("id")
-          .eq("product_id", productId)
+          .eq(targetColumn, targetId)
           .eq("user_id", uid)
           .maybeSingle();
         alreadySaved = !!existing;
@@ -38,7 +45,7 @@ export default function SaveButton({ productId }: { productId: number | string }
     return () => {
       active = false;
     };
-  }, [productId]);
+  }, [targetColumn, targetId]);
 
   async function handleClick() {
     if (!userId) {
@@ -55,7 +62,7 @@ export default function SaveButton({ productId }: { productId: number | string }
       const { error } = await supabase
         .from("saves")
         .delete()
-        .eq("product_id", productId)
+        .eq(targetColumn, targetId)
         .eq("user_id", userId);
 
       if (error) {
@@ -66,7 +73,7 @@ export default function SaveButton({ productId }: { productId: number | string }
 
       const { error } = await supabase
         .from("saves")
-        .insert([{ product_id: productId, user_id: userId }]);
+        .insert([{ [targetColumn]: targetId, user_id: userId }]);
 
       if (error) {
         setSaved(false);

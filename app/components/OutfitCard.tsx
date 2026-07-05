@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import BrandBadge from "./BrandBadge";
+import OutfitLikeButton from "./OutfitLikeButton";
 
 type Outfit = {
   id: number | string;
@@ -60,9 +61,14 @@ export default function OutfitCard({ outfit }: { outfit: Outfit }) {
       </div>
 
       <div className="p-3">
-        <Link href={`/outfit/${outfit.id}`} className="btn-primary w-full">
-          Shop the Outfit
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href={`/outfit/${outfit.id}`} className="btn-primary flex-1">
+            Shop the Outfit
+          </Link>
+          <div className="shrink-0">
+            <OutfitLikeButton outfitId={outfit.id} />
+          </div>
+        </div>
       </div>
     </article>
   );

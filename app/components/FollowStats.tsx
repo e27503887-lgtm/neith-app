@@ -15,10 +15,12 @@ export default function FollowStats({
   userId,
   followerCount,
   followingCount,
+  variant = "compact",
 }: {
   userId: string;
   followerCount: number;
   followingCount: number;
+  variant?: "compact" | "stat";
 }) {
   const [modal, setModal] = useState<"followers" | "following" | null>(null);
   const [people, setPeople] = useState<Person[]>([]);
@@ -58,15 +60,36 @@ export default function FollowStats({
 
   return (
     <>
-      <div className="flex items-center gap-1.5 text-sm text-gray-500 mt-1">
-        <button type="button" onClick={() => openModal("followers")} className="hover:text-accent transition-colors">
-          <span className="font-medium text-ink">{followerCount}</span> Takipçi
-        </button>
-        <span>·</span>
-        <button type="button" onClick={() => openModal("following")} className="hover:text-accent transition-colors">
-          <span className="font-medium text-ink">{followingCount}</span> Takip
-        </button>
-      </div>
+      {variant === "stat" ? (
+        <div className="grid grid-cols-2 gap-3 text-center sm:grid-cols-2 lg:grid-cols-2 lg:text-right">
+          <button
+            type="button"
+            onClick={() => openModal("followers")}
+            className="rounded-3xl bg-white/90 px-4 py-3 shadow-sm hover:shadow-md transition-all duration-300"
+          >
+            <p className="text-3xl font-semibold text-ink">{followerCount}</p>
+            <p className="text-xs uppercase tracking-[0.22em] text-gray-500">Takipçi</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => openModal("following")}
+            className="rounded-3xl bg-white/90 px-4 py-3 shadow-sm hover:shadow-md transition-all duration-300"
+          >
+            <p className="text-3xl font-semibold text-ink">{followingCount}</p>
+            <p className="text-xs uppercase tracking-[0.22em] text-gray-500">Takip</p>
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center gap-1.5 text-sm text-gray-500 mt-1">
+          <button type="button" onClick={() => openModal("followers")} className="hover:text-accent transition-colors">
+            <span className="font-medium text-ink">{followerCount}</span> Takipçi
+          </button>
+          <span>·</span>
+          <button type="button" onClick={() => openModal("following")} className="hover:text-accent transition-colors">
+            <span className="font-medium text-ink">{followingCount}</span> Takip
+          </button>
+        </div>
+      )}
 
       {modal && (
         <div
