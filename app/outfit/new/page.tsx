@@ -3,7 +3,7 @@
 import { useEffect, useState, type SubmitEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../utils/supabase";
 import type { User } from "@supabase/supabase-js";
@@ -11,7 +11,9 @@ import EraPicker from "../../components/EraPicker";
 import StyleTagPicker from "../../components/StyleTagPicker";
 import ProductGalleryUploader, { type GalleryItem } from "../../components/ProductGalleryUploader";
 
+const MAX_FILES = 6;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_LABEL_LENGTH = 100;
 
 type OwnProduct = {
   id: number | string;
@@ -19,6 +21,24 @@ type OwnProduct = {
   price: number;
   image_url: string;
 };
+
+type CustomPiece = {
+  id: string;
+  file: File;
+  previewUrl: string;
+  label: string;
+};
+
+async function uploadImage(userId: string, file: File, index: number) {
+  const extension = file.name.split(".").pop() || "jpg";
+  const path = `${userId}/${Date.now()}-${index}-${Math.random().toString(36).slice(2)}.${extension}`;
+
+  const { error: uploadError } = await supabase.storage.from("product-images").upload(path, file);
+  if (uploadError) return { error: uploadError };
+
+  const { data: publicUrlData } = supabase.storage.from("product-images").getPublicUrl(path);
+  return { url: publicUrlData.publicUrl };
+}
 
 export default function NewOutfitPage() {
   const router = useRouter();
@@ -29,6 +49,12 @@ export default function NewOutfitPage() {
   const [selectedIds, setSelectedIds] = useState<Set<number | string>>(new Set());
 
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+
+  const [customPieces, setCustomPieces] = useState<CustomPiece[]>([]);
+  const [showCustomForm, setShowCustomForm] = useState(false);
+  const [customFile, setCustomFile] = useState<File | null>(null);
+  const [customPreview, setCustomPreview] = useState<string | null>(null);
+  const [customLabel, setCustomLabel] = useState("");
 
   const [era, setEra] = useState<string | null>(null);
   const [styleTag, setStyleTag] = useState<string | null>(null);
@@ -71,21 +97,33 @@ export default function NewOutfitPage() {
   }
 
   function handleAddFiles(files: File[]) {
-    const oversized = files.some((f) => f.size > MAX_FILE_SIZE);
-    if (oversized) {
-      setError("Her fotoğraf 5MB'dan küçük olmalı.");
-    } else {
-      setError("");
+    setError("");
+
+    const accepted: GalleryItem[] = [];
+    let remainingSlots = MAX_FILES - galleryItems.length;
+
+    for (const file of files) {
+      if (remainingSlots <= 0) {
+        setError(`En fazla ${MAX_FILES} fotoğraf ekleyebilirsin.`);
+        break;
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        setError("Her fotoğraf 5MB'dan küçük olmalı.");
+        continue;
+      }
+
+      accepted.push({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+      });
+      remainingSlots -= 1;
     }
 
-    const accepted = files.filter((f) => f.size <= MAX_FILE_SIZE);
-    const newItems: GalleryItem[] = accepted.map((file) => ({
-      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      file,
-      previewUrl: URL.createObjectURL(file),
-    }));
-
-    setGalleryItems((prev) => [...prev, ...newItems]);
+    if (accepted.length > 0) {
+      setGalleryItems((prev) => [...prev, ...accepted]);
+    }
   }
 
   function handleRemoveItem(id: string) {
@@ -93,6 +131,65 @@ export default function NewOutfitPage() {
       const target = prev.find((item) => item.id === id);
       if (target) URL.revokeObjectURL(target.previewUrl);
       return prev.filter((item) => item.id !== id);
+    });
+  }
+
+  function handleCustomFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    e.target.value = "";
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      setError("Fotoğraf 5MB'dan küçük olmalı.");
+      return;
+    }
+
+    setError("");
+    if (customPreview) URL.revokeObjectURL(customPreview);
+    setCustomFile(file);
+    setCustomPreview(URL.createObjectURL(file));
+  }
+
+  function closeCustomForm() {
+    if (customPreview) URL.revokeObjectURL(customPreview);
+    setCustomFile(null);
+    setCustomPreview(null);
+    setCustomLabel("");
+    setShowCustomForm(false);
+  }
+
+  function handleAddCustomPiece() {
+    if (!customFile || !customPreview) {
+      setError("Önce bir fotoğraf seç.");
+      return;
+    }
+    if (!customLabel.trim()) {
+      setError("Kısa bir etiket yaz.");
+      return;
+    }
+
+    setCustomPieces((prev) => [
+      ...prev,
+      {
+        id: `custom-${Date.now()}`,
+        file: customFile,
+        previewUrl: customPreview,
+        label: customLabel.trim().slice(0, MAX_LABEL_LENGTH),
+      },
+    ]);
+
+    setCustomFile(null);
+    setCustomPreview(null);
+    setCustomLabel("");
+    setShowCustomForm(false);
+    setError("");
+  }
+
+  function handleRemoveCustomPiece(id: string) {
+    setCustomPieces((prev) => {
+      const target = prev.find((c) => c.id === id);
+      if (target) URL.revokeObjectURL(target.previewUrl);
+      return prev.filter((c) => c.id !== id);
     });
   }
 
@@ -115,35 +212,29 @@ export default function NewOutfitPage() {
 
     setUploading(true);
 
-    const uploadResults = await Promise.all(
-      galleryItems.map(async (item) => {
-        const extension = item.file.name.split(".").pop() || "jpg";
-        const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("product-images")
-          .upload(path, item.file);
-
-        if (uploadError) return { error: uploadError };
-
-        const { data: publicUrlData } = supabase.storage
-          .from("product-images")
-          .getPublicUrl(path);
-
-        return { url: publicUrlData.publicUrl };
-      })
-    );
+    const [galleryUploadResults, customUploadResults] = await Promise.all([
+      Promise.all(galleryItems.map((item, i) => uploadImage(user.id, item.file, i))),
+      Promise.all(customPieces.map((c, i) => uploadImage(user.id, c.file, i))),
+    ]);
 
     setUploading(false);
 
-    const failed = uploadResults.find((r) => r.error);
-    if (failed?.error) {
-      setError("Fotoğraf yüklenirken bir hata oluştu: " + failed.error.message);
+    const failedGallery = galleryUploadResults.find((r) => r.error);
+    if (failedGallery?.error) {
+      setError("Fotoğraf yüklenirken bir hata oluştu: " + failedGallery.error.message);
       setLoading(false);
       return;
     }
 
-    const imageUrls = uploadResults.map((r) => r.url!);
+    const failedCustom = customUploadResults.find((r) => r.error);
+    if (failedCustom?.error) {
+      setError("Özel parça fotoğrafı yüklenirken bir hata oluştu: " + failedCustom.error.message);
+      setLoading(false);
+      return;
+    }
+
+    const imageUrls = galleryUploadResults.map((r) => r.url!);
+    const customImageUrls = customUploadResults.map((r) => r.url!);
 
     const { data: outfit, error: insertError } = await supabase
       .from("outfits")
@@ -166,26 +257,35 @@ export default function NewOutfitPage() {
       return;
     }
 
-    const { error: imagesError } = await supabase.from("outfit_images").insert(
+    const { error: mediaError } = await supabase.from("outfit_media").insert(
       imageUrls.map((url, index) => ({
         outfit_id: outfit.id,
-        image_url: url,
+        media_url: url,
+        media_type: "image",
         position: index,
       }))
     );
 
-    if (imagesError) {
-      setError("Ürün görselleri kaydedilirken bir hata oluştu: " + imagesError.message);
+    if (mediaError) {
+      setError("Ürün görselleri kaydedilirken bir hata oluştu: " + mediaError.message);
       setLoading(false);
       return;
     }
 
-    if (selectedIds.size > 0) {
-      const items = [...selectedIds].map((productId) => ({
+    const items = [
+      ...[...selectedIds].map((productId) => ({
         outfit_id: outfit.id,
         product_id: productId,
-      }));
+      })),
+      ...customPieces.map((c, i) => ({
+        outfit_id: outfit.id,
+        product_id: null,
+        custom_image_url: customImageUrls[i],
+        custom_label: c.label,
+      })),
+    ];
 
+    if (items.length > 0) {
       const { error: itemsError } = await supabase.from("outfit_items").insert(items);
 
       if (itemsError) {
@@ -235,12 +335,65 @@ export default function NewOutfitPage() {
           <EraPicker value={era} onChange={setEra} />
           <StyleTagPicker value={styleTag} onChange={setStyleTag} />
 
-          <ProductGalleryUploader items={galleryItems} onAdd={handleAddFiles} onRemove={handleRemoveItem} />
+          <div>
+            <ProductGalleryUploader
+              items={galleryItems}
+              onAdd={handleAddFiles}
+              onRemove={handleRemoveItem}
+              disabled={galleryItems.length >= MAX_FILES}
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              En fazla {MAX_FILES} fotoğraf · her biri 5MB'dan küçük olmalı.
+            </p>
+          </div>
 
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">Parçaları Seç</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-gray-700">Parçaları Seç</p>
+              <button
+                type="button"
+                onClick={() => (showCustomForm ? closeCustomForm() : setShowCustomForm(true))}
+                className="text-xs uppercase tracking-wide text-accent hover:text-ink transition-colors"
+              >
+                {showCustomForm ? "Vazgeç" : "+ Satılık Olmayan Parça Ekle"}
+              </button>
+            </div>
 
-            {ownProducts.length === 0 ? (
+            {showCustomForm && (
+              <div className="border border-neutral-200 p-3 mb-3 space-y-2">
+                <div className="flex items-center gap-3">
+                  {customPreview && (
+                    <div className="relative w-14 h-14 shrink-0 overflow-hidden bg-neutral-50 border border-neutral-200">
+                      <Image src={customPreview} alt="Önizleme" fill sizes="56px" className="object-cover" />
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCustomFileChange}
+                    className="text-xs flex-1"
+                  />
+                </div>
+                <input
+                  value={customLabel}
+                  onChange={(e) => setCustomLabel(e.target.value.slice(0, MAX_LABEL_LENGTH))}
+                  placeholder="Kısa etiket (ör. Annemden kalan kolye)"
+                  className="w-full p-2 border border-neutral-200 text-sm focus:outline-none focus:border-ink transition-colors"
+                />
+                <p className="text-xs text-gray-400 text-right">
+                  {customLabel.length}/{MAX_LABEL_LENGTH}
+                </p>
+                <button
+                  type="button"
+                  onClick={handleAddCustomPiece}
+                  className="text-xs uppercase tracking-wide border border-ink text-ink px-3 py-1.5 hover:bg-ink hover:text-paper transition-colors"
+                >
+                  Ekle
+                </button>
+              </div>
+            )}
+
+            {ownProducts.length === 0 && customPieces.length === 0 ? (
               <p className="text-sm text-gray-500">
                 Henüz bir ilanın yok.{" "}
                 <Link href="/sell" className="underline hover:text-accent transition-colors">
@@ -276,6 +429,25 @@ export default function NewOutfitPage() {
                     </button>
                   );
                 })}
+
+                {customPieces.map((c) => (
+                  <div
+                    key={c.id}
+                    className="relative aspect-square overflow-hidden rounded-md border-2 border-dashed border-neutral-300"
+                  >
+                    <Image src={c.previewUrl} alt={c.label} fill sizes="80px" className="object-cover" />
+                    <span className="absolute top-0.5 left-0.5 bg-ink/80 text-paper text-[8px] uppercase tracking-wide px-1 py-0.5">
+                      Satılık Değil
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveCustomPiece(c.id)}
+                      className="absolute top-0.5 right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-ink text-paper"
+                    >
+                      <X size={10} strokeWidth={1.5} />
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
           </div>

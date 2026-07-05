@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../utils/supabase";
 import StyleReport from "../components/StyleReport";
 import CapsulePlanner from "../components/CapsulePlanner";
+import StyleAssistantPanel from "../components/StyleAssistantPanel";
 
 type OwnOutfit = { style_tag: string | null };
 type OwnProduct = { id: number | string; title: string; image_url: string };
@@ -54,6 +55,7 @@ export default function IntelligencePage() {
         </div>
 
         <div className="space-y-8">
+          <StyleAssistantPanel products={products} totalItemCount={outfits.length + products.length} />
           <StyleReport outfits={outfits} />
           <CapsulePlanner products={products} />
         </div>

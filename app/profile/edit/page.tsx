@@ -184,15 +184,19 @@ export default function EditProfilePage() {
                 role="switch"
                 aria-checked={allowDms}
                 onClick={() => setAllowDms((prev) => !prev)}
-                className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
-                  allowDms ? "bg-accent" : "bg-gray-300"
-                }`}
+                className="relative p-2.5 -m-2.5 shrink-0"
               >
                 <span
-                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-paper rounded-full transition-transform ${
-                    allowDms ? "translate-x-5" : "translate-x-0"
+                  className={`relative block w-11 h-6 rounded-full transition-colors ${
+                    allowDms ? "bg-accent" : "bg-gray-300"
                   }`}
-                />
+                >
+                  <span
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-paper rounded-full transition-transform ${
+                      allowDms ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  />
+                </span>
               </button>
             </div>
           </div>

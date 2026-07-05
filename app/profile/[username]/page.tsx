@@ -8,6 +8,7 @@ import UserProfileCard from "../../components/UserProfileCard";
 import EditorialHub from "../../components/EditorialHub";
 import StyleTags from "../../components/StyleTags";
 import WardrobeGrid from "../../components/WardrobeGrid";
+import AdminPanelLink from "../../components/AdminPanelLink";
 
 type Props = {
   params: Promise<{ username: string }>;
@@ -85,7 +86,10 @@ export default async function ProfilePage({ params }: Props) {
       <div className="max-w-6xl mx-auto grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="space-y-8">
           <div>
-            <p className="section-label mb-2">Moda Kimliği</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="section-label">Moda Kimliği</p>
+              <AdminPanelLink profileId={profile.id} isAdmin={!!profile.is_admin} />
+            </div>
             <StyleTags profileId={profile.id} initialTags={profile.style_tags ?? []} />
           </div>
 

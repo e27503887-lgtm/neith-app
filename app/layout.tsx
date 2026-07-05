@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import Navbar from "./Navbar";
 import Sidebar from "./components/Sidebar";
+import MobileTabBar from "./components/MobileTabBar";
 import PageTransition from "./components/PageTransition";
 import ChatWidget from "./components/ChatWidget";
 import NotificationSystem from "./components/NotificationSystem";
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </div>
         <NotificationSystem />
         <ChatWidget />
+        <MobileTabBar />
       </body>
     </html>
   );

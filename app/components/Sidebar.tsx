@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Sparkles, Shirt, Swords } from "lucide-react";
+import { Home, Sparkles, Shirt, Swords, Store, ShoppingBag } from "lucide-react";
 import { supabase } from "../utils/supabase";
 
 const ICON_SIZE = 20;
@@ -38,6 +38,8 @@ export default function Sidebar() {
     { href: "/intelligence", label: "Stil Karnesi", icon: Sparkles },
     { href: username ? `/profile/${username}#outfits` : "/login", label: "Dolabım", icon: Shirt },
     { href: "/#kombin-savasi", label: "Kombin Savaşı", icon: Swords },
+    { href: "/listings", label: "İlanlar", icon: ShoppingBag },
+    { href: "/stores", label: "Mağazalar", icon: Store },
   ];
 
   return (

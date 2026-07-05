@@ -1,16 +1,15 @@
 import Link from "next/link";
-import PopularProductCard from "./PopularProductCard";
+import BrandPickCard from "./BrandPickCard";
 
-type PopularProduct = {
+type Product = {
   id: number | string;
   title: string;
   price: number;
   image_url: string;
-  like_count: number;
-  comment_count: number;
+  username: string;
 };
 
-export default function PopularProducts({ products }: { products: PopularProduct[] }) {
+export default function BrandPicks({ products }: { products: Product[] }) {
   if (products.length === 0) {
     return null;
   }
@@ -18,19 +17,19 @@ export default function PopularProducts({ products }: { products: PopularProduct
   return (
     <section className="mb-10">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="section-label">Popüler Ürünler</h3>
+        <h3 className="section-label">Markalardan Seçkiler</h3>
         <Link
-          href="/popular"
+          href="/stores"
           className="text-xs uppercase tracking-wide text-gray-500 hover:text-accent transition-colors"
         >
-          Tümünü gör →
+          Tüm Mağazalar →
         </Link>
       </div>
 
       <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2">
-        {products.map((product, index) => (
+        {products.map((product) => (
           <div key={product.id} className="w-[78vw] sm:w-48 shrink-0 snap-start">
-            <PopularProductCard product={product} rank={index + 1} />
+            <BrandPickCard product={product} />
           </div>
         ))}
       </div>

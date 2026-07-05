@@ -8,10 +8,12 @@ export default function FollowButton({
   targetUserId,
   compact = false,
   onFollow,
+  onUnfollow,
 }: {
   targetUserId: string;
   compact?: boolean;
   onFollow?: () => void;
+  onUnfollow?: () => void;
 }) {
   const router = useRouter();
   const [checked, setChecked] = useState(false);
@@ -75,6 +77,8 @@ export default function FollowButton({
 
       if (error) {
         setFollowing(true);
+      } else {
+        onUnfollow?.();
       }
     } else {
       setFollowing(true);

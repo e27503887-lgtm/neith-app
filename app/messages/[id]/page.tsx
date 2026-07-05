@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, use, type SubmitEvent } from "react";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../utils/supabase";
 import type { User } from "@supabase/supabase-js";
@@ -141,7 +142,14 @@ export default function ConversationPage({ params }: Props) {
   return (
     <main className="min-h-screen bg-paper pt-24 pb-6 px-6 flex flex-col">
       <div className="max-w-lg mx-auto w-full flex-1 flex flex-col bg-paper border border-neutral-200 rounded-xl overflow-hidden">
-        <div className="border-b border-neutral-200 p-4">
+        <div className="border-b border-neutral-200 p-4 flex items-center gap-3">
+          <Link
+            href="/messages"
+            aria-label="Mesajlara dön"
+            className="text-gray-500 hover:text-ink transition-colors shrink-0"
+          >
+            <ArrowLeft size={20} strokeWidth={1.5} />
+          </Link>
           <Link
             href={`/profile/${otherUser?.username ?? ""}`}
             className="font-medium hover:text-accent transition-colors"
@@ -172,11 +180,11 @@ export default function ConversationPage({ params }: Props) {
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Mesaj yaz..."
-            className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
+            className="flex-1 border rounded-full px-4 py-2.5 md:py-2 text-sm focus:outline-none"
           />
           <button
             disabled={sending || !draft.trim()}
-            className="bg-ink text-paper px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
+            className="bg-ink text-paper px-4 py-2.5 md:py-2 rounded-full text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
           >
             Gönder
           </button>

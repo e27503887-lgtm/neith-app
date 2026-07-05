@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, Heart, Mail, ChevronDown } from "lucide-react";
+import { Search, Heart, Mail, ChevronDown, X } from "lucide-react";
 import { supabase } from "./utils/supabase";
 import NotificationBell from "./components/NotificationBell";
 import type { User } from "@supabase/supabase-js";
@@ -12,6 +12,7 @@ export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -41,12 +42,13 @@ export default function Navbar() {
     const q = query.trim();
     if (!q) return;
     router.push(`/search?q=${encodeURIComponent(q)}`);
+    setMobileSearchOpen(false);
   }
 
   return (
-    <nav className="fixed w-full z-40 flex items-center gap-4 px-8 py-5 bg-paper border-b border-neutral-200">
+    <nav className="fixed w-full z-40 flex items-center gap-4 px-4 py-3 md:px-8 md:py-5 bg-paper border-b border-neutral-200">
       <div className="flex items-center gap-3 shrink-0">
-        <Link href="/" className="text-2xl font-serif tracking-wide">
+        <Link href="/" className="text-xl md:text-2xl font-serif tracking-wide">
           Neith
         </Link>
 
@@ -88,7 +90,7 @@ export default function Navbar() {
           />
           <input
             type="text"
-            placeholder="Ara..."
+            placeholder="Ürün, kullanıcı veya mağaza ara..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleSearchKeyDown}
@@ -97,12 +99,23 @@ export default function Navbar() {
         </div>
       </div>
 
-      <div className="flex items-center gap-5 text-sm ml-auto">
-        <Link href="/intelligence" className="hover:text-accent transition-colors">
+      <div className="flex items-center gap-4 md:gap-5 text-sm ml-auto">
+        <button
+          onClick={() => setMobileSearchOpen(true)}
+          aria-label="Ara"
+          className="md:hidden text-gray-500 hover:text-accent transition-colors"
+        >
+          <Search size={19} strokeWidth={1.5} />
+        </button>
+
+        <Link href="/intelligence" className="hidden md:inline hover:text-accent transition-colors">
           Stil Asistanı
         </Link>
 
-        <Link href="/sell" className="hover:text-accent transition-colors">
+        <Link
+          href="/sell"
+          className="hidden md:inline-flex border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300"
+        >
           İlan Ver
         </Link>
 
@@ -116,7 +129,7 @@ export default function Navbar() {
 
         {user ? (
           <>
-            <span className="text-gray-500 text-xs">{user.email}</span>
+            <span className="hidden md:inline text-gray-500 text-xs">{user.email}</span>
             <button
               onClick={handleLogout}
               className="border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300"
@@ -133,6 +146,36 @@ export default function Navbar() {
           </Link>
         )}
       </div>
+
+      {mobileSearchOpen && (
+        <div className="md:hidden fixed inset-0 z-[70] bg-paper flex flex-col px-6 pt-6">
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <Search
+                size={16}
+                strokeWidth={1.5}
+                className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+              <input
+                autoFocus
+                type="text"
+                placeholder="Ürün, kullanıcı veya mağaza ara..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
+                className="w-full bg-transparent border-b border-neutral-300 pl-6 pr-2 py-2 text-base text-gray-700 focus:outline-none focus:border-ink transition-colors"
+              />
+            </div>
+            <button
+              onClick={() => setMobileSearchOpen(false)}
+              aria-label="Kapat"
+              className="text-gray-500 hover:text-ink transition-colors"
+            >
+              <X size={22} strokeWidth={1.5} />
+            </button>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

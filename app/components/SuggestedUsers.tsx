@@ -125,7 +125,7 @@ export default function SuggestedUsers({
         key={user.id}
         className={`flex items-center gap-3 transition-opacity duration-300 ${
           fading ? "opacity-0" : "opacity-100"
-        } ${variant === "mobile" ? "shrink-0 w-56 bg-paper border border-neutral-200 p-3" : ""}`}
+        } ${variant === "mobile" ? "shrink-0 w-[70vw] sm:w-56 snap-start bg-paper border border-neutral-200 p-3" : ""}`}
       >
         <Link href={`/profile/${user.username}`} className="shrink-0">
           {user.avatar_url ? (
@@ -177,7 +177,7 @@ export default function SuggestedUsers({
     return (
       <section>
         <h3 className="section-label mb-3">Keşfedilecek Stiller</h3>
-        <div className="flex gap-3 overflow-x-auto pb-2">{visible.map(row)}</div>
+        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">{visible.map(row)}</div>
       </section>
     );
   }

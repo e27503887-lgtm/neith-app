@@ -6,6 +6,7 @@ import OutfitRecommendations from "./components/OutfitRecommendations";
 import TrendingSection from "./components/TrendingSection";
 import type { TrendingItem } from "./components/TrendingCard";
 import PopularProducts from "./components/PopularProducts";
+import BrandPicks from "./components/BrandPicks";
 import FollowingFeed from "./components/FollowingFeed";
 import SuggestedUsers from "./components/SuggestedUsers";
 import BrandBadge from "./components/BrandBadge";
@@ -164,6 +165,10 @@ export default async function Home({ searchParams }: Props) {
 
   const brandProducts = allProducts.filter((p) => p.seller_type === "brand");
 
+  const brandPicks = [...brandProducts]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 12);
+
   const brandShowcase = brandProducts.slice(0, 4);
   const isBrandShowcase = brandShowcase.length > 0;
   const sidePanelProducts = isBrandShowcase ? brandShowcase : allProducts.slice(0, 4);
@@ -215,6 +220,7 @@ export default async function Home({ searchParams }: Props) {
         />
 
         <TrendingSection items={trendingItems} />
+        <BrandPicks products={brandPicks} />
         <PopularProducts products={popularProducts} />
       </div>
 
@@ -292,11 +298,6 @@ export default async function Home({ searchParams }: Props) {
           <FashionEncyclopedia />
         </aside>
       </div>
-
-      {/* İlan Ekle Butonu */}
-      <a href="/sell" className="fixed bottom-8 right-8 bg-ink text-paper px-6 py-3 rounded-full font-medium shadow-lg hover:scale-105 transition-transform z-50">
-        + İlan Ekle
-      </a>
 
     </main>
   );

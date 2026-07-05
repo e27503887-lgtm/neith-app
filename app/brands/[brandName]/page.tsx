@@ -61,7 +61,7 @@ export default async function BrandDetailPage({ params }: Props) {
         {!products || products.length === 0 ? (
           <p className="text-neutral-500 text-sm text-center">Bu markanın henüz ürünü yok.</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-16">
             {products.map((p) => (
               <div key={p.id}>
                 <Link
@@ -72,7 +72,7 @@ export default async function BrandDetailPage({ params }: Props) {
                     src={p.image_url}
                     alt={p.title}
                     fill
-                    sizes="(min-width: 1024px) 25vw, 50vw"
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                     className="object-cover grayscale transition-transform duration-500 ease-out group-hover:scale-105"
                   />
                   <div className="absolute inset-0 flex items-center justify-center bg-ink/0 transition-colors duration-300 group-hover:bg-ink/50">

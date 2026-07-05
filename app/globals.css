@@ -50,3 +50,18 @@ h2 {
     @apply text-sm underline underline-offset-4 decoration-neutral-400 hover:text-accent transition-colors;
   }
 }
+
+/* Mobile-only (<768px) fixes — never applies at the md breakpoint and up,
+   so desktop layout/sizing stays untouched. */
+@media (max-width: 767px) {
+  /* Clears the fixed bottom tab bar so page content is never hidden behind it. */
+  body {
+    padding-bottom: 4.5rem;
+  }
+
+  /* Bumps tap targets on the shared button class to a 44px-ish minimum height. */
+  .btn-primary {
+    padding-top: 0.875rem;
+    padding-bottom: 0.875rem;
+  }
+}

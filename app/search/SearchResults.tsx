@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import ProductCard from "../components/ProductCard";
 import FollowButton from "../components/FollowButton";
+import StoreCard, { type StoreCardData } from "../components/StoreCard";
 import { supabase } from "../utils/supabase";
 
 type Product = {
@@ -25,6 +26,8 @@ type ProfileResult = {
   avatar_url: string | null;
 };
 
+type Store = StoreCardData;
+
 export default function SearchResults() {
   const searchParams = useSearchParams();
   const q = searchParams.get("q")?.trim() ?? "";
@@ -32,6 +35,7 @@ export default function SearchResults() {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [users, setUsers] = useState<ProfileResult[]>([]);
+  const [stores, setStores] = useState<Store[]>([]);
 
   useEffect(() => {
     if (!q) {
@@ -43,12 +47,65 @@ export default function SearchResults() {
     async function search() {
       setLoading(true);
 
-      const [{ data: matchedProducts }, { data: matchedUsers }] = await Promise.all([
+      const [{ data: matchedProducts }, { data: matchedUsers }, { data: matchedStores }] = await Promise.all([
         supabase.from("products").select("*").ilike("title", `%${q}%`),
-        supabase.from("profiles").select("id, username, avatar_url").ilike("username", `%${q}%`),
+        supabase
+          .from("profiles")
+          .select("id, username, avatar_url, account_type")
+          .ilike("username", `%${q}%`),
+        supabase
+          .from("profiles")
+          .select("id, username, avatar_url, bio")
+          .eq("account_type", "brand")
+          .ilike("username", `%${q}%`),
       ]);
 
       if (!active) return;
+
+      const storeIds = (matchedStores ?? []).map((s) => s.id);
+      const [{ data: storeProductRows }, { data: storeFollowRows }] = await Promise.all([
+        storeIds.length
+          ? supabase
+              .from("products")
+              .select("id, user_id, image_url, created_at")
+              .eq("seller_type", "brand")
+              .in("user_id", storeIds)
+              .order("created_at", { ascending: false })
+          : Promise.resolve({ data: [] as { id: number | string; user_id: string; image_url: string }[] }),
+        storeIds.length
+          ? supabase.from("follows").select("following_id").in("following_id", storeIds)
+          : Promise.resolve({ data: [] as { following_id: string }[] }),
+      ]);
+
+      if (!active) return;
+
+      const recentProductsByStore = new Map<string, { id: number | string; image_url: string }[]>();
+      const productCountByStore = new Map<string, number>();
+      (storeProductRows ?? []).forEach((p) => {
+        productCountByStore.set(p.user_id, (productCountByStore.get(p.user_id) ?? 0) + 1);
+        const list = recentProductsByStore.get(p.user_id) ?? [];
+        if (list.length < 3) {
+          list.push({ id: p.id, image_url: p.image_url });
+          recentProductsByStore.set(p.user_id, list);
+        }
+      });
+
+      const followerCountByStore = new Map<string, number>();
+      (storeFollowRows ?? []).forEach((f) => {
+        followerCountByStore.set(f.following_id, (followerCountByStore.get(f.following_id) ?? 0) + 1);
+      });
+
+      setStores(
+        (matchedStores ?? []).map((s) => ({
+          id: s.id,
+          username: s.username,
+          avatar_url: s.avatar_url,
+          bio: s.bio,
+          recentProducts: recentProductsByStore.get(s.id) ?? [],
+          productCount: productCountByStore.get(s.id) ?? 0,
+          followerCount: followerCountByStore.get(s.id) ?? 0,
+        }))
+      );
 
       const usernames = [...new Set((matchedProducts ?? []).map((p) => p.username))];
       const { data: profiles } = usernames.length
@@ -82,7 +139,7 @@ export default function SearchResults() {
           comment_count: commentCountByProduct.get(p.id) ?? 0,
         }))
       );
-      setUsers(matchedUsers ?? []);
+      setUsers((matchedUsers ?? []).filter((u) => u.account_type !== "brand"));
       setLoading(false);
     }
 
@@ -106,7 +163,13 @@ export default function SearchResults() {
     return null;
   }
 
-  const totalCount = products.length + users.length;
+  function adjustStoreFollowerCount(id: string, delta: number) {
+    setStores((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, followerCount: Math.max(0, s.followerCount + delta) } : s))
+    );
+  }
+
+  const totalCount = products.length + users.length + stores.length;
 
   return (
     <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
@@ -146,6 +209,22 @@ export default function SearchResults() {
                       </Link>
                       <FollowButton targetUserId={u.id} compact />
                     </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {stores.length > 0 && (
+              <section>
+                <h3 className="section-label mb-3">Mağazalar</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {stores.map((s) => (
+                    <StoreCard
+                      key={s.id}
+                      store={s}
+                      onFollow={() => adjustStoreFollowerCount(s.id, 1)}
+                      onUnfollow={() => adjustStoreFollowerCount(s.id, -1)}
+                    />
                   ))}
                 </div>
               </section>

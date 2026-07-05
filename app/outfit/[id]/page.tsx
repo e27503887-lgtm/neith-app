@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import ProductCard from "../../components/ProductCard";
+import ProductGallery from "../../product/[id]/ProductGallery";
 import BrandBadge from "../../components/BrandBadge";
 import OutfitActions from "./OutfitActions";
 import OutfitLikeButton from "../../components/OutfitLikeButton";
@@ -42,12 +43,29 @@ export default async function OutfitDetailPage({ params }: Props) {
     .eq("id", outfit.user_id)
     .single();
 
+  const { data: mediaRows } = await supabase
+    .from("outfit_media")
+    .select("media_url, media_type")
+    .eq("outfit_id", id)
+    .order("position", { ascending: true });
+
+  const media =
+    mediaRows && mediaRows.length > 0
+      ? mediaRows
+      : [{ media_url: outfit.image_url, media_type: "image" as const }];
+
   const { data: items } = await supabase
     .from("outfit_items")
-    .select("product_id")
+    .select("product_id, custom_image_url, custom_label")
     .eq("outfit_id", id);
 
-  const productIds = (items ?? []).map((i) => i.product_id);
+  const productIds = (items ?? [])
+    .map((i) => i.product_id)
+    .filter((productId): productId is number | string => productId !== null);
+
+  const customPieces = (items ?? []).filter(
+    (i) => i.product_id === null && i.custom_image_url
+  );
 
   const { data: products } = productIds.length
     ? await supabase.from("products").select("*").in("id", productIds)
@@ -83,15 +101,7 @@ export default async function OutfitDetailPage({ params }: Props) {
     <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
       <div className="max-w-4xl mx-auto flex flex-col gap-6">
         <div className="bg-paper border border-neutral-200 p-6 md:p-10 flex flex-col md:flex-row gap-8">
-          <div className="relative w-full md:w-1/2 aspect-square">
-            <Image
-              src={outfit.image_url}
-              alt={outfit.title}
-              fill
-              sizes="(min-width: 768px) 50vw, 100vw"
-              className="object-cover rounded-lg"
-            />
-          </div>
+          <ProductGallery media={media} title={outfit.title} />
 
           <div className="flex-1 flex flex-col gap-4">
             <div>
@@ -129,14 +139,37 @@ export default async function OutfitDetailPage({ params }: Props) {
             Bu Kombindeki Parçalar
           </h3>
 
-          {enrichedProducts.length > 0 ? (
+          {enrichedProducts.length === 0 && customPieces.length === 0 ? (
+            <p className="text-gray-500 text-sm">Bu kombine henüz parça eklenmemiş.</p>
+          ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {enrichedProducts.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
+
+              {customPieces.map((c, index) => (
+                <div
+                  key={`custom-${index}`}
+                  className="bg-paper border border-neutral-200 overflow-hidden"
+                >
+                  <div className="relative w-full aspect-[3/4] overflow-hidden bg-neutral-100">
+                    <Image
+                      src={c.custom_image_url!}
+                      alt={c.custom_label ?? "Satılık olmayan parça"}
+                      fill
+                      sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                      className="object-cover"
+                    />
+                    <span className="absolute top-2 left-2 bg-ink/80 text-paper text-[10px] uppercase tracking-wide px-2 py-1">
+                      Satılık Değil
+                    </span>
+                  </div>
+                  <div className="p-3">
+                    <p className="text-sm text-gray-600">{c.custom_label}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-          ) : (
-            <p className="text-gray-500 text-sm">Bu kombine henüz parça eklenmemiş.</p>
           )}
         </div>
       </div>

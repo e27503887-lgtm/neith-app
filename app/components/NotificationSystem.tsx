@@ -99,7 +99,7 @@ export default function NotificationSystem() {
   }
 
   return (
-    <div className="fixed top-24 right-6 z-[60] flex flex-col gap-2 w-72">
+    <div className="fixed top-20 md:top-auto md:bottom-6 right-4 md:right-6 z-[60] flex flex-col gap-2 w-72">
       {toasts.map((t) => (
         <ToastItem key={t.id} toast={t} onDismiss={dismiss} />
       ))}

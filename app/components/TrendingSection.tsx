@@ -20,7 +20,7 @@ export default function TrendingSection({ items }: { items: TrendingItem[] }) {
 
       <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2">
         {items.map((item) => (
-          <div key={`${item.kind}-${item.id}`} className="w-48 shrink-0 snap-start">
+          <div key={`${item.kind}-${item.id}`} className="w-[78vw] sm:w-48 shrink-0 snap-start">
             <TrendingCard item={item} />
           </div>
         ))}

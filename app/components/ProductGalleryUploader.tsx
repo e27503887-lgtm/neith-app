@@ -19,14 +19,17 @@ export default function ProductGalleryUploader({
   items,
   onAdd,
   onRemove,
+  disabled = false,
 }: {
   items: GalleryItem[];
   onAdd: (files: File[]) => void;
   onRemove: (id: string) => void;
+  disabled?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   function handleClick() {
+    if (disabled) return;
     inputRef.current?.click();
   }
 
@@ -47,19 +50,20 @@ export default function ProductGalleryUploader({
 
       <div
         onClick={handleClick}
-        className={`cursor-pointer bg-neutral-50 border border-neutral-200 flex items-center justify-center gap-2 py-6 text-gray-400 hover:text-ink hover:border-ink transition-colors duration-300 ${CARD_STYLE}`}
+        className={`${disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer hover:text-ink hover:border-ink"} bg-neutral-50 border border-neutral-200 flex items-center justify-center gap-2 py-6 text-gray-400 transition-colors duration-300 ${CARD_STYLE}`}
       >
         <input
           ref={inputRef}
           type="file"
           accept="image/*"
           multiple
+          disabled={disabled}
           onChange={handleChange}
           style={{ display: "none" }}
         />
         <Plus size={16} strokeWidth={1.5} />
         <span className="text-xs uppercase tracking-wide">
-          {items.length === 0 ? "Fotoğraf Ekle" : "Daha Fazla Ekle"}
+          {disabled ? "Sınıra ulaşıldı" : items.length === 0 ? "Fotoğraf Ekle" : "Daha Fazla Ekle"}
         </span>
       </div>
 
