@@ -2,31 +2,54 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Search, Heart, Mail, ChevronDown, X } from "lucide-react";
+import { Search, Heart, Mail, ChevronDown, X, User as UserIcon } from "lucide-react";
 import { supabase } from "./utils/supabase";
 import NotificationBell from "./components/NotificationBell";
 import type { User } from "@supabase/supabase-js";
 
+type Profile = { username: string; avatar_url: string | null };
+
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
+    let active = true;
+
+    async function loadProfile(uid: string) {
+      const { data } = await supabase
+        .from("profiles")
+        .select("username, avatar_url")
+        .eq("id", uid)
+        .maybeSingle();
+      if (active) setProfile(data ?? null);
+    }
+
     // Sayfa ilk yüklendiğinde mevcut oturumu al
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user ?? null);
+      if (data.user) loadProfile(data.user.id);
     });
 
     // Giriş / çıkış olaylarını dinle, Navbar otomatik güncellensin
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        loadProfile(session.user.id);
+      } else {
+        setProfile(null);
+      }
     });
 
     return () => {
+      active = false;
       listener.subscription.unsubscribe();
     };
   }, []);
@@ -132,7 +155,7 @@ export default function Navbar() {
             <span className="hidden md:inline text-gray-500 text-xs">{user.email}</span>
             <button
               onClick={handleLogout}
-              className="border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300"
+              className="hidden md:inline-flex border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300"
             >
               Çıkış
             </button>
@@ -140,11 +163,75 @@ export default function Navbar() {
         ) : (
           <Link
             href="/login"
-            className="border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300"
+            className="hidden md:inline-flex border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300"
           >
             Giriş Yap
           </Link>
         )}
+
+        {/* Mobile-only account avatar — replaces the email/Çıkış pair above,
+            which was clipping on narrow screens. */}
+        <div className="relative md:hidden">
+          {user ? (
+            <>
+              <button
+                onClick={() => setAccountMenuOpen((s) => !s)}
+                onBlur={() => setTimeout(() => setAccountMenuOpen(false), 150)}
+                aria-expanded={accountMenuOpen}
+                aria-label="Hesap menüsü"
+                className="block shrink-0"
+              >
+                {profile?.avatar_url ? (
+                  <Image
+                    src={profile.avatar_url}
+                    alt={profile.username ?? "Profil"}
+                    width={28}
+                    height={28}
+                    className="w-7 h-7 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-600">
+                    {(profile?.username ?? user.email ?? "?").charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </button>
+
+              {accountMenuOpen && (
+                <div
+                  className="absolute right-0 mt-2 w-44 bg-paper border border-neutral-200 rounded shadow-lg z-50"
+                  role="menu"
+                  aria-label="Hesap menüsü"
+                >
+                  <Link
+                    href={`/profile/${profile?.username ?? ""}`}
+                    role="menuitem"
+                    className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    Profilim
+                  </Link>
+                  <Link
+                    href="/profile/edit"
+                    role="menuitem"
+                    className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    Ayarlar
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    role="menuitem"
+                    className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    Çıkış Yap
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <Link href="/login" aria-label="Giriş yap" className="block shrink-0">
+              <UserIcon size={22} strokeWidth={1.5} className="text-gray-500" />
+            </Link>
+          )}
+        </div>
       </div>
 
       {mobileSearchOpen && (
