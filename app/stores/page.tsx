@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, ShoppingBag, Store as StoreIcon } from "lucide-react";
 import { supabase } from "../utils/supabase";
 import ProductCard from "../components/ProductCard";
 import StoreCard, { type StoreCardData } from "../components/StoreCard";
 import SkeletonGrid from "../components/SkeletonGrid";
 import { CATEGORIES } from "@/lib/categories";
+import BrandBadge from "../components/BrandBadge";
 
 type Product = {
   id: number | string;
@@ -24,6 +27,15 @@ type Product = {
 
 type Store = StoreCardData;
 
+type FollowedBrand = {
+  id: string;
+  username: string;
+  avatar_url: string | null;
+  bio: string | null;
+  created_at: string;
+  newThisWeekCount: number;
+};
+
 type Sort = "newest" | "price_asc" | "price_desc" | "popular";
 
 const SORT_OPTIONS: { value: Sort; label: string }[] = [
@@ -33,13 +45,35 @@ const SORT_OPTIONS: { value: Sort; label: string }[] = [
   { value: "popular", label: "Popüler" },
 ];
 
+function isWithinLastWeek(createdAt: string) {
+  const createdDate = new Date(createdAt);
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  return createdDate >= weekAgo;
+}
+
 export default function StoresPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-paper pt-24 pb-24 px-6" />}>
+      <StoresPageContent />
+    </Suspense>
+  );
+}
+
+function StoresPageContent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const activeTab = searchParams.get("tab") === "following" ? "following" : "all";
+
   const [loading, setLoading] = useState(true);
   const [viewerAccountType, setViewerAccountType] = useState<string | null | undefined>(undefined);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [popularityById, setPopularityById] = useState<Map<number | string, number>>(new Map());
   const [stores, setStores] = useState<Store[]>([]);
+  const [followedBrands, setFollowedBrands] = useState<FollowedBrand[]>([]);
+  const [followedProducts, setFollowedProducts] = useState<Product[]>([]);
 
   const [search, setSearch] = useState("");
   const [brandFilter, setBrandFilter] = useState("");
@@ -52,6 +86,7 @@ export default function StoresPage() {
     let active = true;
 
     async function load() {
+      setLoading(true);
       const { data: userData } = await supabase.auth.getUser();
       const uid = userData.user?.id ?? null;
 
@@ -74,6 +109,8 @@ export default function StoresPage() {
       if (brandIds.length === 0) {
         setStores([]);
         setProducts([]);
+        setFollowedBrands([]);
+        setFollowedProducts([]);
         setLoading(false);
         return;
       }
@@ -148,6 +185,86 @@ export default function StoresPage() {
         }))
       );
 
+      let followedBrandsResult: FollowedBrand[] = [];
+      let followedProductsResult: Product[] = [];
+
+      if (uid) {
+        const { data: followedRows } = await supabase.from("follows").select("following_id").eq("follower_id", uid);
+        const followedIds = (followedRows ?? [])
+          .map((row) => row.following_id)
+          .filter((id): id is string => Boolean(id));
+
+        if (followedIds.length > 0) {
+          const { data: followedProfiles } = await supabase
+            .from("profiles")
+            .select("id, username, avatar_url, bio, created_at")
+            .in("id", followedIds)
+            .eq("account_type", "brand");
+
+          followedBrandsResult = (followedProfiles ?? []).map((profile) => ({
+            id: profile.id,
+            username: profile.username,
+            avatar_url: profile.avatar_url,
+            bio: profile.bio,
+            created_at: profile.created_at,
+            newThisWeekCount: 0,
+          }));
+
+          const followedBrandIds = (followedProfiles ?? []).map((profile) => profile.id);
+          if (followedBrandIds.length > 0) {
+            const { data: followedProductRows } = await supabase
+              .from("products")
+              .select("id, user_id, username, title, price, image_url, category, created_at")
+              .eq("seller_type", "brand")
+              .in("user_id", followedBrandIds)
+              .order("created_at", { ascending: false });
+
+            const followedProductIds = (followedProductRows ?? []).map((p) => p.id);
+            const { data: followedCommentRows } = followedProductIds.length
+              ? await supabase.from("comments").select("product_id").in("product_id", followedProductIds)
+              : { data: [] as { product_id: number | string }[] };
+
+            const commentCountByFollowedProduct = new Map<number | string, number>();
+            (followedCommentRows ?? []).forEach((comment) => {
+              commentCountByFollowedProduct.set(comment.product_id, (commentCountByFollowedProduct.get(comment.product_id) ?? 0) + 1);
+            });
+
+            const newThisWeekCountByBrand = new Map<string, number>();
+            (followedProductRows ?? []).forEach((product) => {
+              if (isWithinLastWeek(product.created_at)) {
+                newThisWeekCountByBrand.set(product.user_id, (newThisWeekCountByBrand.get(product.user_id) ?? 0) + 1);
+              }
+            });
+
+            followedBrandsResult = (followedProfiles ?? []).map((profile) => ({
+              id: profile.id,
+              username: profile.username,
+              avatar_url: profile.avatar_url,
+              bio: profile.bio,
+              created_at: profile.created_at,
+              newThisWeekCount: newThisWeekCountByBrand.get(profile.id) ?? 0,
+            }));
+
+            followedProductsResult = (followedProductRows ?? []).map((product) => ({
+              id: product.id,
+              title: product.title,
+              price: product.price,
+              image_url: product.image_url,
+              username: product.username,
+              category: product.category,
+              created_at: product.created_at,
+              avatar_url: followedProfiles?.find((profile) => profile.id === product.user_id)?.avatar_url ?? null,
+              account_type: "brand",
+              comment_count: commentCountByFollowedProduct.get(product.id) ?? 0,
+            }));
+          }
+        }
+      }
+
+      if (!active) return;
+
+      setFollowedBrands(followedBrandsResult);
+      setFollowedProducts(followedProductsResult);
       setPopularityById(new Map((popularRows ?? []).map((r) => [r.id, r.popularity_score as number])));
       setLoading(false);
     }
@@ -162,6 +279,18 @@ export default function StoresPage() {
     setStores((prev) =>
       prev.map((s) => (s.id === id ? { ...s, followerCount: Math.max(0, s.followerCount + delta) } : s))
     );
+  }
+
+  function setTab(tab: "all" | "following") {
+    const params = new URLSearchParams(searchParams.toString());
+    if (tab === "following") {
+      params.set("tab", "following");
+    } else {
+      params.delete("tab");
+    }
+
+    const query = params.toString();
+    router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
   }
 
   const hasActiveFilters = Boolean(
@@ -203,6 +332,8 @@ export default function StoresPage() {
     return sorted;
   }, [products, search, brandFilter, categoryFilter, minPrice, maxPrice, sort, popularityById]);
 
+  const isLoggedIn = viewerAccountType !== undefined && viewerAccountType !== null;
+
   return (
     <main className="min-h-screen bg-paper pt-24 pb-24 px-6">
       <div className="max-w-6xl mx-auto">
@@ -210,158 +341,243 @@ export default function StoresPage() {
           <p className="text-xs uppercase tracking-[0.24em] text-neutral-500 mb-2">Marka Vitrini</p>
           <h1 className="font-serif text-4xl md:text-5xl tracking-tight text-ink">Mağazalar</h1>
           <p className="mt-3 text-sm text-gray-500">
-            {loading ? "Yükleniyor..." : `${visibleProducts.length} ürün bulundu`}
+            {loading ? "Yükleniyor..." : activeTab === "following" ? "Takip ettiğin markalardan en yeni parçalar" : `${visibleProducts.length} ürün bulundu`}
           </p>
 
-          <div className="relative max-w-md mt-6">
-            <Search size={15} strokeWidth={1.5} className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Ürün adına göre ara..."
-              className="w-full bg-transparent border-b border-neutral-300 pl-6 pr-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-ink transition-colors"
-            />
-          </div>
-
-          <div className="flex items-end gap-4 mt-6 overflow-x-auto pb-1">
-            <div className="shrink-0">
-              <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Marka</label>
-              <select
-                value={brandFilter}
-                onChange={(e) => setBrandFilter(e.target.value)}
-                className="border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
-              >
-                <option value="">Tüm Markalar</option>
-                {stores.map((s) => (
-                  <option key={s.id} value={s.username}>
-                    {s.username}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="shrink-0">
-              <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Kategori</label>
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
-              >
-                <option value="">Tüm Kategoriler</option>
-                {CATEGORIES.map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="shrink-0">
-              <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Min Fiyat</label>
-              <input
-                type="number"
-                min="0"
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
-                placeholder="0"
-                className="w-24 border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
-              />
-            </div>
-
-            <div className="shrink-0">
-              <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Max Fiyat</label>
-              <input
-                type="number"
-                min="0"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                placeholder="∞"
-                className="w-24 border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
-              />
-            </div>
-
-            <div className="shrink-0">
-              <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Sırala</label>
-              <select
-                value={sort}
-                onChange={(e) => setSort(e.target.value as Sort)}
-                className="border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
-              >
-                {SORT_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {hasActiveFilters && (
-              <button
-                onClick={clearFilters}
-                className="shrink-0 text-xs uppercase tracking-wide text-gray-500 underline underline-offset-4 hover:text-accent transition-colors pb-2"
-              >
-                Filtreleri Temizle
-              </button>
-            )}
+          <div className="mt-6 flex flex-wrap gap-2">
+            <button
+              onClick={() => setTab("all")}
+              className={`px-4 py-2 text-sm transition-colors ${activeTab === "all" ? "bg-ink text-white" : "bg-white text-gray-700 border border-neutral-200 hover:border-ink"}`}
+            >
+              Tüm Ürünler
+            </button>
+            <button
+              onClick={() => setTab("following")}
+              className={`px-4 py-2 text-sm transition-colors ${activeTab === "following" ? "bg-ink text-white" : "bg-white text-gray-700 border border-neutral-200 hover:border-ink"}`}
+            >
+              Takip Ettiklerim
+            </button>
           </div>
         </div>
 
-        {loading ? (
-          <SkeletonGrid count={8} />
-        ) : stores.length === 0 ? (
-          <div className="flex flex-col items-center text-center py-20 gap-3">
-            <StoreIcon size={28} strokeWidth={1.2} className="text-gray-300" />
-            <p className="text-neutral-500 text-sm">Henüz mağaza yok.</p>
-            <p className="text-neutral-400 text-xs">Markalar onaylandıkça burada listelenecek.</p>
-            {viewerAccountType && viewerAccountType !== "brand" && (
+        {activeTab === "following" ? (
+          loading ? (
+            <SkeletonGrid count={8} />
+          ) : !isLoggedIn ? (
+            <div className="flex flex-col items-center text-center py-20 gap-3">
+              <ShoppingBag size={28} strokeWidth={1} className="text-neutral-300" />
+              <p className="text-neutral-500 text-sm">Markaları takip etmek için giriş yap.</p>
+              <Link href="/login" className="text-xs uppercase tracking-wide text-accent underline underline-offset-4 hover:text-ink transition-colors">
+                Giriş yap
+              </Link>
+            </div>
+          ) : followedBrands.length === 0 ? (
+            <div className="flex flex-col items-center text-center py-20 gap-3">
+              <StoreIcon size={28} strokeWidth={1.2} className="text-gray-300" />
+              <p className="text-neutral-500 text-sm">Henüz bir marka takip etmiyorsun.</p>
               <Link
-                href="/brand/apply"
+                href="/stores?tab=all"
                 className="text-xs uppercase tracking-wide text-accent underline underline-offset-4 hover:text-ink transition-colors"
               >
-                Markanızı buraya eklemek için başvurun
+                Tüm ürünlere göz at
               </Link>
-            )}
-          </div>
-        ) : products.length === 0 ? (
-          <div className="flex flex-col items-center text-center py-20 gap-3">
-            <ShoppingBag size={28} strokeWidth={1} className="text-neutral-300" />
-            <p className="text-neutral-500 text-sm">Markalar henüz ürün eklememiş.</p>
-          </div>
-        ) : visibleProducts.length === 0 ? (
-          <div className="flex flex-col items-center text-center py-20 gap-3">
-            <ShoppingBag size={28} strokeWidth={1} className="text-neutral-300" />
-            <p className="text-neutral-500 text-sm">Bu kriterlere uygun ürün bulunamadı.</p>
-            <button
-              onClick={clearFilters}
-              className="text-xs uppercase tracking-wide text-accent underline underline-offset-4 hover:text-ink transition-colors"
-            >
-              Filtreleri Temizle
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {visibleProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        )}
-
-        {!loading && stores.length > 0 && (
-          <section className="mt-20 pt-10 border-t border-neutral-200">
-            <h2 className="font-serif text-2xl text-ink tracking-tight mb-5">Tüm Mağazalar</h2>
-            <div className="flex gap-5 overflow-x-auto pb-2">
-              {stores.map((store) => (
-                <div key={store.id} className="shrink-0 w-72">
-                  <StoreCard
-                    store={store}
-                    onFollow={() => adjustFollowerCount(store.id, 1)}
-                    onUnfollow={() => adjustFollowerCount(store.id, -1)}
-                  />
-                </div>
-              ))}
             </div>
-          </section>
+          ) : (
+            <>
+              <div className="mb-8 overflow-x-auto pb-2">
+                <div className="flex gap-3 min-w-max">
+                  {followedBrands.map((brand) => (
+                    <Link
+                      key={brand.id}
+                      href={`/profile/${brand.username}`}
+                      className="flex items-center gap-3 rounded-full border border-neutral-200 bg-white px-3 py-2 shadow-sm hover:border-ink transition-colors"
+                    >
+                      {brand.avatar_url ? (
+                        <Image
+                          src={brand.avatar_url}
+                          alt={brand.username}
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-600">
+                          {brand.username?.[0]?.toUpperCase()}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1 text-sm font-medium text-ink">
+                          @{brand.username}
+                          <BrandBadge />
+                        </div>
+                        {brand.newThisWeekCount > 0 ? (
+                          <p className="text-xs text-gray-500">{brand.newThisWeekCount} yeni ürün bu hafta</p>
+                        ) : null}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {followedProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            </>
+          )
+        ) : (
+          <>
+            <div className="relative max-w-md mt-2">
+              <Search size={15} strokeWidth={1.5} className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Ürün adına göre ara..."
+                className="w-full bg-transparent border-b border-neutral-300 pl-6 pr-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-ink transition-colors"
+              />
+            </div>
+
+            <div className="flex items-end gap-4 mt-6 overflow-x-auto pb-1">
+              <div className="shrink-0">
+                <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Marka</label>
+                <select
+                  value={brandFilter}
+                  onChange={(e) => setBrandFilter(e.target.value)}
+                  className="border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+                >
+                  <option value="">Tüm Markalar</option>
+                  {stores.map((s) => (
+                    <option key={s.id} value={s.username}>
+                      {s.username}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="shrink-0">
+                <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Kategori</label>
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+                >
+                  <option value="">Tüm Kategoriler</option>
+                  {CATEGORIES.map((c) => (
+                    <option key={c.value} value={c.value}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="shrink-0">
+                <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Min Fiyat</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                  placeholder="0"
+                  className="w-24 border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+                />
+              </div>
+
+              <div className="shrink-0">
+                <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Max Fiyat</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  placeholder="∞"
+                  className="w-24 border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+                />
+              </div>
+
+              <div className="shrink-0">
+                <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Sırala</label>
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as Sort)}
+                  className="border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+                >
+                  {SORT_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="shrink-0 text-xs uppercase tracking-wide text-gray-500 underline underline-offset-4 hover:text-accent transition-colors pb-2"
+                >
+                  Filtreleri Temizle
+                </button>
+              )}
+            </div>
+
+            {loading ? (
+              <SkeletonGrid count={8} />
+            ) : stores.length === 0 ? (
+              <div className="flex flex-col items-center text-center py-20 gap-3">
+                <StoreIcon size={28} strokeWidth={1.2} className="text-gray-300" />
+                <p className="text-neutral-500 text-sm">Henüz mağaza yok.</p>
+                <p className="text-neutral-400 text-xs">Markalar onaylandıkça burada listelenecek.</p>
+                {viewerAccountType && viewerAccountType !== "brand" && (
+                  <Link
+                    href="/brand/apply"
+                    className="text-xs uppercase tracking-wide text-accent underline underline-offset-4 hover:text-ink transition-colors"
+                  >
+                    Markanızı buraya eklemek için başvurun
+                  </Link>
+                )}
+              </div>
+            ) : products.length === 0 ? (
+              <div className="flex flex-col items-center text-center py-20 gap-3">
+                <ShoppingBag size={28} strokeWidth={1} className="text-neutral-300" />
+                <p className="text-neutral-500 text-sm">Markalar henüz ürün eklememiş.</p>
+              </div>
+            ) : visibleProducts.length === 0 ? (
+              <div className="flex flex-col items-center text-center py-20 gap-3">
+                <ShoppingBag size={28} strokeWidth={1} className="text-neutral-300" />
+                <p className="text-neutral-500 text-sm">Bu kriterlere uygun ürün bulunamadı.</p>
+                <button
+                  onClick={clearFilters}
+                  className="text-xs uppercase tracking-wide text-accent underline underline-offset-4 hover:text-ink transition-colors"
+                >
+                  Filtreleri Temizle
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {visibleProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            )}
+
+            {!loading && stores.length > 0 && (
+              <section className="mt-20 pt-10 border-t border-neutral-200">
+                <h2 className="font-serif text-2xl text-ink tracking-tight mb-5">Tüm Mağazalar</h2>
+                <div className="flex gap-5 overflow-x-auto pb-2">
+                  {stores.map((store) => (
+                    <div key={store.id} className="shrink-0 w-72">
+                      <StoreCard
+                        store={store}
+                        onFollow={() => adjustFollowerCount(store.id, 1)}
+                        onUnfollow={() => adjustFollowerCount(store.id, -1)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </>
         )}
       </div>
     </main>
