@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getEraLabel } from "@/lib/eras";
+import { getCategoryLabel } from "@/lib/categories";
 import { supabase } from "../../utils/supabase";
 import LikeButton from "../../components/LikeButton";
 import SaveButton from "../../components/SaveButton";
@@ -66,13 +67,22 @@ export default async function ProductDetailPage({ params }: Props) {
                   {product.description}
                 </p>
               )}
-              {product.era && (
-                <Link
-                  href={`/era/${product.era}`}
-                  className="inline-block mt-3 text-xs uppercase tracking-wide text-gray-600 border border-neutral-300 px-2 py-0.5 hover:border-accent hover:text-accent transition-colors"
-                >
-                  {getEraLabel(product.era)}
-                </Link>
+              {(product.era || product.category) && (
+                <div className="flex flex-wrap items-center gap-2 mt-3">
+                  {product.era && (
+                    <Link
+                      href={`/era/${product.era}`}
+                      className="inline-block text-xs uppercase tracking-wide text-gray-600 border border-neutral-300 px-2 py-0.5 hover:border-accent hover:text-accent transition-colors"
+                    >
+                      {getEraLabel(product.era)}
+                    </Link>
+                  )}
+                  {product.category && (
+                    <span className="inline-block text-xs uppercase tracking-wide text-gray-600 border border-neutral-300 px-2 py-0.5">
+                      {getCategoryLabel(product.category)}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
 

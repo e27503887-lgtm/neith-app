@@ -6,6 +6,7 @@ import { ShoppingBag } from "lucide-react";
 import { supabase } from "../utils/supabase";
 import ProductCard from "../components/ProductCard";
 import SkeletonGrid from "../components/SkeletonGrid";
+import { CATEGORIES } from "@/lib/categories";
 
 const PAGE_SIZE = 20;
 
@@ -16,6 +17,7 @@ type Product = {
   image_url: string;
   username: string;
   seller_type: string | null;
+  category: string | null;
   created_at: string;
   avatar_url: string | null;
   account_type: string | null;
@@ -39,6 +41,7 @@ export default function ListingsPage() {
 
   const [tab, setTab] = useState<Tab>("all");
   const [sort, setSort] = useState<Sort>("newest");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -98,7 +101,7 @@ export default function ListingsPage() {
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [tab, sort, minPrice, maxPrice]);
+  }, [tab, sort, categoryFilter, minPrice, maxPrice]);
 
   const filteredAndSorted = useMemo(() => {
     const min = minPrice.trim() ? Number(minPrice) : null;
@@ -107,6 +110,7 @@ export default function ListingsPage() {
     const filtered = products.filter((p) => {
       if (tab === "user" && p.seller_type === "brand") return false;
       if (tab === "brand" && p.seller_type !== "brand") return false;
+      if (categoryFilter && p.category !== categoryFilter) return false;
       if (min !== null && p.price < min) return false;
       if (max !== null && p.price > max) return false;
       return true;
@@ -124,7 +128,7 @@ export default function ListingsPage() {
     }
 
     return sorted;
-  }, [products, tab, sort, minPrice, maxPrice, popularityById]);
+  }, [products, tab, sort, categoryFilter, minPrice, maxPrice, popularityById]);
 
   const visibleProducts = filteredAndSorted.slice(0, visibleCount);
   const hasMore = visibleCount < filteredAndSorted.length;
@@ -170,6 +174,22 @@ export default function ListingsPage() {
           </div>
 
           <div>
+            <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Kategori</label>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+            >
+              <option value="">Tüm Kategoriler</option>
+              {CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
             <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Min Fiyat</label>
             <input
               type="number"
@@ -193,15 +213,16 @@ export default function ListingsPage() {
             />
           </div>
 
-          {(minPrice || maxPrice) && (
+          {(categoryFilter || minPrice || maxPrice) && (
             <button
               onClick={() => {
+                setCategoryFilter("");
                 setMinPrice("");
                 setMaxPrice("");
               }}
               className="text-xs uppercase tracking-wide text-gray-500 underline underline-offset-4 hover:text-accent transition-colors pb-2"
             >
-              Fiyat Filtresini Temizle
+              Filtreleri Temizle
             </button>
           )}
         </div>

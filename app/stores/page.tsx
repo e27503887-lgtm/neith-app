@@ -7,6 +7,7 @@ import { supabase } from "../utils/supabase";
 import ProductCard from "../components/ProductCard";
 import StoreCard, { type StoreCardData } from "../components/StoreCard";
 import SkeletonGrid from "../components/SkeletonGrid";
+import { CATEGORIES } from "@/lib/categories";
 
 type Product = {
   id: number | string;
@@ -14,6 +15,7 @@ type Product = {
   price: number;
   image_url: string;
   username: string;
+  category: string | null;
   created_at: string;
   avatar_url: string | null;
   account_type: string | null;
@@ -41,6 +43,7 @@ export default function StoresPage() {
 
   const [search, setSearch] = useState("");
   const [brandFilter, setBrandFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [sort, setSort] = useState<Sort>("newest");
@@ -78,7 +81,7 @@ export default function StoresPage() {
       const [{ data: productRows }, { data: followRows }, { data: popularRows }] = await Promise.all([
         supabase
           .from("products")
-          .select("id, user_id, username, title, price, image_url, created_at")
+          .select("id, user_id, username, title, price, image_url, category, created_at")
           .eq("seller_type", "brand")
           .in("user_id", brandIds)
           .order("created_at", { ascending: false }),
@@ -137,6 +140,7 @@ export default function StoresPage() {
           price: p.price,
           image_url: p.image_url,
           username: p.username,
+          category: p.category,
           created_at: p.created_at,
           avatar_url: profileById.get(p.user_id)?.avatar_url ?? null,
           account_type: "brand",
@@ -160,11 +164,14 @@ export default function StoresPage() {
     );
   }
 
-  const hasActiveFilters = Boolean(search.trim() || brandFilter || minPrice.trim() || maxPrice.trim());
+  const hasActiveFilters = Boolean(
+    search.trim() || brandFilter || categoryFilter || minPrice.trim() || maxPrice.trim()
+  );
 
   function clearFilters() {
     setSearch("");
     setBrandFilter("");
+    setCategoryFilter("");
     setMinPrice("");
     setMaxPrice("");
   }
@@ -177,6 +184,7 @@ export default function StoresPage() {
     const filtered = products.filter((p) => {
       if (q && !p.title.toLowerCase().includes(q)) return false;
       if (brandFilter && p.username !== brandFilter) return false;
+      if (categoryFilter && p.category !== categoryFilter) return false;
       if (min !== null && p.price < min) return false;
       if (max !== null && p.price > max) return false;
       return true;
@@ -193,7 +201,7 @@ export default function StoresPage() {
       sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     }
     return sorted;
-  }, [products, search, brandFilter, minPrice, maxPrice, sort, popularityById]);
+  }, [products, search, brandFilter, categoryFilter, minPrice, maxPrice, sort, popularityById]);
 
   return (
     <main className="min-h-screen bg-paper pt-24 pb-24 px-6">
@@ -228,6 +236,22 @@ export default function StoresPage() {
                 {stores.map((s) => (
                   <option key={s.id} value={s.username}>
                     {s.username}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="shrink-0">
+              <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Kategori</label>
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+              >
+                <option value="">Tüm Kategoriler</option>
+                {CATEGORIES.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
                   </option>
                 ))}
               </select>
