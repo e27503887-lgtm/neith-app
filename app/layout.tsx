@@ -4,7 +4,6 @@ import Navbar from "./Navbar";
 import Sidebar from "./components/Sidebar";
 import MobileTabBar from "./components/MobileTabBar";
 import PageTransition from "./components/PageTransition";
-import ChatWidget from "./components/ChatWidget";
 import NotificationSystem from "./components/NotificationSystem";
 import BrandSplash from "./components/BrandSplash";
 import "./globals.css";
@@ -34,7 +33,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <PageTransition>{children}</PageTransition>
         </div>
         <NotificationSystem />
-        <ChatWidget />
         <MobileTabBar />
         <BrandSplash />
       </body>
