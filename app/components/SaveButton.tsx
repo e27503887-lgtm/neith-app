@@ -9,7 +9,11 @@ type Props =
   | { productId: number | string; outfitId?: undefined }
   | { productId?: undefined; outfitId: number | string };
 
-export default function SaveButton({ productId, outfitId }: Props) {
+export default function SaveButton({
+  productId,
+  outfitId,
+  className,
+}: Props & { className?: string }) {
   const targetColumn = productId != null ? "product_id" : "outfit_id";
   const targetId = (productId ?? outfitId) as number | string;
 
@@ -87,7 +91,7 @@ export default function SaveButton({ productId, outfitId }: Props) {
   }
 
   return (
-    <button onClick={handleClick} className="text-gray-600 hover:text-accent transition-colors">
+    <button onClick={handleClick} className={`text-gray-600 transition-colors hover:text-accent ${className ?? ""}`}>
       <Bookmark
         size={20}
         strokeWidth={1.5}

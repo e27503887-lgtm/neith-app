@@ -5,7 +5,17 @@ import { Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../utils/supabase";
 
-export default function LikeButton({ productId }: { productId: number | string }) {
+export default function LikeButton({
+  productId,
+  className,
+  showCount = true,
+  iconSize = 18,
+}: {
+  productId: number | string;
+  className?: string;
+  showCount?: boolean;
+  iconSize?: number;
+}) {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [liked, setLiked] = useState(false);
@@ -93,15 +103,15 @@ export default function LikeButton({ productId }: { productId: number | string }
   return (
     <button
       onClick={handleClick}
-      className="flex items-center gap-1 text-sm text-gray-600 hover:text-accent transition-colors"
+      className={`flex items-center gap-1 text-sm text-gray-600 transition-colors hover:text-accent ${className ?? ""}`}
     >
       <Heart
-        size={18}
+        size={iconSize}
         strokeWidth={1.5}
         className={`${liked ? "text-accent" : "text-gray-400"} ${popping ? "animate-pop" : ""}`}
         fill={liked ? "currentColor" : "none"}
       />
-      <span>{count}</span>
+      {showCount && <span>{count}</span>}
     </button>
   );
 }

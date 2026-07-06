@@ -229,7 +229,7 @@ export default function SearchResults() {
             {stores.length > 0 && (
               <section>
                 <h3 className="section-label mb-3">Mağazalar</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                   {stores.map((s) => (
                     <StoreCard
                       key={s.id}
@@ -245,7 +245,7 @@ export default function SearchResults() {
             {products.length > 0 && (
               <section>
                 <h3 className="section-label mb-3">Ürünler</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                   {products.map((p) => (
                     <ProductCard key={p.id} product={p} />
                   ))}
