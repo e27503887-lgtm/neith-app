@@ -23,6 +23,12 @@ const MENU_OPTIONS = [
   { key: "story", label: "Öykü Paylaş", icon: Camera, active: false },
 ] as const;
 
+// Measured: the "+" button's visual center sits ~44px above the viewport bottom.
+// Stacking the options 110px apart from that point keeps the top option
+// comfortably (~300px+) clear of the tab bar instead of hugging it.
+const PLUS_BUTTON_CENTER_OFFSET = 44;
+const OPTION_STACK_GAP = 110;
+
 export default function MobileTabBar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -98,7 +104,7 @@ export default function MobileTabBar() {
                   <motion.div
                     key={option.key}
                     className="absolute left-1/2 -translate-x-1/2"
-                    style={{ bottom: 84 + index * 76 }}
+                    style={{ bottom: PLUS_BUTTON_CENTER_OFFSET + (index + 1) * OPTION_STACK_GAP }}
                     custom={index}
                     initial={{ opacity: 0, scale: 0.3, y: 16 }}
                     animate={{
