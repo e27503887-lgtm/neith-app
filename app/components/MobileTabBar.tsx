@@ -25,7 +25,7 @@ const MENU_OPTIONS = [
 
 // Measured: the "+" button's visual center sits ~44px above the viewport bottom.
 const PLUS_BUTTON_CENTER_OFFSET = 44;
-const OPTION_STACK_GAP = 72;
+const OPTION_STACK_GAP = 56;
 
 export default function MobileTabBar() {
   const pathname = usePathname();
