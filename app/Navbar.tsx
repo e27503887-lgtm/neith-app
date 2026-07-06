@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { AnimatePresence } from "framer-motion";
 import { Search, Heart, Mail, ChevronDown, X, User as UserIcon } from "lucide-react";
 import { supabase } from "./utils/supabase";
 import NotificationBell from "./components/NotificationBell";
+import MobileMessagesPanel from "./components/MobileMessagesPanel";
 import type { User } from "@supabase/supabase-js";
 
 type Profile = { username: string; avatar_url: string | null };
@@ -18,6 +21,8 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [messagesOpen, setMessagesOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -52,6 +57,10 @@ export default function Navbar() {
       active = false;
       listener.subscription.unsubscribe();
     };
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
   async function handleLogout() {
@@ -145,7 +154,14 @@ export default function Navbar() {
         <Link href="/favorites">
           <Heart size={19} strokeWidth={1.5} className="text-gray-500 hover:text-accent transition-colors" />
         </Link>
-        <Link href="/messages">
+        <button
+          onClick={() => setMessagesOpen(true)}
+          aria-label="Mesajlar"
+          className="md:hidden text-gray-500 hover:text-accent transition-colors"
+        >
+          <Mail size={19} strokeWidth={1.5} />
+        </button>
+        <Link href="/messages" className="hidden md:inline">
           <Mail size={19} strokeWidth={1.5} className="text-gray-500 hover:text-accent transition-colors" />
         </Link>
         <NotificationBell />
@@ -263,6 +279,14 @@ export default function Navbar() {
           </div>
         </div>
       )}
+
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {messagesOpen && <MobileMessagesPanel onClose={() => setMessagesOpen(false)} />}
+          </AnimatePresence>,
+          document.body
+        )}
     </nav>
   );
 }
