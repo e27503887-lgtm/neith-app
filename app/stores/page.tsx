@@ -2,27 +2,48 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, Store as StoreIcon } from "lucide-react";
+import { Search, ShoppingBag, Store as StoreIcon } from "lucide-react";
 import { supabase } from "../utils/supabase";
+import ProductCard from "../components/ProductCard";
 import StoreCard, { type StoreCardData } from "../components/StoreCard";
 import SkeletonGrid from "../components/SkeletonGrid";
 
-type Store = StoreCardData & { joinedAt: string };
+type Product = {
+  id: number | string;
+  title: string;
+  price: number;
+  image_url: string;
+  username: string;
+  created_at: string;
+  avatar_url: string | null;
+  account_type: string | null;
+  comment_count: number;
+};
 
-type Sort = "followers" | "products" | "newest";
+type Store = StoreCardData;
+
+type Sort = "newest" | "price_asc" | "price_desc" | "popular";
 
 const SORT_OPTIONS: { value: Sort; label: string }[] = [
-  { value: "followers", label: "En Çok Takip Edilen" },
-  { value: "products", label: "En Çok Ürünü Olan" },
-  { value: "newest", label: "En Yeni Katılan" },
+  { value: "newest", label: "En Yeni" },
+  { value: "price_asc", label: "Fiyat: Artan" },
+  { value: "price_desc", label: "Fiyat: Azalan" },
+  { value: "popular", label: "Popüler" },
 ];
 
 export default function StoresPage() {
   const [loading, setLoading] = useState(true);
   const [viewerAccountType, setViewerAccountType] = useState<string | null | undefined>(undefined);
+
+  const [products, setProducts] = useState<Product[]>([]);
+  const [popularityById, setPopularityById] = useState<Map<number | string, number>>(new Map());
   const [stores, setStores] = useState<Store[]>([]);
+
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<Sort>("followers");
+  const [brandFilter, setBrandFilter] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [sort, setSort] = useState<Sort>("newest");
 
   useEffect(() => {
     let active = true;
@@ -49,21 +70,25 @@ export default function StoresPage() {
 
       if (brandIds.length === 0) {
         setStores([]);
+        setProducts([]);
         setLoading(false);
         return;
       }
 
-      const [{ data: productRows }, { data: followRows }] = await Promise.all([
+      const [{ data: productRows }, { data: followRows }, { data: popularRows }] = await Promise.all([
         supabase
           .from("products")
-          .select("id, user_id, image_url, created_at")
+          .select("id, user_id, username, title, price, image_url, created_at")
           .eq("seller_type", "brand")
           .in("user_id", brandIds)
           .order("created_at", { ascending: false }),
         supabase.from("follows").select("following_id").in("following_id", brandIds),
+        supabase.from("popular_products").select("id, popularity_score"),
       ]);
 
       if (!active) return;
+
+      const profileById = new Map((brandProfiles ?? []).map((b) => [b.id, b]));
 
       const recentProductsByBrand = new Map<string, { id: number | string; image_url: string }[]>();
       const productCountByBrand = new Map<string, number>();
@@ -90,9 +115,36 @@ export default function StoresPage() {
           recentProducts: recentProductsByBrand.get(b.id) ?? [],
           productCount: productCountByBrand.get(b.id) ?? 0,
           followerCount: followerCountByBrand.get(b.id) ?? 0,
-          joinedAt: b.created_at,
         }))
       );
+
+      const productIds = (productRows ?? []).map((p) => p.id);
+      const { data: commentRows } = productIds.length
+        ? await supabase.from("comments").select("product_id").in("product_id", productIds)
+        : { data: [] as { product_id: number | string }[] };
+
+      if (!active) return;
+
+      const commentCountByProduct = new Map<number | string, number>();
+      (commentRows ?? []).forEach((c) => {
+        commentCountByProduct.set(c.product_id, (commentCountByProduct.get(c.product_id) ?? 0) + 1);
+      });
+
+      setProducts(
+        (productRows ?? []).map((p) => ({
+          id: p.id,
+          title: p.title,
+          price: p.price,
+          image_url: p.image_url,
+          username: p.username,
+          created_at: p.created_at,
+          avatar_url: profileById.get(p.user_id)?.avatar_url ?? null,
+          account_type: "brand",
+          comment_count: commentCountByProduct.get(p.id) ?? 0,
+        }))
+      );
+
+      setPopularityById(new Map((popularRows ?? []).map((r) => [r.id, r.popularity_score as number])));
       setLoading(false);
     }
 
@@ -108,42 +160,104 @@ export default function StoresPage() {
     );
   }
 
-  const visibleStores = useMemo(() => {
+  const hasActiveFilters = Boolean(search.trim() || brandFilter || minPrice.trim() || maxPrice.trim());
+
+  function clearFilters() {
+    setSearch("");
+    setBrandFilter("");
+    setMinPrice("");
+    setMaxPrice("");
+  }
+
+  const visibleProducts = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const filtered = q ? stores.filter((s) => s.username.toLowerCase().includes(q)) : stores;
+    const min = minPrice.trim() ? Number(minPrice) : null;
+    const max = maxPrice.trim() ? Number(maxPrice) : null;
+
+    const filtered = products.filter((p) => {
+      if (q && !p.title.toLowerCase().includes(q)) return false;
+      if (brandFilter && p.username !== brandFilter) return false;
+      if (min !== null && p.price < min) return false;
+      if (max !== null && p.price > max) return false;
+      return true;
+    });
 
     const sorted = [...filtered];
-    if (sort === "followers") {
-      sorted.sort((a, b) => b.followerCount - a.followerCount);
-    } else if (sort === "products") {
-      sorted.sort((a, b) => b.productCount - a.productCount);
+    if (sort === "price_asc") {
+      sorted.sort((a, b) => a.price - b.price);
+    } else if (sort === "price_desc") {
+      sorted.sort((a, b) => b.price - a.price);
+    } else if (sort === "popular") {
+      sorted.sort((a, b) => (popularityById.get(b.id) ?? 0) - (popularityById.get(a.id) ?? 0));
     } else {
-      sorted.sort((a, b) => new Date(b.joinedAt).getTime() - new Date(a.joinedAt).getTime());
+      sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     }
     return sorted;
-  }, [stores, search, sort]);
+  }, [products, search, brandFilter, minPrice, maxPrice, sort, popularityById]);
 
   return (
     <main className="min-h-screen bg-paper pt-24 pb-24 px-6">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-10 border-b border-neutral-200 pb-8">
+        <div className="mb-8 border-b border-neutral-200 pb-8">
           <p className="text-xs uppercase tracking-[0.24em] text-neutral-500 mb-2">Marka Vitrini</p>
           <h1 className="font-serif text-4xl md:text-5xl tracking-tight text-ink">Mağazalar</h1>
-          <p className="mt-3 text-sm text-gray-500">Sevdiğin markaları keşfet</p>
+          <p className="mt-3 text-sm text-gray-500">
+            {loading ? "Yükleniyor..." : `${visibleProducts.length} ürün bulundu`}
+          </p>
 
-          <div className="flex flex-wrap items-end gap-4 mt-6">
-            <div className="relative max-w-sm flex-1 min-w-[200px]">
-              <Search size={15} strokeWidth={1.5} className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400" />
+          <div className="relative max-w-md mt-6">
+            <Search size={15} strokeWidth={1.5} className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Ürün adına göre ara..."
+              className="w-full bg-transparent border-b border-neutral-300 pl-6 pr-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-ink transition-colors"
+            />
+          </div>
+
+          <div className="flex items-end gap-4 mt-6 overflow-x-auto pb-1">
+            <div className="shrink-0">
+              <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Marka</label>
+              <select
+                value={brandFilter}
+                onChange={(e) => setBrandFilter(e.target.value)}
+                className="border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+              >
+                <option value="">Tüm Markalar</option>
+                {stores.map((s) => (
+                  <option key={s.id} value={s.username}>
+                    {s.username}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="shrink-0">
+              <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Min Fiyat</label>
               <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Marka adına göre ara..."
-                className="w-full bg-transparent border-b border-neutral-300 pl-6 pr-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-ink transition-colors"
+                type="number"
+                min="0"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                placeholder="0"
+                className="w-24 border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
               />
             </div>
 
-            <div>
+            <div className="shrink-0">
+              <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Max Fiyat</label>
+              <input
+                type="number"
+                min="0"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                placeholder="∞"
+                className="w-24 border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+              />
+            </div>
+
+            <div className="shrink-0">
               <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1.5">Sırala</label>
               <select
                 value={sort}
@@ -157,11 +271,20 @@ export default function StoresPage() {
                 ))}
               </select>
             </div>
+
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="shrink-0 text-xs uppercase tracking-wide text-gray-500 underline underline-offset-4 hover:text-accent transition-colors pb-2"
+              >
+                Filtreleri Temizle
+              </button>
+            )}
           </div>
         </div>
 
         {loading ? (
-          <SkeletonGrid count={6} />
+          <SkeletonGrid count={8} />
         ) : stores.length === 0 ? (
           <div className="flex flex-col items-center text-center py-20 gap-3">
             <StoreIcon size={28} strokeWidth={1.2} className="text-gray-300" />
@@ -176,19 +299,45 @@ export default function StoresPage() {
               </Link>
             )}
           </div>
-        ) : visibleStores.length === 0 ? (
-          <p className="text-sm text-gray-500">&quot;{search}&quot; ile eşleşen mağaza bulunamadı.</p>
+        ) : products.length === 0 ? (
+          <div className="flex flex-col items-center text-center py-20 gap-3">
+            <ShoppingBag size={28} strokeWidth={1} className="text-neutral-300" />
+            <p className="text-neutral-500 text-sm">Markalar henüz ürün eklememiş.</p>
+          </div>
+        ) : visibleProducts.length === 0 ? (
+          <div className="flex flex-col items-center text-center py-20 gap-3">
+            <ShoppingBag size={28} strokeWidth={1} className="text-neutral-300" />
+            <p className="text-neutral-500 text-sm">Bu kriterlere uygun ürün bulunamadı.</p>
+            <button
+              onClick={clearFilters}
+              className="text-xs uppercase tracking-wide text-accent underline underline-offset-4 hover:text-ink transition-colors"
+            >
+              Filtreleri Temizle
+            </button>
+          </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {visibleStores.map((store) => (
-              <StoreCard
-                key={store.id}
-                store={store}
-                onFollow={() => adjustFollowerCount(store.id, 1)}
-                onUnfollow={() => adjustFollowerCount(store.id, -1)}
-              />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {visibleProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
+        )}
+
+        {!loading && stores.length > 0 && (
+          <section className="mt-20 pt-10 border-t border-neutral-200">
+            <h2 className="font-serif text-2xl text-ink tracking-tight mb-5">Tüm Mağazalar</h2>
+            <div className="flex gap-5 overflow-x-auto pb-2">
+              {stores.map((store) => (
+                <div key={store.id} className="shrink-0 w-72">
+                  <StoreCard
+                    store={store}
+                    onFollow={() => adjustFollowerCount(store.id, 1)}
+                    onUnfollow={() => adjustFollowerCount(store.id, -1)}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
         )}
       </div>
     </main>
