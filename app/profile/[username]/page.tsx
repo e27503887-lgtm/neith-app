@@ -1,14 +1,14 @@
-import Image from "next/image";
-import ProductCard from "../../components/ProductCard";
-import BrandBadge from "../../components/BrandBadge";
 import FollowButton from "../../components/FollowButton";
 import { supabase } from "../../utils/supabase";
-import StartChatButton from "../../components/StartChatButton";
 import UserProfileCard from "../../components/UserProfileCard";
 import EditorialHub from "../../components/EditorialHub";
 import StyleTags from "../../components/StyleTags";
 import WardrobeGrid from "../../components/WardrobeGrid";
 import AdminPanelLink from "../../components/AdminPanelLink";
+import BrandProfileHeader from "../../components/BrandProfileHeader";
+import ProductShelf from "../../components/ProductShelf";
+import OutfitShelf from "../../components/OutfitShelf";
+import { CATEGORIES } from "@/lib/categories";
 
 type Props = {
   params: Promise<{ username: string }>;
@@ -80,6 +80,65 @@ export default async function ProfilePage({ params }: Props) {
     .from("follows")
     .select("*", { count: "exact", head: true })
     .eq("follower_id", profile.id);
+
+  if (profile.account_type === "brand") {
+    const joinedLabel = new Date(profile.created_at).toLocaleDateString("tr-TR", {
+      month: "long",
+      year: "numeric",
+    });
+
+    const productsByCategory = new Map<string, NonNullable<typeof products>>();
+    (products ?? []).forEach((p) => {
+      const key = p.category ?? "diger";
+      const list = productsByCategory.get(key) ?? [];
+      list.push(p);
+      productsByCategory.set(key, list);
+    });
+
+    const toShelfProduct = (p: NonNullable<typeof products>[number]) => ({
+      id: p.id,
+      title: p.title,
+      price: p.price,
+      image_url: p.image_url,
+      username: p.username,
+      avatar_url: profile.avatar_url,
+      comment_count: commentCountByProduct.get(p.id) ?? 0,
+      account_type: profile.account_type,
+    });
+
+    return (
+      <main className="min-h-screen bg-paper pt-24 pb-12">
+        <BrandProfileHeader
+          userId={profile.id}
+          username={profile.username}
+          avatar_url={profile.avatar_url}
+          banner_url={profile.banner_url}
+          bio={profile.bio}
+          productCount={products?.length ?? 0}
+          followerCount={followerCount ?? 0}
+          joinedLabel={joinedLabel}
+        />
+
+        <div className="max-w-6xl mx-auto px-6 md:px-10">
+          {CATEGORIES.map((c) => (
+            <ProductShelf
+              key={c.value}
+              title={c.label}
+              products={(productsByCategory.get(c.value) ?? []).map(toShelfProduct)}
+            />
+          ))}
+
+          <OutfitShelf
+            outfits={(outfits ?? []).map((o) => ({
+              id: o.id,
+              title: o.title,
+              image_url: o.image_url,
+            }))}
+          />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-paper pt-24 pb-12 px-6">

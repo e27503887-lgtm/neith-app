@@ -13,9 +13,13 @@ export default function EditProfilePage() {
 
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
+  const [accountType, setAccountType] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [bannerUrl, setBannerUrl] = useState<string | null>(null);
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
   const [allowDms, setAllowDms] = useState(true);
 
   const [loading, setLoading] = useState(false);
@@ -33,14 +37,16 @@ export default function EditProfilePage() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("username, bio, avatar_url, allow_dms")
+        .select("username, bio, avatar_url, banner_url, account_type, allow_dms")
         .eq("id", data.user.id)
         .single();
 
       if (profile) {
         setUsername(profile.username ?? "");
         setBio(profile.bio ?? "");
+        setAccountType(profile.account_type ?? null);
         setAvatarUrl(profile.avatar_url ?? null);
+        setBannerUrl(profile.banner_url ?? null);
         setAllowDms(profile.allow_dms ?? true);
       }
 
@@ -63,6 +69,23 @@ export default function EditProfilePage() {
 
     setAvatarFile(selected);
     setAvatarPreview(URL.createObjectURL(selected));
+  }
+
+  function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const selected = e.target.files?.[0] ?? null;
+
+    if (bannerPreview) {
+      URL.revokeObjectURL(bannerPreview);
+    }
+
+    if (!selected) {
+      setBannerFile(null);
+      setBannerPreview(null);
+      return;
+    }
+
+    setBannerFile(selected);
+    setBannerPreview(URL.createObjectURL(selected));
   }
 
   async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
@@ -96,9 +119,38 @@ export default function EditProfilePage() {
       newAvatarUrl = publicUrlData.publicUrl;
     }
 
+    let newBannerUrl = bannerUrl;
+
+    if (bannerFile) {
+      const extension = bannerFile.name.split(".").pop() || "jpg";
+      const path = `${user.id}/banner.${extension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("product-images")
+        .upload(path, bannerFile, { upsert: true });
+
+      if (uploadError) {
+        setError("Banner yüklenirken bir hata oluştu: " + uploadError.message);
+        setLoading(false);
+        return;
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from("product-images")
+        .getPublicUrl(path);
+
+      newBannerUrl = publicUrlData.publicUrl;
+    }
+
     const { error: updateError } = await supabase
       .from("profiles")
-      .update({ username, bio, avatar_url: newAvatarUrl, allow_dms: allowDms })
+      .update({
+        username,
+        bio,
+        avatar_url: newAvatarUrl,
+        allow_dms: allowDms,
+        ...(accountType === "brand" ? { banner_url: newBannerUrl } : {}),
+      })
       .eq("id", user.id);
 
     setLoading(false);
@@ -153,6 +205,33 @@ export default function EditProfilePage() {
               className="flex-1 text-sm"
             />
           </div>
+
+          {accountType === "brand" && (
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Banner Fotoğrafı</p>
+              <div className="relative w-full aspect-[16/5] bg-neutral-100 border border-neutral-200 overflow-hidden">
+                {bannerPreview || bannerUrl ? (
+                  <Image
+                    src={bannerPreview ?? bannerUrl ?? ""}
+                    alt="Banner önizleme"
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-xs uppercase tracking-wide text-neutral-400">
+                    Banner yok
+                  </div>
+                )}
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleBannerChange}
+                className="mt-2 w-full text-sm"
+              />
+              <p className="text-xs text-gray-400 mt-1">Önerilen oran: 16:5 (geniş dikdörtgen).</p>
+            </div>
+          )}
 
           <input
             value={username}
