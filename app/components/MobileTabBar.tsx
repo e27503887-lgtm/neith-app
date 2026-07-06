@@ -24,10 +24,8 @@ const MENU_OPTIONS = [
 ] as const;
 
 // Measured: the "+" button's visual center sits ~44px above the viewport bottom.
-// Stacking the options 110px apart from that point keeps the top option
-// comfortably (~300px+) clear of the tab bar instead of hugging it.
 const PLUS_BUTTON_CENTER_OFFSET = 44;
-const OPTION_STACK_GAP = 110;
+const OPTION_STACK_GAP = 72;
 
 export default function MobileTabBar() {
   const pathname = usePathname();
@@ -79,7 +77,7 @@ export default function MobileTabBar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            className="md:hidden fixed inset-0 z-40 bg-black/40"
+            className="md:hidden fixed inset-0 z-40 bg-black/60"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
