@@ -6,8 +6,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
-import { Search, Heart, Mail, ChevronDown, X, User as UserIcon } from "lucide-react";
+import { Search, Heart, Mail, ChevronDown, X, User as UserIcon, ShoppingBag } from "lucide-react";
 import { supabase } from "./utils/supabase";
+import { CART_UPDATED_EVENT } from "./utils/cart";
 import NotificationBell from "./components/NotificationBell";
 import MobileMessagesPanel from "./components/MobileMessagesPanel";
 import type { User } from "@supabase/supabase-js";
@@ -23,6 +24,7 @@ export default function Navbar() {
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [messagesOpen, setMessagesOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -37,10 +39,20 @@ export default function Navbar() {
       if (active) setProfile(data ?? null);
     }
 
+    async function loadCart(uid: string) {
+      const { data } = await supabase.from("cart_items").select("quantity").eq("user_id", uid);
+      if (active) {
+        setCartCount((data ?? []).reduce((sum, row) => sum + (row.quantity ?? 0), 0));
+      }
+    }
+
     // Sayfa ilk yüklendiğinde mevcut oturumu al
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user ?? null);
-      if (data.user) loadProfile(data.user.id);
+      if (data.user) {
+        loadProfile(data.user.id);
+        loadCart(data.user.id);
+      }
     });
 
     // Giriş / çıkış olaylarını dinle, Navbar otomatik güncellensin
@@ -48,16 +60,29 @@ export default function Navbar() {
       setUser(session?.user ?? null);
       if (session?.user) {
         loadProfile(session.user.id);
+        loadCart(session.user.id);
       } else {
         setProfile(null);
+        setCartCount(0);
       }
     });
+
+    const handleCartUpdated = () => {
+      if (user?.id) {
+        supabase.from("cart_items").select("quantity").eq("user_id", user.id).then(({ data }) => {
+          setCartCount((data ?? []).reduce((sum, row) => sum + (row.quantity ?? 0), 0));
+        });
+      }
+    };
+
+    window.addEventListener(CART_UPDATED_EVENT, handleCartUpdated);
 
     return () => {
       active = false;
       listener.subscription.unsubscribe();
+      window.removeEventListener(CART_UPDATED_EVENT, handleCartUpdated);
     };
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     setMounted(true);
@@ -153,6 +178,14 @@ export default function Navbar() {
 
         <Link href="/favorites">
           <Heart size={19} strokeWidth={1.5} className="text-gray-500 hover:text-accent transition-colors" />
+        </Link>
+        <Link href="/cart" className="relative">
+          <ShoppingBag size={19} strokeWidth={1.5} className="text-gray-500 hover:text-accent transition-colors" />
+          {cartCount > 0 && (
+            <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#7A2E2E] px-1 text-[10px] font-medium text-paper">
+              {cartCount}
+            </span>
+          )}
         </Link>
         <button
           onClick={() => setMessagesOpen(true)}

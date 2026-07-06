@@ -4,9 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ShoppingBag } from "lucide-react";
+import { useRouter } from "next/navigation";
 import LikeButton from "./LikeButton";
 import SaveButton from "./SaveButton";
 import BrandBadge from "./BrandBadge";
+import { supabase } from "../utils/supabase";
+import { notifyCartUpdated } from "../utils/cart";
 
 type Product = {
   id: number | string;
@@ -17,11 +20,14 @@ type Product = {
   avatar_url?: string | null;
   comment_count?: number;
   account_type?: string | null;
+  seller_type?: string | null;
 };
 
 export default function ProductCard({ product }: { product: Product }) {
   const [showToast, setShowToast] = useState(false);
+  const [buttonLabel, setButtonLabel] = useState("Sepete Ekle");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     return () => {
@@ -29,12 +35,42 @@ export default function ProductCard({ product }: { product: Product }) {
     };
   }, []);
 
-  function handleCartClick(event: React.MouseEvent<HTMLButtonElement>) {
+  async function handleCartClick(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
     event.stopPropagation();
+
+    if (product.seller_type !== "brand") {
+      return;
+    }
+
+    const { data: userData } = await supabase.auth.getUser();
+    const uid = userData.user?.id ?? null;
+    if (!uid) {
+      router.push("/login");
+      return;
+    }
+
+    const { data: existing } = await supabase
+      .from("cart_items")
+      .select("id, quantity")
+      .eq("user_id", uid)
+      .eq("product_id", product.id)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase.from("cart_items").update({ quantity: existing.quantity + 1 }).eq("id", existing.id);
+    } else {
+      await supabase.from("cart_items").insert([{ user_id: uid, product_id: product.id, quantity: 1 }]);
+    }
+
     setShowToast(true);
+    setButtonLabel("Eklendi ✓");
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setShowToast(false), 1400);
+    toastTimer.current = setTimeout(() => {
+      setShowToast(false);
+      setButtonLabel("Sepete Ekle");
+    }, 200);
+    notifyCartUpdated();
   }
 
   return (
@@ -82,20 +118,24 @@ export default function ProductCard({ product }: { product: Product }) {
 
         <div className="flex items-end justify-between border-t border-neutral-200 px-4 pb-4 pt-3">
           <p className="font-serif text-xl text-ink">{product.price.toLocaleString("tr-TR")} ₺</p>
-          <button
-            type="button"
-            aria-label="Sepete ekle"
-            onClick={handleCartClick}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-ink text-paper shadow-sm transition-colors hover:bg-[#4d1b1b]"
-          >
-            <ShoppingBag size={17} strokeWidth={1.5} />
-          </button>
+          {product.seller_type === "brand" ? (
+            <button
+              type="button"
+              aria-label="Sepete ekle"
+              onClick={handleCartClick}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-ink text-paper shadow-sm transition-colors hover:bg-[#4d1b1b]"
+            >
+              <ShoppingBag size={17} strokeWidth={1.5} />
+            </button>
+          ) : (
+            <div className="h-10 w-10" />
+          )}
         </div>
       </div>
 
       {showToast && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-neutral-200 bg-paper/95 px-3 py-1.5 text-xs uppercase tracking-[0.2em] text-ink shadow-sm backdrop-blur">
-          Yakında!
+          {buttonLabel}
         </div>
       )}
     </article>
