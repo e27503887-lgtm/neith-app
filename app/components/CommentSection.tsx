@@ -196,11 +196,11 @@ export default function CommentSection({ productId, outfitId }: Props) {
             onChange={(e) => setDraft(e.target.value.slice(0, MAX_LENGTH))}
             placeholder="Yorum yaz..."
             maxLength={MAX_LENGTH}
-            className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
+            className="flex-1 min-w-0 border rounded-full px-4 py-2 text-sm focus:outline-none"
           />
           <button
             disabled={submitting || !draft.trim()}
-            className="bg-ink text-paper px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
+            className="shrink-0 whitespace-nowrap bg-ink text-paper px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
           >
             Gönder
           </button>

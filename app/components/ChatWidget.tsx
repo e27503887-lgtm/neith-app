@@ -150,7 +150,7 @@ export default function ChatWidget() {
     <>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-40 md:bottom-6 left-6 z-40 w-11 h-11 flex items-center justify-center bg-ink text-paper border border-ink shadow-[0_2px_14px_rgba(0,0,0,0.12)] hover:scale-105 transition-transform"
+        className="fixed bottom-40 md:bottom-6 right-4 md:right-6 z-40 w-11 h-11 flex items-center justify-center bg-ink text-paper border border-ink ring-4 ring-paper shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:scale-105 transition-transform"
       >
         {open ? <X size={18} /> : <MessageCircle size={18} strokeWidth={1.5} />}
         {!open && totalUnread > 0 && (
@@ -161,7 +161,7 @@ export default function ChatWidget() {
       </button>
 
       {open && (
-        <div className="fixed bottom-56 md:bottom-20 left-6 z-40 w-72 sm:w-80 h-[440px] bg-paper border border-neutral-200 shadow-[0_4px_24px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden">
+        <div className="fixed bottom-56 md:bottom-20 right-4 md:right-6 z-40 w-72 sm:w-80 h-[440px] bg-paper border border-neutral-200 shadow-[0_4px_24px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200 shrink-0">
             {activeContact ? (
               <button
@@ -236,11 +236,11 @@ export default function ChatWidget() {
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   placeholder="Kombin önerini yaz..."
-                  className="flex-1 border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:border-ink transition-colors"
+                  className="flex-1 min-w-0 border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:border-ink transition-colors"
                 />
                 <button
                   disabled={!draft.trim()}
-                  className="bg-ink text-paper px-3 py-2 text-sm disabled:opacity-40 transition-opacity"
+                  className="shrink-0 bg-ink text-paper px-3 py-2 text-sm disabled:opacity-40 transition-opacity"
                 >
                   <Send size={14} />
                 </button>

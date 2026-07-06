@@ -19,6 +19,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 6 }}
         transition={{ duration: 0.4, ease: SOFT_EASE }}
+        className="pb-40 md:pb-0"
       >
         {children}
       </motion.div>
