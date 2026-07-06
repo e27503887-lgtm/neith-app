@@ -98,7 +98,7 @@ export default function MobileTabBar() {
                   <motion.div
                     key={option.key}
                     className="absolute left-1/2 -translate-x-1/2"
-                    style={{ bottom: 60 + index * 56 }}
+                    style={{ bottom: 84 + index * 76 }}
                     custom={index}
                     initial={{ opacity: 0, scale: 0.3, y: 16 }}
                     animate={{
@@ -114,7 +114,7 @@ export default function MobileTabBar() {
                       transition: { delay: (MENU_OPTIONS.length - 1 - index) * 0.05, duration: 0.15, ease: "easeIn" },
                     }}
                   >
-                    <span className="absolute right-full mr-2 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-ink text-paper text-[11px] px-2.5 py-1 shadow">
+                    <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-ink text-paper text-[11px] px-2.5 py-1 shadow">
                       {option.label}
                     </span>
                     <button
