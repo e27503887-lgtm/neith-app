@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../utils/supabase";
 import { useRouter, useSearchParams } from "next/navigation";
+import { consumePendingInviteCode } from "@/lib/invites";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -55,6 +56,7 @@ export default function LoginForm() {
             await supabase
               .from("profiles")
               .insert([{ id: data.user.id, username, bio: "", avatar_url: null }]);
+            await consumePendingInviteCode(data.user.id);
           }
         }
 

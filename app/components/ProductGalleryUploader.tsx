@@ -1,8 +1,11 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { Plus, X } from "lucide-react";
+import PhotoTagEditor, { type LocalTag, type OwnProduct } from "./PhotoTagEditor";
+
+export type { LocalTag, OwnProduct };
 
 export type GalleryItem = {
   id: string;
@@ -20,13 +23,26 @@ export default function ProductGalleryUploader({
   onAdd,
   onRemove,
   disabled = false,
+  label = "Ürünlerini Yükle",
+  accept = "image/*",
+  ownProducts,
+  tagsByItemId,
+  onTagsChange,
 }: {
   items: GalleryItem[];
   onAdd: (files: File[]) => void;
   onRemove: (id: string) => void;
   disabled?: boolean;
+  label?: string;
+  accept?: string;
+  ownProducts?: OwnProduct[];
+  tagsByItemId?: Record<string, LocalTag[]>;
+  onTagsChange?: (itemId: string, tags: LocalTag[]) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [taggingItemId, setTaggingItemId] = useState<string | null>(null);
+
+  const taggingEnabled = !!ownProducts && !!onTagsChange;
 
   function handleClick() {
     if (disabled) return;
@@ -44,9 +60,12 @@ export default function ProductGalleryUploader({
     onRemove(id);
   }
 
+  const taggingItem = items.find((item) => item.id === taggingItemId) ?? null;
+  const taggingItemTags = taggingItemId ? tagsByItemId?.[taggingItemId] ?? [] : [];
+
   return (
     <div>
-      <p className="text-sm font-medium text-gray-700 mb-2">Ürünlerini Yükle</p>
+      <p className="text-sm font-medium text-gray-700 mb-2">{label}</p>
 
       <div
         onClick={handleClick}
@@ -55,7 +74,7 @@ export default function ProductGalleryUploader({
         <input
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept={accept}
           multiple
           disabled={disabled}
           onChange={handleChange}
@@ -69,23 +88,61 @@ export default function ProductGalleryUploader({
 
       {items.length > 0 && (
         <div className="grid grid-cols-3 gap-3 mt-4">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className={`group relative aspect-square overflow-hidden bg-neutral-50 border border-neutral-200 ${CARD_STYLE}`}
-            >
-              <Image src={item.previewUrl} alt="Ürün görseli" fill className="object-cover" />
-              <button
-                type="button"
-                onClick={(e) => handleRemove(e, item.id)}
-                title="Kaldır"
-                className="absolute top-1.5 right-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-ink text-paper opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-              >
-                <X size={12} strokeWidth={1.5} />
-              </button>
-            </div>
-          ))}
+          {items.map((item) => {
+            const isVideo = item.file.type.startsWith("video");
+            const tagCount = tagsByItemId?.[item.id]?.length ?? 0;
+
+            return (
+              <div key={item.id} className="flex flex-col gap-1">
+                <div
+                  className={`group relative aspect-square overflow-hidden bg-neutral-50 border border-neutral-200 ${CARD_STYLE}`}
+                >
+                  {isVideo ? (
+                    <video src={item.previewUrl} className="w-full h-full object-cover" muted />
+                  ) : (
+                    <Image src={item.previewUrl} alt="Görsel" fill className="object-cover" />
+                  )}
+                  <button
+                    type="button"
+                    onClick={(e) => handleRemove(e, item.id)}
+                    title="Kaldır"
+                    className="absolute top-1.5 right-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-ink text-paper opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  >
+                    <X size={12} strokeWidth={1.5} />
+                  </button>
+                </div>
+
+                {taggingEnabled && !isVideo && (
+                  <button
+                    type="button"
+                    onClick={() => setTaggingItemId(item.id)}
+                    className="text-[10px] uppercase tracking-wide text-gray-500 hover:text-ink transition-colors text-center"
+                  >
+                    {tagCount > 0 ? `${tagCount} Etiket · Düzenle` : "Ürün Etiketle"}
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
+      )}
+
+      {taggingEnabled && taggingItem && (
+        <PhotoTagEditor
+          imageUrl={taggingItem.previewUrl}
+          tags={taggingItemTags}
+          ownProducts={ownProducts!}
+          onAdd={(tag) =>
+            onTagsChange!(taggingItem.id, [
+              ...taggingItemTags,
+              { ...tag, id: `${Date.now()}-${Math.random().toString(36).slice(2)}` },
+            ])
+          }
+          onRemove={(tagId) =>
+            onTagsChange!(taggingItem.id, taggingItemTags.filter((t) => t.id !== tagId))
+          }
+          onClose={() => setTaggingItemId(null)}
+        />
       )}
     </div>
   );

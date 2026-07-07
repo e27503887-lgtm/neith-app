@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import BrandBadge from "./BrandBadge";
+import BadgeChips from "./BadgeChips";
 import FollowButton from "./FollowButton";
 import StartChatButton from "./StartChatButton";
 import { supabase } from "../utils/supabase";
@@ -17,6 +18,7 @@ type Props = {
   productCount: number;
   followerCount: number;
   joinedLabel: string;
+  badgeKeys?: string[];
 };
 
 export default function BrandProfileHeader({
@@ -28,6 +30,7 @@ export default function BrandProfileHeader({
   productCount,
   followerCount,
   joinedLabel,
+  badgeKeys = [],
 }: Props) {
   const [isOwner, setIsOwner] = useState(false);
 
@@ -59,6 +62,7 @@ export default function BrandProfileHeader({
             <BrandBadge />
           </span>
         </div>
+        <BadgeChips badgeKeys={badgeKeys} variant="dark" />
       </div>
     </div>
   );

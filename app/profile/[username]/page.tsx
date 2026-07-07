@@ -3,12 +3,14 @@ import { supabase } from "../../utils/supabase";
 import UserProfileCard from "../../components/UserProfileCard";
 import EditorialHub from "../../components/EditorialHub";
 import StyleTags from "../../components/StyleTags";
-import WardrobeGrid from "../../components/WardrobeGrid";
+import ProfileTabs from "../../components/ProfileTabs";
 import AdminPanelLink from "../../components/AdminPanelLink";
 import BrandProfileHeader from "../../components/BrandProfileHeader";
 import ProductShelf from "../../components/ProductShelf";
 import OutfitShelf from "../../components/OutfitShelf";
+import PostShelf from "../../components/PostShelf";
 import { CATEGORIES } from "@/lib/categories";
+import { enrichPostsWithMedia } from "@/lib/posts";
 
 type Props = {
   params: Promise<{ username: string }>;
@@ -30,6 +32,13 @@ export default async function ProfilePage({ params }: Props) {
       </main>
     );
   }
+
+  const { data: badgeRows } = await supabase
+    .from("badges")
+    .select("badge_key")
+    .eq("user_id", profile.id);
+
+  const badgeKeys = (badgeRows ?? []).map((b) => b.badge_key);
 
   const { data: products } = await supabase
     .from("products")
@@ -69,6 +78,29 @@ export default async function ProfilePage({ params }: Props) {
     image_url: o.image_url,
     like_count: likeCountByOutfit.get(o.id) ?? 0,
     is_highlighted: o.is_highlighted ?? false,
+  }));
+
+  const { data: postsRaw } = await supabase
+    .from("posts")
+    .select("*")
+    .eq("user_id", profile.id)
+    .order("created_at", { ascending: false });
+
+  const enrichedPosts = await enrichPostsWithMedia(postsRaw ?? []);
+
+  const postsForGrid = enrichedPosts.map((p) => ({
+    id: p.id,
+    cover_url: p.cover_url,
+    cover_type: p.cover_type,
+    media_count: p.media_count,
+    like_count: p.like_count,
+  }));
+
+  const productsForGrid = (products ?? []).map((p) => ({
+    id: p.id,
+    title: p.title,
+    price: p.price,
+    image_url: p.image_url,
   }));
 
   const { count: followerCount } = await supabase
@@ -117,6 +149,7 @@ export default async function ProfilePage({ params }: Props) {
           productCount={products?.length ?? 0}
           followerCount={followerCount ?? 0}
           joinedLabel={joinedLabel}
+          badgeKeys={badgeKeys}
         />
 
         <div className="max-w-6xl mx-auto px-6 md:px-10">
@@ -135,6 +168,8 @@ export default async function ProfilePage({ params }: Props) {
               image_url: o.image_url,
             }))}
           />
+
+          <PostShelf posts={postsForGrid} />
         </div>
       </main>
     );
@@ -158,6 +193,7 @@ export default async function ProfilePage({ params }: Props) {
             avatar_url={profile.avatar_url}
             bio={profile.bio}
             account_type={profile.account_type}
+            badgeKeys={badgeKeys}
             followerCount={followerCount ?? 0}
             followingCount={followingCount ?? 0}
             outfits={
@@ -173,12 +209,17 @@ export default async function ProfilePage({ params }: Props) {
             <div className="flex items-center justify-between gap-4 mb-6">
               <div>
                 <p className="section-label">Tarz Defteri</p>
-                <h2 className="mt-2 font-serif text-2xl text-ink">Kullanıcının Kombinleri</h2>
+                <h2 className="mt-2 font-serif text-2xl text-ink">Paylaşımlar</h2>
               </div>
               <FollowButton targetUserId={profile.id} />
             </div>
 
-            <WardrobeGrid profileId={profile.id} outfits={wardrobeOutfits} />
+            <ProfileTabs
+              profileId={profile.id}
+              products={productsForGrid}
+              outfits={wardrobeOutfits}
+              posts={postsForGrid}
+            />
           </section>
         </div>
 

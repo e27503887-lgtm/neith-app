@@ -9,7 +9,7 @@ import { supabase } from "../../utils/supabase";
 import type { User } from "@supabase/supabase-js";
 import EraPicker from "../../components/EraPicker";
 import StyleTagPicker from "../../components/StyleTagPicker";
-import ProductGalleryUploader, { type GalleryItem } from "../../components/ProductGalleryUploader";
+import ProductGalleryUploader, { type GalleryItem, type LocalTag } from "../../components/ProductGalleryUploader";
 
 const MAX_FILES = 6;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -49,6 +49,7 @@ export default function NewOutfitPage() {
   const [selectedIds, setSelectedIds] = useState<Set<number | string>>(new Set());
 
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [tagsByItemId, setTagsByItemId] = useState<Record<string, LocalTag[]>>({});
 
   const [customPieces, setCustomPieces] = useState<CustomPiece[]>([]);
   const [showCustomForm, setShowCustomForm] = useState(false);
@@ -132,6 +133,15 @@ export default function NewOutfitPage() {
       if (target) URL.revokeObjectURL(target.previewUrl);
       return prev.filter((item) => item.id !== id);
     });
+    setTagsByItemId((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  }
+
+  function handleTagsChange(itemId: string, tags: LocalTag[]) {
+    setTagsByItemId((prev) => ({ ...prev, [itemId]: tags }));
   }
 
   function handleCustomFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -257,19 +267,43 @@ export default function NewOutfitPage() {
       return;
     }
 
-    const { error: mediaError } = await supabase.from("outfit_media").insert(
-      imageUrls.map((url, index) => ({
-        outfit_id: outfit.id,
-        media_url: url,
-        media_type: "image",
-        position: index,
-      }))
-    );
+    const { data: mediaRows, error: mediaError } = await supabase
+      .from("outfit_media")
+      .insert(
+        imageUrls.map((url, index) => ({
+          outfit_id: outfit.id,
+          media_url: url,
+          media_type: "image",
+          position: index,
+        }))
+      )
+      .select("id, position");
 
-    if (mediaError) {
-      setError("Ürün görselleri kaydedilirken bir hata oluştu: " + mediaError.message);
+    if (mediaError || !mediaRows) {
+      setError("Ürün görselleri kaydedilirken bir hata oluştu: " + mediaError?.message);
       setLoading(false);
       return;
+    }
+
+    const mediaIdByPosition = new Map(mediaRows.map((m) => [m.position, m.id]));
+    const tagRows = galleryItems.flatMap((item, index) => {
+      const mediaId = mediaIdByPosition.get(index);
+      if (!mediaId) return [];
+      return (tagsByItemId[item.id] ?? []).map((tag) => ({
+        outfit_media_id: mediaId,
+        product_id: tag.product_id,
+        x_percent: tag.x_percent,
+        y_percent: tag.y_percent,
+      }));
+    });
+
+    if (tagRows.length > 0) {
+      const { error: tagError } = await supabase.from("photo_tags").insert(tagRows);
+      if (tagError) {
+        setError("Ürün etiketleri kaydedilirken bir hata oluştu: " + tagError.message);
+        setLoading(false);
+        return;
+      }
     }
 
     const items = [
@@ -341,6 +375,9 @@ export default function NewOutfitPage() {
               onAdd={handleAddFiles}
               onRemove={handleRemoveItem}
               disabled={galleryItems.length >= MAX_FILES}
+              ownProducts={ownProducts}
+              tagsByItemId={tagsByItemId}
+              onTagsChange={handleTagsChange}
             />
             <p className="text-xs text-gray-400 mt-1">
               En fazla {MAX_FILES} fotoğraf · her biri 5MB'dan küçük olmalı.

@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Home, Sparkles, Store, ShoppingBag, Plus, Tag, Shirt, Camera, Lock } from "lucide-react";
+import { Home, Sparkles, Store, ShoppingBag, Plus, Tag, Shirt, Camera } from "lucide-react";
 
 const LEFT_ITEMS = [
   { href: "/live", label: "Ana Sayfa", icon: Home },
@@ -18,9 +18,9 @@ const RIGHT_ITEMS = [
 ];
 
 const MENU_OPTIONS = [
-  { key: "sell", label: "İlan Ver", icon: Tag, active: true, href: "/sell" },
-  { key: "outfit", label: "Kombin Paylaş", icon: Shirt, active: false },
-  { key: "story", label: "Öykü Paylaş", icon: Camera, active: false },
+  { key: "sell", label: "İlan Ver", icon: Tag, href: "/sell" },
+  { key: "outfit", label: "Kombin Paylaş", icon: Shirt, href: "/outfit/new" },
+  { key: "story", label: "Gönderi Paylaş", icon: Camera, href: "/post/new" },
 ] as const;
 
 // Measured: the "+" button's visual center sits ~44px above the viewport bottom.
@@ -31,28 +31,10 @@ export default function MobileTabBar() {
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
-  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (toastTimer.current) clearTimeout(toastTimer.current);
-    };
-  }, []);
-
-  function showComingSoon() {
-    setToast("Yakında");
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 1500);
-  }
 
   function handleOptionClick(option: (typeof MENU_OPTIONS)[number]) {
-    if (!option.active) {
-      showComingSoon();
-      return;
-    }
     setMenuOpen(false);
-    if (option.href) router.push(option.href);
+    router.push(option.href);
   }
 
   function renderItem(item: (typeof LEFT_ITEMS)[number]) {
@@ -125,18 +107,9 @@ export default function MobileTabBar() {
                       type="button"
                       aria-label={option.label}
                       onClick={() => handleOptionClick(option)}
-                      className={`relative flex items-center justify-center w-11 h-11 rounded-full shadow-md transition-colors ${
-                        option.active
-                          ? "bg-ink text-paper"
-                          : "bg-neutral-200 text-neutral-400 opacity-50 cursor-not-allowed"
-                      }`}
+                      className="relative flex items-center justify-center w-11 h-11 rounded-full shadow-md bg-ink text-paper transition-colors"
                     >
                       <Icon size={18} strokeWidth={1.5} />
-                      {!option.active && (
-                        <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 rounded-full bg-neutral-400 text-paper">
-                          <Lock size={9} strokeWidth={2} />
-                        </span>
-                      )}
                     </button>
                   </motion.div>
                 );
@@ -162,21 +135,6 @@ export default function MobileTabBar() {
 
         {RIGHT_ITEMS.map(renderItem)}
       </nav>
-
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            className="md:hidden fixed left-1/2 -translate-x-1/2 z-50 rounded-full bg-ink text-paper text-xs px-3 py-1.5 shadow-lg"
-            style={{ bottom: "5.5rem" }}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.2 }}
-          >
-            {toast}
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   );
 }

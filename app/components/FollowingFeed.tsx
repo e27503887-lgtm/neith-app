@@ -5,7 +5,10 @@ import Link from "next/link";
 import { Users } from "lucide-react";
 import ProductCard from "./ProductCard";
 import OutfitCard from "./OutfitCard";
+import PostCard from "./PostCard";
 import { supabase } from "../utils/supabase";
+import { enrichPostsWithMedia } from "@/lib/posts";
+import { getOutfitCoverTagFlags, getTaggedMediaIds } from "@/lib/photoTags";
 
 type ProductItem = {
   id: number | string;
@@ -27,11 +30,26 @@ type OutfitItem = {
   avatar_url?: string | null;
   account_type?: string | null;
   created_at: string;
+  has_tag?: boolean;
+};
+
+type PostItem = {
+  id: number | string;
+  caption: string | null;
+  cover_url: string;
+  cover_type: "image" | "video";
+  media_count: number;
+  username: string;
+  avatar_url?: string | null;
+  account_type?: string | null;
+  created_at: string;
+  has_tag?: boolean;
 };
 
 type FeedItem =
   | { kind: "product"; created_at: string; data: ProductItem }
-  | { kind: "outfit"; created_at: string; data: OutfitItem };
+  | { kind: "outfit"; created_at: string; data: OutfitItem }
+  | { kind: "post"; created_at: string; data: PostItem };
 
 export default function FollowingFeed() {
   const [checked, setChecked] = useState(false);
@@ -70,7 +88,7 @@ export default function FollowingFeed() {
         return;
       }
 
-      const [{ data: products }, { data: outfits }] = await Promise.all([
+      const [{ data: products }, { data: outfits }, { data: postsRaw }] = await Promise.all([
         supabase
           .from("products")
           .select("*")
@@ -81,7 +99,16 @@ export default function FollowingFeed() {
           .select("*")
           .in("user_id", followingIds)
           .order("created_at", { ascending: false }),
+        supabase
+          .from("posts")
+          .select("*")
+          .in("user_id", followingIds)
+          .order("created_at", { ascending: false }),
       ]);
+
+      if (!active) return;
+
+      const enrichedPostRows = await enrichPostsWithMedia(postsRaw ?? []);
 
       if (!active) return;
 
@@ -101,10 +128,27 @@ export default function FollowingFeed() {
             .in("id", outfitUserIds)
         : { data: [] as { id: string; username: string; avatar_url: string | null; account_type: string | null }[] };
 
+      const postUserIds = [...new Set(enrichedPostRows.map((p) => p.user_id))];
+      const { data: postProfiles } = postUserIds.length
+        ? await supabase
+            .from("profiles")
+            .select("id, username, avatar_url, account_type")
+            .in("id", postUserIds)
+        : { data: [] as { id: string; username: string; avatar_url: string | null; account_type: string | null }[] };
+
       if (!active) return;
 
       const profileByUsername = new Map((profiles ?? []).map((p) => [p.username, p]));
       const profileById = new Map((outfitProfiles ?? []).map((p) => [p.id, p]));
+      const postProfileById = new Map((postProfiles ?? []).map((p) => [p.id, p]));
+
+      const outfitTagFlags = await getOutfitCoverTagFlags((outfits ?? []).map((o) => o.id));
+      const taggedPostCoverIds = await getTaggedMediaIds(
+        "post",
+        enrichedPostRows.map((p) => p.cover_media_id).filter((id): id is number | string => id !== null)
+      );
+
+      if (!active) return;
 
       const productIds = (products ?? []).map((p) => p.id);
       const { data: commentRows } = productIds.length
@@ -130,11 +174,21 @@ export default function FollowingFeed() {
         username: profileById.get(o.user_id)?.username ?? "Bilinmeyen kullanıcı",
         avatar_url: profileById.get(o.user_id)?.avatar_url ?? null,
         account_type: profileById.get(o.user_id)?.account_type ?? null,
+        has_tag: outfitTagFlags.get(o.id) ?? false,
+      }));
+
+      const enrichedPosts: PostItem[] = enrichedPostRows.map((p) => ({
+        ...p,
+        username: postProfileById.get(p.user_id)?.username ?? "Bilinmeyen kullanıcı",
+        avatar_url: postProfileById.get(p.user_id)?.avatar_url ?? null,
+        account_type: postProfileById.get(p.user_id)?.account_type ?? null,
+        has_tag: p.cover_media_id ? taggedPostCoverIds.has(p.cover_media_id) : false,
       }));
 
       const merged: FeedItem[] = [
         ...enrichedProducts.map((p): FeedItem => ({ kind: "product", created_at: p.created_at, data: p })),
         ...enrichedOutfits.map((o): FeedItem => ({ kind: "outfit", created_at: o.created_at, data: o })),
+        ...enrichedPosts.map((p): FeedItem => ({ kind: "post", created_at: p.created_at, data: p })),
       ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
       setFeed(merged);
@@ -180,8 +234,10 @@ export default function FollowingFeed() {
       {feed.map((item) =>
         item.kind === "product" ? (
           <ProductCard key={`p-${item.data.id}`} product={item.data} />
-        ) : (
+        ) : item.kind === "outfit" ? (
           <OutfitCard key={`o-${item.data.id}`} outfit={item.data} />
+        ) : (
+          <PostCard key={`post-${item.data.id}`} post={item.data} />
         )
       )}
     </div>

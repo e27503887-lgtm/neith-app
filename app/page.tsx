@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Shirt } from "lucide-react";
 import ProductCard from "./components/ProductCard";
 import OutfitCard from "./components/OutfitCard";
+import PostCard from "./components/PostCard";
 import OutfitRecommendations from "./components/OutfitRecommendations";
 import TrendingSection from "./components/TrendingSection";
 import type { TrendingItem } from "./components/TrendingCard";
@@ -20,6 +21,8 @@ import BrandShowcase from "./components/BrandShowcase";
 import FashionEncyclopedia from "./components/FashionEncyclopedia";
 import FadeInSection from "./components/FadeInSection";
 import { supabase } from "./utils/supabase";
+import { enrichPostsWithMedia } from "@/lib/posts";
+import { getOutfitCoverTagFlags, getTaggedMediaIds } from "@/lib/photoTags";
 
 type Props = {
   searchParams: Promise<{ filter?: string }>;
@@ -28,7 +31,11 @@ type Props = {
 export default async function Home({ searchParams }: Props) {
   const { filter } = await searchParams;
   const activeFilter =
-    filter === "products" || filter === "outfits" || filter === "brand" || filter === "following"
+    filter === "products" ||
+    filter === "outfits" ||
+    filter === "posts" ||
+    filter === "brand" ||
+    filter === "following"
       ? filter
       : "all";
 
@@ -42,8 +49,16 @@ export default async function Home({ searchParams }: Props) {
     .select("*")
     .order("created_at", { ascending: false });
 
+  const { data: postsRaw } = await supabase
+    .from("posts")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  const enrichedPostRows = await enrichPostsWithMedia(postsRaw ?? []);
+
   const usernames = [...new Set((products ?? []).map((p) => p.username))];
   const outfitUserIds = [...new Set((outfits ?? []).map((o) => o.user_id))];
+  const postUserIds = [...new Set(enrichedPostRows.map((p) => p.user_id))];
 
   const { data: profiles } = usernames.length
     ? await supabase
@@ -59,8 +74,30 @@ export default async function Home({ searchParams }: Props) {
         .in("id", outfitUserIds)
     : { data: [] as { id: string; username: string; avatar_url: string | null; account_type: string | null }[] };
 
+  const { data: postProfiles } = postUserIds.length
+    ? await supabase
+        .from("profiles")
+        .select("id, username, avatar_url, account_type")
+        .in("id", postUserIds)
+    : { data: [] as { id: string; username: string; avatar_url: string | null; account_type: string | null }[] };
+
   const profileByUsername = new Map((profiles ?? []).map((p) => [p.username, p]));
   const profileById = new Map((outfitProfiles ?? []).map((p) => [p.id, p]));
+  const postProfileById = new Map((postProfiles ?? []).map((p) => [p.id, p]));
+
+  const outfitTagFlags = await getOutfitCoverTagFlags((outfits ?? []).map((o) => o.id));
+  const taggedPostCoverIds = await getTaggedMediaIds(
+    "post",
+    enrichedPostRows.map((p) => p.cover_media_id).filter((id): id is number | string => id !== null)
+  );
+
+  const allPosts = enrichedPostRows.map((post) => ({
+    ...post,
+    username: postProfileById.get(post.user_id)?.username ?? "Bilinmeyen kullanıcı",
+    avatar_url: postProfileById.get(post.user_id)?.avatar_url ?? null,
+    account_type: postProfileById.get(post.user_id)?.account_type ?? null,
+    has_tag: post.cover_media_id ? taggedPostCoverIds.has(post.cover_media_id) : false,
+  }));
 
   const productIds = (products ?? []).map((p) => p.id);
   const { data: commentRows } = productIds.length
@@ -84,15 +121,18 @@ export default async function Home({ searchParams }: Props) {
     username: profileById.get(outfit.user_id)?.username ?? "Bilinmeyen kullanıcı",
     avatar_url: profileById.get(outfit.user_id)?.avatar_url ?? null,
     account_type: profileById.get(outfit.user_id)?.account_type ?? null,
+    has_tag: outfitTagFlags.get(outfit.id) ?? false,
   }));
 
   type FeedItem =
     | { kind: "product"; created_at: string; data: (typeof allProducts)[number] }
-    | { kind: "outfit"; created_at: string; data: (typeof allOutfits)[number] };
+    | { kind: "outfit"; created_at: string; data: (typeof allOutfits)[number] }
+    | { kind: "post"; created_at: string; data: (typeof allPosts)[number] };
 
   const mixedFeed: FeedItem[] = [
     ...allProducts.map((p): FeedItem => ({ kind: "product", created_at: p.created_at, data: p })),
     ...allOutfits.map((o): FeedItem => ({ kind: "outfit", created_at: o.created_at, data: o })),
+    ...allPosts.map((p): FeedItem => ({ kind: "post", created_at: p.created_at, data: p })),
   ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   const renderFeedItem = (item: FeedItem) =>
@@ -101,8 +141,10 @@ export default async function Home({ searchParams }: Props) {
         <ProductCard product={item.data} />
         <AIStylist productName={item.data.title} />
       </div>
-    ) : (
+    ) : item.kind === "outfit" ? (
       <OutfitCard key={`o-${item.data.id}`} outfit={item.data} />
+    ) : (
+      <PostCard key={`post-${item.data.id}`} post={item.data} />
     );
 
   const featuredOutfits = allOutfits.filter((o) => o.is_featured).slice(0, 6);
@@ -180,6 +222,7 @@ export default async function Home({ searchParams }: Props) {
     { label: "Takip Ettiklerim", value: "following", href: "/?filter=following" },
     { label: "Ürünler", value: "products", href: "/?filter=products" },
     { label: "Kombinler", value: "outfits", href: "/?filter=outfits" },
+    { label: "Gönderiler", value: "posts", href: "/?filter=posts" },
     { label: "Marka Ürünleri", value: "brand", href: "/?filter=brand" },
   ];
 
@@ -187,6 +230,7 @@ export default async function Home({ searchParams }: Props) {
     (activeFilter === "all" && mixedFeed.length === 0) ||
     (activeFilter === "products" && allProducts.length === 0) ||
     (activeFilter === "outfits" && allOutfits.length === 0) ||
+    (activeFilter === "posts" && allPosts.length === 0) ||
     (activeFilter === "brand" && brandProducts.length === 0);
 
   return (
@@ -299,6 +343,8 @@ export default async function Home({ searchParams }: Props) {
                 ))}
               {activeFilter === "outfits" &&
                 allOutfits.map((o) => <OutfitCard key={o.id} outfit={o} />)}
+              {activeFilter === "posts" &&
+                allPosts.map((p) => <PostCard key={p.id} post={p} />)}
               {activeFilter === "brand" &&
                 brandProducts.map((p) => (
                   <div key={p.id}>

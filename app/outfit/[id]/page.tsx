@@ -7,6 +7,7 @@ import OutfitActions from "./OutfitActions";
 import OutfitLikeButton from "../../components/OutfitLikeButton";
 import { getEraLabel } from "@/lib/eras";
 import { supabase } from "../../utils/supabase";
+import { fetchPhotoTagsByMedia } from "@/lib/photoTags";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -45,13 +46,18 @@ export default async function OutfitDetailPage({ params }: Props) {
 
   const { data: mediaRows } = await supabase
     .from("outfit_media")
-    .select("media_url, media_type")
+    .select("id, media_url, media_type")
     .eq("outfit_id", id)
     .order("position", { ascending: true });
 
+  const tagsByMediaId = await fetchPhotoTagsByMedia(
+    "outfit",
+    (mediaRows ?? []).map((m) => m.id)
+  );
+
   const media =
     mediaRows && mediaRows.length > 0
-      ? mediaRows
+      ? mediaRows.map((m) => ({ ...m, tags: tagsByMediaId.get(m.id) ?? [] }))
       : [{ media_url: outfit.image_url, media_type: "image" as const }];
 
   const { data: items } = await supabase

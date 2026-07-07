@@ -265,6 +265,13 @@ export default function Navbar() {
                   >
                     Ayarlar
                   </Link>
+                  <Link
+                    href="/invite"
+                    role="menuitem"
+                    className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    Arkadaşını Davet Et
+                  </Link>
                   <button
                     onClick={handleLogout}
                     role="menuitem"

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ShoppingBag } from "lucide-react";
 import BrandBadge from "./BrandBadge";
 import OutfitLikeButton from "./OutfitLikeButton";
 
@@ -10,6 +11,7 @@ type Outfit = {
   username: string;
   avatar_url?: string | null;
   account_type?: string | null;
+  has_tag?: boolean;
 };
 
 export default function OutfitCard({ outfit }: { outfit: Outfit }) {
@@ -47,6 +49,11 @@ export default function OutfitCard({ outfit }: { outfit: Outfit }) {
         <span className="absolute top-2 left-2 z-10 bg-paper/90 text-accent text-xs uppercase tracking-wide font-medium px-2 py-1">
           Kombin
         </span>
+        {outfit.has_tag && (
+          <span className="absolute bottom-2 left-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-paper/90 text-ink">
+            <ShoppingBag size={13} strokeWidth={1.5} />
+          </span>
+        )}
         <Image
           src={outfit.image_url}
           alt={outfit.title}

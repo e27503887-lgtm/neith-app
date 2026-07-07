@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import BrandBadge from "./BrandBadge";
+import BadgeChips from "./BadgeChips";
 import FollowStats from "./FollowStats";
 import { supabase } from "../utils/supabase";
 
@@ -19,6 +20,7 @@ type Props = {
   avatar_url: string | null;
   bio?: string;
   account_type: string | null;
+  badgeKeys?: string[];
   followerCount: number;
   followingCount: number;
   outfits: OutfitPreview[];
@@ -30,6 +32,7 @@ export default function UserProfileCard({
   avatar_url,
   bio,
   account_type,
+  badgeKeys = [],
   followerCount,
   followingCount,
   outfits,
@@ -58,6 +61,7 @@ export default function UserProfileCard({
           <h2 className="text-3xl font-serif tracking-tight text-ink">{username}</h2>
           {account_type === "brand" && <BrandBadge />}
         </div>
+        <BadgeChips badgeKeys={badgeKeys} />
         <p className="mt-2 max-w-xl text-sm leading-6 text-gray-600">{bio ?? "Moda, stil ve ilham odaklı bir profil."}</p>
       </div>
     </div>
