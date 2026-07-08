@@ -5,11 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Home, Sparkles, Store, ShoppingBag, Plus, Tag, Shirt, Camera } from "lucide-react";
+import { Home, Store, ShoppingBag, Plus, Tag, Shirt, Camera } from "lucide-react";
+import { openComposePost } from "./ComposePostModal";
 
 const LEFT_ITEMS = [
-  { href: "/live", label: "Ana Sayfa", icon: Home },
-  { href: "/intelligence", label: "Stil", icon: Sparkles },
+  { href: "/", label: "Ana Sayfa", icon: Home },
+  { href: "/outfits", label: "Kombinler", icon: Shirt },
 ];
 
 const RIGHT_ITEMS = [
@@ -20,7 +21,7 @@ const RIGHT_ITEMS = [
 const MENU_OPTIONS = [
   { key: "sell", label: "İlan Ver", icon: Tag, href: "/sell" },
   { key: "outfit", label: "Kombin Paylaş", icon: Shirt, href: "/outfit/new" },
-  { key: "story", label: "Gönderi Paylaş", icon: Camera, href: "/post/new" },
+  { key: "story", label: "Gönderi Paylaş", icon: Camera, href: null },
 ] as const;
 
 // Measured: the "+" button's visual center sits ~44px above the viewport bottom.
@@ -34,7 +35,11 @@ export default function MobileTabBar() {
 
   function handleOptionClick(option: (typeof MENU_OPTIONS)[number]) {
     setMenuOpen(false);
-    router.push(option.href);
+    if (option.href) {
+      router.push(option.href);
+    } else {
+      openComposePost();
+    }
   }
 
   function renderItem(item: (typeof LEFT_ITEMS)[number]) {

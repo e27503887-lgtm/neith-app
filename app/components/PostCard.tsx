@@ -20,6 +20,7 @@ type Post = {
 
 export default function PostCard({ post }: { post: Post }) {
   const captionTooLong = (post.caption?.length ?? 0) > CAPTION_TRUNCATE_LENGTH;
+  const hasMedia = Boolean(post.cover_url);
 
   return (
     <article className="card-hover bg-paper border border-neutral-200 overflow-hidden">
@@ -48,43 +49,53 @@ export default function PostCard({ post }: { post: Post }) {
         </Link>
       </div>
 
-      <Link
-        href={`/post/${post.id}`}
-        className="relative block w-full aspect-[3/4] overflow-hidden bg-neutral-50"
-      >
-        {post.media_count > 1 && (
-          <span className="absolute top-2 right-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-paper/90 text-ink">
-            <Images size={13} strokeWidth={1.5} />
-          </span>
-        )}
-        {post.has_tag && (
-          <span className="absolute bottom-2 left-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-paper/90 text-ink">
-            <ShoppingBag size={13} strokeWidth={1.5} />
-          </span>
-        )}
-        {post.cover_type === "video" ? (
-          <>
-            <video src={post.cover_url} className="w-full h-full object-cover" muted />
-            <span className="absolute inset-0 flex items-center justify-center">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-paper">
-                <Play size={16} fill="currentColor" />
-              </span>
+      {hasMedia && (
+        <Link
+          href={`/post/${post.id}`}
+          className="relative block w-full aspect-[3/4] overflow-hidden bg-neutral-50"
+        >
+          {post.media_count > 1 && (
+            <span className="absolute top-2 right-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-paper/90 text-ink">
+              <Images size={13} strokeWidth={1.5} />
             </span>
-          </>
-        ) : (
-          <Image
-            src={post.cover_url}
-            alt={post.caption ?? "Gönderi"}
-            fill
-            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-            className="object-cover transition-transform duration-500 ease-out hover:scale-105"
-          />
-        )}
-      </Link>
+          )}
+          {post.has_tag && (
+            <span className="absolute bottom-2 left-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-paper/90 text-ink">
+              <ShoppingBag size={13} strokeWidth={1.5} />
+            </span>
+          )}
+          {post.cover_type === "video" ? (
+            <>
+              <video src={post.cover_url} className="w-full h-full object-cover" muted />
+              <span className="absolute inset-0 flex items-center justify-center">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-paper">
+                  <Play size={16} fill="currentColor" />
+                </span>
+              </span>
+            </>
+          ) : (
+            <Image
+              src={post.cover_url}
+              alt={post.caption ?? "Gönderi"}
+              fill
+              sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+              className="object-cover transition-transform duration-500 ease-out hover:scale-105"
+            />
+          )}
+        </Link>
+      )}
 
       {post.caption && (
         <div className="px-3 pt-2">
-          <p className="text-sm text-ink line-clamp-2">{post.caption}</p>
+          {hasMedia ? (
+            <p className="text-sm text-ink line-clamp-2">{post.caption}</p>
+          ) : (
+            <Link href={`/post/${post.id}`} className="block">
+              <p className="text-[15px] leading-relaxed text-ink whitespace-pre-wrap line-clamp-6">
+                {post.caption}
+              </p>
+            </Link>
+          )}
           {captionTooLong && (
             <Link
               href={`/post/${post.id}`}

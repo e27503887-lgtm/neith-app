@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Shirt } from "lucide-react";
@@ -10,6 +11,7 @@ import type { TrendingItem } from "./components/TrendingCard";
 import PopularProducts from "./components/PopularProducts";
 import BrandPicks from "./components/BrandPicks";
 import FollowingFeed from "./components/FollowingFeed";
+import FreshPosts from "./components/FreshPosts";
 import SuggestedUsers from "./components/SuggestedUsers";
 import BrandBadge from "./components/BrandBadge";
 import GlobalTrends from "./components/GlobalTrends";
@@ -135,6 +137,17 @@ export default async function Home({ searchParams }: Props) {
     ...allPosts.map((p): FeedItem => ({ kind: "post", created_at: p.created_at, data: p })),
   ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
+  // Mobile home: posts-weighted feed — all posts, plus a thinned sample of
+  // products/outfits so posts stay in the majority.
+  const mobilePostItems = mixedFeed.filter((item) => item.kind === "post");
+  const mobileNonPostItems = mixedFeed
+    .filter((item) => item.kind !== "post")
+    .filter((_, index) => index % 2 === 0)
+    .slice(0, Math.max(4, mobilePostItems.length));
+  const mobileFeed = [...mobilePostItems, ...mobileNonPostItems].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+
   const renderFeedItem = (item: FeedItem) =>
     item.kind === "product" ? (
       <div key={`p-${item.data.id}`}>
@@ -244,7 +257,37 @@ export default async function Home({ searchParams }: Props) {
           </div>
         </div>
       )}
-      <section className="max-w-6xl mx-auto pt-6 pb-10 md:pb-14 border-b border-neutral-200 mb-12">
+      {/* Mobile home: posts-weighted single-column feed with horizontal strips
+          woven in. Desktop layout below is untouched (hidden md:*). */}
+      <div className="md:hidden max-w-xl mx-auto">
+        {mobileFeed.length === 0 ? (
+          <div className="flex flex-col items-center text-center py-12 gap-4">
+            <Shirt size={28} strokeWidth={1} className="text-neutral-300" />
+            <p className="text-gray-500">Henüz paylaşım yok. İlk gönderiyi sen paylaş!</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-6">
+            <FreshPosts />
+            {mobileFeed.map((item, index) => (
+              <Fragment key={`m-${item.kind}-${item.data.id}`}>
+                {item.kind === "product" ? (
+                  <ProductCard product={item.data} />
+                ) : item.kind === "outfit" ? (
+                  <OutfitCard outfit={item.data} />
+                ) : (
+                  <PostCard post={item.data} />
+                )}
+                {index === 4 && <TrendingSection items={trendingItems} />}
+                {index === 9 && <BrandPicks products={brandPicks} />}
+              </Fragment>
+            ))}
+          </div>
+        )}
+        {mobileFeed.length <= 4 && <TrendingSection items={trendingItems} />}
+        {mobileFeed.length <= 9 && <BrandPicks products={brandPicks} />}
+      </div>
+
+      <section className="hidden md:block max-w-6xl mx-auto pt-6 pb-10 md:pb-14 border-b border-neutral-200 mb-12">
         <div className="max-w-xl">
           <h1 className="font-serif text-3xl md:text-4xl tracking-tight text-ink leading-tight">
             Stilini paylaş, gardırobunu sat.
@@ -258,7 +301,7 @@ export default async function Home({ searchParams }: Props) {
         </div>
       </section>
 
-      <div className="max-w-6xl mx-auto">
+      <div className="hidden md:block max-w-6xl mx-auto">
         <FadeInSection>
           <OutfitRecommendations
             featured={featuredOutfits}
@@ -278,7 +321,7 @@ export default async function Home({ searchParams }: Props) {
         </FadeInSection>
       </div>
 
-      <div id="feed" className="max-w-6xl mx-auto flex flex-col lg:flex-row items-start gap-8 pt-16 scroll-mt-24">
+      <div id="feed" className="hidden max-w-6xl mx-auto md:flex flex-col lg:flex-row items-start gap-8 pt-16 scroll-mt-24">
         <div className="w-full lg:w-[65%] min-w-0">
           <FadeInSection>
             <RecommendedItems />
@@ -327,6 +370,7 @@ export default async function Home({ searchParams }: Props) {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 md:gap-6">
               {activeFilter === "all" && (
                 <>
+                  <FreshPosts />
                   {mixedFeed.slice(0, 4).map(renderFeedItem)}
                   <div className="col-span-full lg:hidden">
                     <SuggestedUsers variant="mobile" />
@@ -343,8 +387,14 @@ export default async function Home({ searchParams }: Props) {
                 ))}
               {activeFilter === "outfits" &&
                 allOutfits.map((o) => <OutfitCard key={o.id} outfit={o} />)}
-              {activeFilter === "posts" &&
-                allPosts.map((p) => <PostCard key={p.id} post={p} />)}
+              {activeFilter === "posts" && (
+                <>
+                  <FreshPosts />
+                  {allPosts.map((p) => (
+                    <PostCard key={p.id} post={p} />
+                  ))}
+                </>
+              )}
               {activeFilter === "brand" &&
                 brandProducts.map((p) => (
                   <div key={p.id}>

@@ -6,9 +6,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
-import { Search, Heart, Mail, ChevronDown, X, User as UserIcon, ShoppingBag } from "lucide-react";
+import { Search, Heart, Mail, ChevronDown, X, User as UserIcon, ShoppingBag, PenLine } from "lucide-react";
 import { supabase } from "./utils/supabase";
 import { CART_UPDATED_EVENT } from "./utils/cart";
+import { openComposePost } from "./components/ComposePostModal";
 import NotificationBell from "./components/NotificationBell";
 import MobileMessagesPanel from "./components/MobileMessagesPanel";
 import type { User } from "@supabase/supabase-js";
@@ -125,6 +126,7 @@ export default function Navbar() {
           {open && (
             <div className="absolute left-0 mt-2 w-56 bg-paper border border-neutral-200 rounded shadow-lg z-50" role="menu" aria-label="Keşfet menüsü">
               <nav className="flex flex-col py-2" role="menu">
+                <Link href="/outfits" role="menuitem" className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Kombin Akışı</Link>
                 <Link href="/era" role="menuitem" className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Dönemler</Link>
                 <Link href="/fashion-week" role="menuitem" className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Moda Haftası</Link>
                 <Link href="/#recommendations" role="menuitem" className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Kombin Önerileri</Link>
@@ -183,6 +185,16 @@ export default function Navbar() {
         >
           İlan Ver
         </Link>
+
+        <button
+          type="button"
+          onClick={openComposePost}
+          aria-label="Gönderi paylaş"
+          title="Gönderi Paylaş"
+          className="hidden md:inline text-gray-500 hover:text-accent transition-colors"
+        >
+          <PenLine size={19} strokeWidth={1.5} />
+        </button>
 
         <Link href="/favorites">
           <Heart size={19} strokeWidth={1.5} className="text-gray-500 hover:text-accent transition-colors" />
@@ -272,6 +284,20 @@ export default function Navbar() {
                     className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
                   >
                     Ayarlar
+                  </Link>
+                  <Link
+                    href="/my-posts"
+                    role="menuitem"
+                    className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    Gönderilerim
+                  </Link>
+                  <Link
+                    href="/intelligence"
+                    role="menuitem"
+                    className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    Stil Asistanı
                   </Link>
                   <Link
                     href="/achievements"

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Heart, Images } from "lucide-react";
 import WardrobeGrid from "./WardrobeGrid";
 import { supabase } from "../utils/supabase";
+import { openComposePost } from "./ComposePostModal";
 
 type ProductGridItem = {
   id: number | string;
@@ -119,9 +120,9 @@ export default function ProfileTabs({
           <div className="flex flex-col items-start gap-3">
             <p className="text-gray-500 text-sm">Henüz gönderi paylaşılmamış.</p>
             {isOwner && (
-              <Link href="/post/new" className="btn-primary">
+              <button type="button" onClick={openComposePost} className="btn-primary">
                 Gönderi Paylaş
-              </Link>
+              </button>
             )}
           </div>
         ) : (

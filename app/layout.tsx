@@ -7,6 +7,7 @@ import PageTransition from "./components/PageTransition";
 import NotificationSystem from "./components/NotificationSystem";
 import BrandSplash from "./components/BrandSplash";
 import InviteConsumer from "./components/InviteConsumer";
+import ComposePostModal from "./components/ComposePostModal";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <MobileTabBar />
         <BrandSplash />
         <InviteConsumer />
+        <ComposePostModal />
       </body>
     </html>
   );
