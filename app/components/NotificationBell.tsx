@@ -7,8 +7,9 @@ import { supabase } from "../utils/supabase";
 
 type Notification = {
   id: number | string;
-  type: "like" | "comment" | "offer" | "message" | "follow";
+  type: "like" | "comment" | "offer" | "message" | "follow" | "badge";
   actor_username: string;
+  badge_key?: string;
   product_id: number | string | null;
   conversation_id: number | string | null;
   is_read: boolean;
@@ -27,6 +28,8 @@ function formatMessage(n: Notification) {
       return `${n.actor_username} sana mesaj gönderdi`;
     case "follow":
       return `${n.actor_username} seni takip etmeye başladı`;
+    case "badge":
+      return `🏅 Yeni rozet kazandın!`;
     default:
       return "";
   }
@@ -154,6 +157,8 @@ export default function NotificationBell() {
       router.push(`/messages/${n.conversation_id}`);
     } else if (n.type === "follow") {
       router.push(`/profile/${n.actor_username}`);
+    } else if (n.type === "badge") {
+      router.push("/achievements");
     }
   }
 

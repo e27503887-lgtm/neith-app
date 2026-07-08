@@ -24,6 +24,13 @@ type Props = {
   followerCount: number;
   followingCount: number;
   outfits: OutfitPreview[];
+  sizeTop?: string | null;
+  sizeBottom?: string | null;
+  sizeShoe?: number | null;
+  styleTags?: string[];
+  showSizes?: boolean;
+  wardrobeValue?: number;
+  showWardrobeValue?: boolean;
 };
 
 export default function UserProfileCard({
@@ -36,6 +43,13 @@ export default function UserProfileCard({
   followerCount,
   followingCount,
   outfits,
+  sizeTop,
+  sizeBottom,
+  sizeShoe,
+  styleTags = [],
+  showSizes = true,
+  wardrobeValue,
+  showWardrobeValue = false,
 }: Props) {
   const [isOwner, setIsOwner] = useState(false);
 
@@ -44,6 +58,18 @@ export default function UserProfileCard({
       setIsOwner(data.user?.id === userId);
     });
   }, [userId]);
+
+  const sizeSummary =
+    showSizes && (sizeTop || sizeBottom || sizeShoe || styleTags.length > 0)
+      ? [
+          sizeTop ? `${sizeTop} beden` : null,
+          sizeBottom ? `${sizeBottom} beden` : null,
+          sizeShoe ? `${sizeShoe} numara` : null,
+          styleTags.length ? styleTags.map((tag) => tag.toLowerCase()).join(", ") : null,
+        ]
+          .filter(Boolean)
+          .join(" · ")
+      : null;
 
   const identity = (
     <div className="flex items-center gap-4">
@@ -61,8 +87,14 @@ export default function UserProfileCard({
           <h2 className="text-3xl font-serif tracking-tight text-ink">{username}</h2>
           {account_type === "brand" && <BrandBadge />}
         </div>
-        <BadgeChips badgeKeys={badgeKeys} />
+        {sizeSummary && (
+          <p className="mt-2 text-sm text-gray-500">{sizeSummary}</p>
+        )}
         <p className="mt-2 max-w-xl text-sm leading-6 text-gray-600">{bio ?? "Moda, stil ve ilham odaklı bir profil."}</p>
+        <BadgeChips badgeKeys={badgeKeys} />
+        {showWardrobeValue && typeof wardrobeValue === "number" && (
+          <p className="mt-4 font-serif text-lg text-ink">Gardırop Değeri: {wardrobeValue.toLocaleString("tr-TR")} ₺</p>
+        )}
       </div>
     </div>
   );

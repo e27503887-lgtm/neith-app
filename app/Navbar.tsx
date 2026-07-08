@@ -169,6 +169,14 @@ export default function Navbar() {
           Stil Asistanı
         </Link>
 
+        <Link href="/achievements" className="hidden md:inline hover:text-accent transition-colors">
+          Başarılarım
+        </Link>
+
+        <Link href="/twins" className="hidden md:inline hover:text-accent transition-colors">
+          Stil İkizlerim
+        </Link>
+
         <Link
           href="/sell"
           className="hidden md:inline-flex border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300"
@@ -266,11 +274,25 @@ export default function Navbar() {
                     Ayarlar
                   </Link>
                   <Link
+                    href="/achievements"
+                    role="menuitem"
+                    className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    Başarılarım
+                  </Link>
+                  <Link
                     href="/invite"
                     role="menuitem"
                     className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
                   >
                     Arkadaşını Davet Et
+                  </Link>
+                  <Link
+                    href="/twins"
+                    role="menuitem"
+                    className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    Stil İkizlerim
                   </Link>
                   <button
                     onClick={handleLogout}

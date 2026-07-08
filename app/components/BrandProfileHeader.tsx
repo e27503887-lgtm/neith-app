@@ -19,6 +19,8 @@ type Props = {
   followerCount: number;
   joinedLabel: string;
   badgeKeys?: string[];
+  wardrobeValue?: number;
+  showWardrobeValue?: boolean;
 };
 
 export default function BrandProfileHeader({
@@ -31,6 +33,8 @@ export default function BrandProfileHeader({
   followerCount,
   joinedLabel,
   badgeKeys = [],
+  wardrobeValue,
+  showWardrobeValue = false,
 }: Props) {
   const [isOwner, setIsOwner] = useState(false);
 
@@ -97,6 +101,11 @@ export default function BrandProfileHeader({
             <p className="mt-3 text-xs uppercase tracking-wide text-gray-500">
               {productCount} ürün · {followerCount} takipçi · Katılım: {joinedLabel}
             </p>
+            {showWardrobeValue && typeof wardrobeValue === "number" && (
+              <p className="mt-3 font-serif text-lg text-ink">
+                Gardırop Değeri: {wardrobeValue.toLocaleString("tr-TR")} ₺
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <FollowButton targetUserId={userId} />

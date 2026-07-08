@@ -21,7 +21,9 @@ export default async function ProfilePage({ params }: Props) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("*")
+    .select(
+      "*, style_tags, size_top, size_bottom, size_shoe, show_sizes, show_wardrobe_value"
+    )
     .eq("username", username)
     .single();
 
@@ -42,9 +44,14 @@ export default async function ProfilePage({ params }: Props) {
 
   const { data: products } = await supabase
     .from("products")
-    .select("*")
+    .select("id, price, title, image_url, category")
     .eq("user_id", profile.id)
     .order("created_at", { ascending: false });
+
+  const wardrobeValue = (products ?? []).reduce(
+    (sum, product) => sum + (product.price ?? 0),
+    0
+  );
 
   const productIds = (products ?? []).map((p) => p.id);
   const { data: commentRows } = productIds.length
@@ -132,7 +139,7 @@ export default async function ProfilePage({ params }: Props) {
       title: p.title,
       price: p.price,
       image_url: p.image_url,
-      username: p.username,
+      username: profile.username,
       avatar_url: profile.avatar_url,
       comment_count: commentCountByProduct.get(p.id) ?? 0,
       account_type: profile.account_type,
@@ -150,6 +157,8 @@ export default async function ProfilePage({ params }: Props) {
           followerCount={followerCount ?? 0}
           joinedLabel={joinedLabel}
           badgeKeys={badgeKeys}
+          wardrobeValue={wardrobeValue}
+          showWardrobeValue={profile.show_wardrobe_value ?? true}
         />
 
         <div className="max-w-6xl mx-auto px-6 md:px-10">
@@ -196,6 +205,13 @@ export default async function ProfilePage({ params }: Props) {
             badgeKeys={badgeKeys}
             followerCount={followerCount ?? 0}
             followingCount={followingCount ?? 0}
+            sizeTop={profile.size_top ?? null}
+            sizeBottom={profile.size_bottom ?? null}
+            sizeShoe={profile.size_shoe ?? null}
+            styleTags={profile.style_tags ?? []}
+            showSizes={profile.show_sizes ?? true}
+            wardrobeValue={wardrobeValue}
+            showWardrobeValue={profile.show_wardrobe_value ?? true}
             outfits={
               outfits?.map((outfit) => ({
                 id: outfit.id,

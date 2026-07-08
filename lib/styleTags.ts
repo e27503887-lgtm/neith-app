@@ -2,7 +2,6 @@ export const STYLE_TAGS = [
   "Blokecore",
   "Minimalist",
   "Vintage",
-  "Vintage Kargo",
   "Oversize",
   "Old Money",
   "Y2K",

@@ -2,7 +2,11 @@
 -- Run this once in the Supabase SQL editor.
 
 alter table profiles
-  add column if not exists style_tags text[] not null default '{}';
+  add column if not exists style_tags text[] not null default '{}',
+  add column if not exists size_top text,
+  add column if not exists size_bottom text,
+  add column if not exists size_shoe integer,
+  add column if not exists show_sizes boolean not null default true;
 
 alter table outfits
   add column if not exists is_highlighted boolean not null default false;

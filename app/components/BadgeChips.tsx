@@ -12,10 +12,10 @@ export default function BadgeChips({
   const chipClass =
     variant === "dark"
       ? "border border-neutral-200 bg-paper/90 text-ink"
-      : "border border-neutral-200 text-gray-600";
+      : "border border-neutral-200 bg-white text-gray-600";
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+    <div className="flex flex-wrap items-center gap-2 mt-4">
       {badgeKeys.map((key) => {
         const badge = getBadgeInfo(key);
         if (!badge) return null;
@@ -24,10 +24,15 @@ export default function BadgeChips({
         return (
           <span
             key={key}
-            className={`inline-flex items-center gap-1 px-2 py-0.5 text-[11px] uppercase tracking-wide ${chipClass}`}
+            className={`relative group inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs uppercase tracking-[0.2em] ${chipClass}`}
+            aria-label={badge.description}
+            title={badge.description}
           >
-            <Icon size={11} strokeWidth={1.5} />
+            <Icon size={14} strokeWidth={1.5} className="text-accent shrink-0" />
             {badge.label}
+            <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 hidden w-max -translate-x-1/2 rounded-2xl border border-neutral-200 bg-paper px-3 py-2 text-xs text-gray-600 shadow-lg group-hover:block">
+              {badge.description}
+            </span>
           </span>
         );
       })}

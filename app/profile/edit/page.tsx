@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "../../utils/supabase";
+import { STYLE_TAGS } from "@/lib/styleTags";
+
+const BODY_SIZES = ["XS", "S", "M", "L", "XL", "XXL"] as const;
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -22,6 +25,13 @@ export default function EditProfilePage() {
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
   const [allowDms, setAllowDms] = useState(true);
 
+  const [sizeTop, setSizeTop] = useState<string | null>(null);
+  const [sizeBottom, setSizeBottom] = useState<string | null>(null);
+  const [sizeShoe, setSizeShoe] = useState<number | null>(null);
+  const [styleTags, setStyleTags] = useState<string[]>([]);
+  const [showSizes, setShowSizes] = useState(true);
+  const [showWardrobeValue, setShowWardrobeValue] = useState(true);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -37,7 +47,9 @@ export default function EditProfilePage() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("username, bio, avatar_url, banner_url, account_type, allow_dms")
+        .select(
+          "username, bio, avatar_url, banner_url, account_type, allow_dms, size_top, size_bottom, size_shoe, style_tags, show_sizes, show_wardrobe_value"
+        )
         .eq("id", data.user.id)
         .single();
 
@@ -48,6 +60,12 @@ export default function EditProfilePage() {
         setAvatarUrl(profile.avatar_url ?? null);
         setBannerUrl(profile.banner_url ?? null);
         setAllowDms(profile.allow_dms ?? true);
+        setSizeTop(profile.size_top ?? null);
+        setSizeBottom(profile.size_bottom ?? null);
+        setSizeShoe(profile.size_shoe ?? null);
+        setStyleTags(profile.style_tags ?? []);
+        setShowSizes(profile.show_sizes ?? true);
+        setShowWardrobeValue(profile.show_wardrobe_value ?? true);
       }
 
       setCheckingAuth(false);
@@ -86,6 +104,21 @@ export default function EditProfilePage() {
 
     setBannerFile(selected);
     setBannerPreview(URL.createObjectURL(selected));
+  }
+
+  function handleShoeChange(value: string) {
+    const parsed = parseInt(value, 10);
+    setSizeShoe(Number.isFinite(parsed) ? parsed : null);
+  }
+
+  function toggleStyleTag(tag: string) {
+    setStyleTags((prev) =>
+      prev.includes(tag)
+        ? prev.filter((existing) => existing !== tag)
+        : prev.length < 4
+        ? [...prev, tag]
+        : prev
+    );
   }
 
   async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
@@ -150,6 +183,12 @@ export default function EditProfilePage() {
         avatar_url: newAvatarUrl,
         allow_dms: allowDms,
         ...(accountType === "brand" ? { banner_url: newBannerUrl } : {}),
+        size_top: sizeTop,
+        size_bottom: sizeBottom,
+        size_shoe: sizeShoe,
+        style_tags: styleTags,
+        show_sizes: showSizes,
+        show_wardrobe_value: showWardrobeValue,
       })
       .eq("id", user.id);
 
@@ -250,7 +289,138 @@ export default function EditProfilePage() {
           />
 
           <div className="pt-4 border-t border-neutral-200">
+            <h3 className="section-label mb-2">Beden & Stil</h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block">
+                <span className="text-sm text-gray-700">Üst Beden</span>
+                <select
+                  value={sizeTop ?? ""}
+                  onChange={(e) => setSizeTop(e.target.value || null)}
+                  className="mt-2 w-full p-3 border rounded-md"
+                >
+                  <option value="">Seçin</option>
+                  {BODY_SIZES.map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block">
+                <span className="text-sm text-gray-700">Alt Beden</span>
+                <select
+                  value={sizeBottom ?? ""}
+                  onChange={(e) => setSizeBottom(e.target.value || null)}
+                  className="mt-2 w-full p-3 border rounded-md"
+                >
+                  <option value="">Seçin</option>
+                  {BODY_SIZES.map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block sm:col-span-2">
+                <span className="text-sm text-gray-700">Ayakkabı Numarası</span>
+                <input
+                  value={sizeShoe ?? ""}
+                  onChange={(e) => handleShoeChange(e.target.value)}
+                  type="number"
+                  min={30}
+                  max={50}
+                  placeholder="30 - 50"
+                  className="mt-2 w-full p-3 border rounded-md"
+                />
+              </label>
+            </div>
+
+            <div className="mt-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">Stil Etiketleri</p>
+              <div className="flex flex-wrap gap-2">
+                {STYLE_TAGS.map((tag) => {
+                  const selected = styleTags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => toggleStyleTag(tag)}
+                      className={`text-xs uppercase tracking-wide px-3 py-1.5 border transition-colors duration-300 ${
+                        selected
+                          ? "bg-ink text-paper border-ink"
+                          : "border-neutral-300 text-gray-600 hover:border-ink hover:text-ink"
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                En fazla 4 stil etiketi seçebilirsiniz.
+              </p>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm text-ink">Beden ve stil bilgilerini göster</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Profilde küçük ve şık şekilde gösterilir.
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={showSizes}
+                onClick={() => setShowSizes((prev) => !prev)}
+                className="relative p-2.5 -m-2.5 shrink-0"
+              >
+                <span
+                  className={`relative block w-11 h-6 rounded-full transition-colors ${
+                    showSizes ? "bg-accent" : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-paper rounded-full transition-transform ${
+                      showSizes ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  />
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-neutral-200">
             <h3 className="section-label mb-2">Gizlilik</h3>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm text-ink">Gardırop değerini göster</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Satıştaki ürünlerinin toplam değeri profilinde görünür.
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={showWardrobeValue}
+                onClick={() => setShowWardrobeValue((prev) => !prev)}
+                className="relative p-2.5 -m-2.5 shrink-0"
+              >
+                <span
+                  className={`relative block w-11 h-6 rounded-full transition-colors ${
+                    showWardrobeValue ? "bg-accent" : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-paper rounded-full transition-transform ${
+                      showWardrobeValue ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  />
+                </span>
+              </button>
+            </div>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-ink">Kimler bana mesaj gönderebilir?</p>

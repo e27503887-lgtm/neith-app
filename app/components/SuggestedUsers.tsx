@@ -17,6 +17,11 @@ type Candidate = {
   avatar_url: string | null;
   account_type: string | null;
   followerCount: number;
+  size_top?: string | null;
+  size_bottom?: string | null;
+  size_shoe?: number | null;
+  style_tags?: string[];
+  show_sizes?: boolean;
 };
 
 export default function SuggestedUsers({
@@ -27,6 +32,7 @@ export default function SuggestedUsers({
   const [loaded, setLoaded] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [twinPromoProfile, setTwinPromoProfile] = useState<Candidate | null>(null);
   const [fadingIds, setFadingIds] = useState<Set<string>>(new Set());
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
 
@@ -39,7 +45,11 @@ export default function SuggestedUsers({
 
       const [{ data: profiles }, { data: follows }, { data: products }, { data: outfits }] =
         await Promise.all([
-          supabase.from("profiles").select("id, username, avatar_url, account_type"),
+          supabase
+            .from("profiles")
+            .select(
+              "id, username, avatar_url, account_type, size_top, size_bottom, size_shoe, style_tags, show_sizes"
+            ),
           supabase.from("follows").select("follower_id, following_id"),
           supabase.from("products").select("user_id, created_at"),
           supabase.from("outfits").select("user_id, created_at"),
@@ -67,7 +77,8 @@ export default function SuggestedUsers({
       (products ?? []).forEach((p) => registerActivity(p.user_id, p.created_at));
       (outfits ?? []).forEach((o) => registerActivity(o.user_id, o.created_at));
 
-      const ranked = (profiles ?? [])
+      const currentUserProfile = (profiles ?? []).find((p) => p.id === uid);
+      const rankedFull = (profiles ?? [])
         .filter((p) => p.id !== uid && !followingIdsOfCurrentUser.has(p.id))
         .map((p) => ({
           id: p.id,
@@ -76,21 +87,64 @@ export default function SuggestedUsers({
           account_type: p.account_type,
           followerCount: followerCountById.get(p.id) ?? 0,
           lastActivity: lastActivityById.get(p.id) ?? "",
+          size_top: p.size_top,
+          size_bottom: p.size_bottom,
+          size_shoe: p.size_shoe,
+          style_tags: p.style_tags ?? [],
+          show_sizes: p.show_sizes ?? true,
         }))
         .sort((a, b) => {
           if (b.followerCount !== a.followerCount) return b.followerCount - a.followerCount;
           return new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime();
         })
-        .slice(0, POOL_SIZE)
-        .map(({ id, username, avatar_url, account_type, followerCount }) => ({
-          id,
-          username,
-          avatar_url,
-          account_type,
-          followerCount,
-        }));
+        .slice(0, POOL_SIZE);
+
+      const ranked = rankedFull.map(({ id, username, avatar_url, account_type, followerCount }) => ({
+        id,
+        username,
+        avatar_url,
+        account_type,
+        followerCount,
+      }));
+
+      const twinPromo = (() => {
+        if (!uid || !currentUserProfile || !currentUserProfile.show_sizes) return null;
+        if (
+          !currentUserProfile.size_top ||
+          !currentUserProfile.size_bottom ||
+          currentUserProfile.size_shoe === null ||
+          currentUserProfile.style_tags?.length === 0
+        ) {
+          return null;
+        }
+
+        const candidateMatches = rankedFull
+          .filter((p) => p.show_sizes)
+          .map((p) => {
+            let score = 0;
+            if (p.size_top && p.size_top === currentUserProfile.size_top) score += 3;
+            if (p.size_bottom && p.size_bottom === currentUserProfile.size_bottom) score += 3;
+            if (
+              p.size_shoe !== undefined &&
+              currentUserProfile.size_shoe !== null &&
+              Math.abs((p.size_shoe ?? 0) - currentUserProfile.size_shoe) <= 1
+            ) {
+              score += 2;
+            }
+            const sharedStyleCount = (p.style_tags ?? []).filter((tag: string) =>
+              currentUserProfile.style_tags?.includes(tag)
+            ).length;
+            score += sharedStyleCount * 2;
+            return { profile: p, score };
+          })
+          .filter((item) => item.score >= 5)
+          .sort((a, b) => b.score - a.score);
+
+        return candidateMatches[0]?.profile ?? null;
+      })();
 
       setCurrentUserId(uid);
+      setTwinPromoProfile(twinPromo);
       setCandidates(ranked);
       setLoaded(true);
     }
@@ -114,7 +168,7 @@ export default function SuggestedUsers({
 
   const visible = candidates.filter((c) => !dismissedIds.has(c.id)).slice(0, VISIBLE_COUNT);
 
-  if (visible.length === 0) {
+  if (visible.length === 0 && !twinPromoProfile) {
     return null;
   }
 
@@ -177,6 +231,15 @@ export default function SuggestedUsers({
     return (
       <section>
         <h3 className="section-label mb-3">Keşfedilecek Stiller</h3>
+        {twinPromoProfile && (
+          <Link
+            href="/twins"
+            className="mb-4 block rounded-3xl border border-ink/10 bg-ink/5 p-4 transition hover:border-ink hover:bg-ink/10"
+          >
+            <p className="text-sm">👯 Stil ikizin @{twinPromoProfile.username} gardırobunu satıyor</p>
+            <p className="mt-2 text-xs text-gray-600">Twins sayfasına gidip daha fazla ikiz adayı gör.</p>
+          </Link>
+        )}
         <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">{visible.map(row)}</div>
       </section>
     );
@@ -184,6 +247,15 @@ export default function SuggestedUsers({
 
   return (
     <div className="bg-paper border border-neutral-200 p-4">
+      {twinPromoProfile && (
+        <Link
+          href="/twins"
+          className="mb-4 block rounded-3xl border border-ink/10 bg-ink/5 p-4 transition hover:border-ink hover:bg-ink/10"
+        >
+          <p className="text-sm">👯 Stil ikizin @{twinPromoProfile.username} gardırobunu satıyor</p>
+          <p className="mt-2 text-xs text-gray-600">Twins sayfasına gidip daha fazla ikiz adayı gör.</p>
+        </Link>
+      )}
       <h3 className="section-label mb-3">Keşfedilecek Stiller</h3>
       <div className="flex flex-col gap-3">{visible.map(row)}</div>
     </div>
