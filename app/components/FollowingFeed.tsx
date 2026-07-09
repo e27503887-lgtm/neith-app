@@ -6,6 +6,7 @@ import { Users } from "lucide-react";
 import ProductCard from "./ProductCard";
 import OutfitCard from "./OutfitCard";
 import PostCard from "./PostCard";
+import PostCardSkeleton from "./PostCardSkeleton";
 import { supabase } from "../utils/supabase";
 import { enrichPostsWithMedia } from "@/lib/posts";
 import { getOutfitCoverTagFlags, getTaggedMediaIds } from "@/lib/photoTags";
@@ -35,9 +36,11 @@ type OutfitItem = {
 
 type PostItem = {
   id: number | string;
+  user_id?: string;
   caption: string | null;
   cover_url: string;
   cover_type: "image" | "video";
+  media?: { url: string; type: "image" | "video" }[];
   media_count: number;
   username: string;
   avatar_url?: string | null;
@@ -202,7 +205,13 @@ export default function FollowingFeed() {
   }, []);
 
   if (!checked || loading) {
-    return null;
+    return (
+      <div className="max-w-xl mx-auto">
+        {[0, 1, 2].map((i) => (
+          <PostCardSkeleton key={i} />
+        ))}
+      </div>
+    );
   }
 
   if (!userId) {

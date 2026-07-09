@@ -12,10 +12,12 @@ export const POST_CREATED_EVENT = "neith:post-created";
 
 export type CreatedPost = {
   id: number | string;
+  user_id: string;
   caption: string | null;
   created_at: string;
   cover_url: string;
   cover_type: "image" | "video";
+  media: { url: string; type: "image" | "video" }[];
   media_count: number;
   like_count: number;
   username: string;
@@ -234,10 +236,12 @@ export default function ComposePostModal() {
 
     const createdPost: CreatedPost = {
       id: post.id,
+      user_id: profile.id,
       caption: post.caption,
       created_at: post.created_at,
       cover_url: uploadResults[0]?.url ?? "",
       cover_type: "image",
+      media: uploadResults.map((r) => ({ url: r.url!, type: "image" as const })),
       media_count: photos.length,
       like_count: 0,
       username: profile.username,

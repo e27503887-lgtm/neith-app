@@ -7,10 +7,16 @@ export type PostRow = {
   created_at: string;
 };
 
+export type PostMediaItem = {
+  url: string;
+  type: "image" | "video";
+};
+
 export type EnrichedPost = PostRow & {
   cover_url: string;
   cover_type: "image" | "video";
   cover_media_id: number | string | null;
+  media: PostMediaItem[];
   media_count: number;
   like_count: number;
 };
@@ -22,6 +28,7 @@ export async function enrichPostsWithMedia<T extends PostRow>(
     cover_url: string;
     cover_type: "image" | "video";
     cover_media_id: number | string | null;
+    media: PostMediaItem[];
     media_count: number;
     like_count: number;
   })[]
@@ -42,10 +49,12 @@ export async function enrichPostsWithMedia<T extends PostRow>(
     number | string,
     { id: number | string; media_url: string; media_type: "image" | "video" }
   >();
-  const mediaCountByPost = new Map<number | string, number>();
+  const mediaByPost = new Map<number | string, PostMediaItem[]>();
 
   (mediaRows ?? []).forEach((m) => {
-    mediaCountByPost.set(m.post_id, (mediaCountByPost.get(m.post_id) ?? 0) + 1);
+    const list = mediaByPost.get(m.post_id) ?? [];
+    list.push({ url: m.media_url, type: m.media_type });
+    mediaByPost.set(m.post_id, list);
     if (!firstMediaByPost.has(m.post_id)) {
       firstMediaByPost.set(m.post_id, { id: m.id, media_url: m.media_url, media_type: m.media_type });
     }
@@ -61,7 +70,8 @@ export async function enrichPostsWithMedia<T extends PostRow>(
     cover_url: firstMediaByPost.get(p.id)?.media_url ?? "",
     cover_type: firstMediaByPost.get(p.id)?.media_type ?? "image",
     cover_media_id: firstMediaByPost.get(p.id)?.id ?? null,
-    media_count: mediaCountByPost.get(p.id) ?? 0,
+    media: mediaByPost.get(p.id) ?? [],
+    media_count: mediaByPost.get(p.id)?.length ?? 0,
     like_count: likeCountByPost.get(p.id) ?? 0,
   }));
 }
