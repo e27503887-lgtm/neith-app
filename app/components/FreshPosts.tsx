@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import PostCard from "./PostCard";
-import { POST_CREATED_EVENT, type CreatedPost } from "./ComposePostModal";
+import { POST_CREATED_EVENT, type CreatedPost } from "../utils/composeEvents";
 
 // Renders posts created in this session (via the compose modal) at the top of
 // the server-rendered feed, without a page reload.

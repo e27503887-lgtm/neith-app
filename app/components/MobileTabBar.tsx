@@ -4,9 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
 import { Home, Store, ShoppingBag, Plus, Tag, Shirt, Camera } from "lucide-react";
-import { openComposePost } from "./ComposePostModal";
+import { openComposePost } from "../utils/composeEvents";
 
 const LEFT_ITEMS = [
   { href: "/", label: "Ana Sayfa", icon: Home },
@@ -28,6 +27,7 @@ const MENU_OPTIONS = [
 const PLUS_BUTTON_CENTER_OFFSET = 44;
 const OPTION_STACK_GAP = 56;
 
+// CSS geçişli menü — framer-motion'sız (mobil JS bütçesi).
 export default function MobileTabBar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -61,18 +61,12 @@ export default function MobileTabBar() {
 
   return (
     <>
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            className="md:hidden fixed inset-0 z-40 bg-black/60"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => setMenuOpen(false)}
-          />
-        )}
-      </AnimatePresence>
+      <div
+        className={`md:hidden fixed inset-0 z-40 bg-black/60 transition-opacity duration-200 ${
+          menuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setMenuOpen(false)}
+      />
 
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-stretch bg-paper border-t border-neutral-200"
@@ -81,45 +75,34 @@ export default function MobileTabBar() {
         {LEFT_ITEMS.map(renderItem)}
 
         <div className="relative flex flex-1 flex-col items-center justify-center">
-          <AnimatePresence>
-            {menuOpen &&
-              MENU_OPTIONS.map((option, index) => {
-                const Icon = option.icon;
-                return (
-                  <motion.div
-                    key={option.key}
-                    className="absolute left-1/2 -translate-x-1/2"
-                    style={{ bottom: PLUS_BUTTON_CENTER_OFFSET + (index + 1) * OPTION_STACK_GAP }}
-                    custom={index}
-                    initial={{ opacity: 0, scale: 0.3, y: 16 }}
-                    animate={{
-                      opacity: 1,
-                      scale: 1,
-                      y: 0,
-                      transition: { delay: index * 0.05, duration: 0.2, ease: "easeOut" },
-                    }}
-                    exit={{
-                      opacity: 0,
-                      scale: 0.3,
-                      y: 16,
-                      transition: { delay: (MENU_OPTIONS.length - 1 - index) * 0.05, duration: 0.15, ease: "easeIn" },
-                    }}
-                  >
-                    <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-ink text-paper text-[11px] px-2.5 py-1 shadow">
-                      {option.label}
-                    </span>
-                    <button
-                      type="button"
-                      aria-label={option.label}
-                      onClick={() => handleOptionClick(option)}
-                      className="relative flex items-center justify-center w-11 h-11 rounded-full shadow-md bg-ink text-paper transition-colors"
-                    >
-                      <Icon size={18} strokeWidth={1.5} />
-                    </button>
-                  </motion.div>
-                );
-              })}
-          </AnimatePresence>
+          {MENU_OPTIONS.map((option, index) => {
+            const Icon = option.icon;
+            return (
+              <div
+                key={option.key}
+                className={`absolute left-1/2 -translate-x-1/2 transition-all duration-200 ease-out ${
+                  menuOpen ? "opacity-100 scale-100" : "opacity-0 scale-50 pointer-events-none"
+                }`}
+                style={{
+                  bottom: PLUS_BUTTON_CENTER_OFFSET + (index + 1) * OPTION_STACK_GAP,
+                  transitionDelay: menuOpen ? `${index * 50}ms` : "0ms",
+                }}
+              >
+                <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-ink text-paper text-[11px] px-2.5 py-1 shadow">
+                  {option.label}
+                </span>
+                <button
+                  type="button"
+                  aria-label={option.label}
+                  tabIndex={menuOpen ? 0 : -1}
+                  onClick={() => handleOptionClick(option)}
+                  className="relative flex items-center justify-center w-11 h-11 rounded-full shadow-md bg-ink text-paper transition-colors"
+                >
+                  <Icon size={18} strokeWidth={1.5} />
+                </button>
+              </div>
+            );
+          })}
 
           <button
             type="button"
@@ -128,13 +111,13 @@ export default function MobileTabBar() {
             onClick={() => setMenuOpen((open) => !open)}
             className="flex items-center justify-center w-12 h-12 -mt-6 rounded-full bg-ink text-paper shadow-[0_2px_14px_rgba(0,0,0,0.2)]"
           >
-            <motion.span
-              animate={{ rotate: menuOpen ? 45 : 0 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="flex items-center justify-center"
+            <span
+              className={`flex items-center justify-center transition-transform duration-200 ease-out ${
+                menuOpen ? "rotate-45" : "rotate-0"
+              }`}
             >
               <Plus size={22} strokeWidth={1.5} />
-            </motion.span>
+            </span>
           </button>
         </div>
 

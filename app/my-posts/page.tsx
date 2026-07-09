@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../utils/supabase";
 import { enrichPostsWithMedia, type EnrichedPost } from "@/lib/posts";
-import { openComposePost, POST_CREATED_EVENT } from "../components/ComposePostModal";
+import { openComposePost, POST_CREATED_EVENT } from "../utils/composeEvents";
 import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
 

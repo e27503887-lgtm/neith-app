@@ -1,30 +1,44 @@
 import { Fragment } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import dynamic from "next/dynamic";
 import { Shirt } from "lucide-react";
 import ProductCard from "./components/ProductCard";
 import OutfitCard from "./components/OutfitCard";
 import PostCard from "./components/PostCard";
 import OutfitRecommendations from "./components/OutfitRecommendations";
-import TrendingSection from "./components/TrendingSection";
-import type { TrendingItem } from "./components/TrendingCard";
-import PopularProducts from "./components/PopularProducts";
-import BrandPicks from "./components/BrandPicks";
-import FollowingFeed from "./components/FollowingFeed";
-import FreshPosts from "./components/FreshPosts";
-import SuggestedUsers from "./components/SuggestedUsers";
-import BrandBadge from "./components/BrandBadge";
-import GlobalTrends from "./components/GlobalTrends";
-import SocialFeed from "./components/SocialFeed";
 import RecommendedItems from "./components/RecommendedItems";
-import OutfitBattle from "./components/OutfitBattle";
-import AIStylist from "./components/AIStylist";
-import BrandShowcase from "./components/BrandShowcase";
-import FashionEncyclopedia from "./components/FashionEncyclopedia";
-import FadeInSection from "./components/FadeInSection";
+import FreshPosts from "./components/FreshPosts";
+import FeedLoadMore from "./components/FeedLoadMore";
+import LazyVisible from "./components/LazyVisible";
 import { supabase } from "./utils/supabase";
 import { enrichPostsWithMedia } from "@/lib/posts";
-import { getOutfitCoverTagFlags, getTaggedMediaIds } from "@/lib/photoTags";
+
+// Ekran dışı / masaüstüne özel / koşullu bileşenler ayrı chunk'lara bölünür:
+// LazyVisible görünene kadar mount etmediği için kodları da ancak o zaman iner.
+const TrendingStrip = dynamic(() =>
+  import("./components/DeferredSections").then((m) => m.TrendingStrip)
+);
+const BrandPicksStrip = dynamic(() =>
+  import("./components/DeferredSections").then((m) => m.BrandPicksStrip)
+);
+const PopularStrip = dynamic(() =>
+  import("./components/DeferredSections").then((m) => m.PopularStrip)
+);
+const FollowingFeed = dynamic(() => import("./components/FollowingFeed"));
+const SuggestedUsers = dynamic(() => import("./components/SuggestedUsers"));
+const SocialFeed = dynamic(() => import("./components/SocialFeed"));
+const OutfitBattle = dynamic(() => import("./components/OutfitBattle"));
+const AIStylist = dynamic(() => import("./components/AIStylist"));
+const BrandShowcase = dynamic(() => import("./components/BrandShowcase"));
+const FashionEncyclopedia = dynamic(() => import("./components/FashionEncyclopedia"));
+
+// İlk boyama bütçesi: sunucu tarafında yalnızca 6 sorgu.
+// Trend/popüler/marka şeritleri görünür olunca istemciden yüklenir.
+const PRODUCT_LIMIT = 24;
+const OUTFIT_LIMIT = 24;
+const POST_LIMIT = 12;
+const INITIAL_FEED_MOBILE = 10;
+const INITIAL_FEED_DESKTOP = 12;
 
 type Props = {
   searchParams: Promise<{ filter?: string }>;
@@ -41,81 +55,55 @@ export default async function Home({ searchParams }: Props) {
       ? filter
       : "all";
 
-  const { data: products } = await supabase
-    .from("products")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const now = new Date().toISOString();
 
-  const { data: outfits } = await supabase
-    .from("outfits")
-    .select("*")
-    .order("created_at", { ascending: false });
+  // Sorgular 1-4 (paralel): ürünler, kombinler, gönderiler, aktif moda haftası
+  const [{ data: products }, { data: outfits }, { data: postsRaw }, { data: activeWeeks }] =
+    await Promise.all([
+      supabase
+        .from("products")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(PRODUCT_LIMIT),
+      supabase
+        .from("outfits")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(OUTFIT_LIMIT),
+      supabase
+        .from("posts")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(POST_LIMIT),
+      supabase.from("fashion_weeks").select("*").lte("starts_at", now).gte("ends_at", now).limit(1),
+    ]);
 
-  const { data: postsRaw } = await supabase
-    .from("posts")
-    .select("*")
-    .order("created_at", { ascending: false });
+  // Sorgu 5: gönderi medyaları (beğeni sayıları kartta istemciden gelir)
+  const enrichedPostRows = await enrichPostsWithMedia(postsRaw ?? [], { includeLikes: false });
 
-  const enrichedPostRows = await enrichPostsWithMedia(postsRaw ?? []);
+  // Sorgu 6: tüm içerik sahipleri tek profil sorgusunda
+  const userIds = [
+    ...new Set([
+      ...(products ?? []).map((p) => p.user_id),
+      ...(outfits ?? []).map((o) => o.user_id),
+      ...enrichedPostRows.map((p) => p.user_id),
+    ]),
+  ].filter(Boolean);
 
-  const usernames = [...new Set((products ?? []).map((p) => p.username))];
-  const outfitUserIds = [...new Set((outfits ?? []).map((o) => o.user_id))];
-  const postUserIds = [...new Set(enrichedPostRows.map((p) => p.user_id))];
-
-  const { data: profiles } = usernames.length
-    ? await supabase
-        .from("profiles")
-        .select("username, avatar_url, account_type")
-        .in("username", usernames)
-    : { data: [] as { username: string; avatar_url: string | null; account_type: string | null }[] };
-
-  const { data: outfitProfiles } = outfitUserIds.length
+  const { data: profiles } = userIds.length
     ? await supabase
         .from("profiles")
         .select("id, username, avatar_url, account_type")
-        .in("id", outfitUserIds)
+        .in("id", userIds)
     : { data: [] as { id: string; username: string; avatar_url: string | null; account_type: string | null }[] };
 
-  const { data: postProfiles } = postUserIds.length
-    ? await supabase
-        .from("profiles")
-        .select("id, username, avatar_url, account_type")
-        .in("id", postUserIds)
-    : { data: [] as { id: string; username: string; avatar_url: string | null; account_type: string | null }[] };
-
-  const profileByUsername = new Map((profiles ?? []).map((p) => [p.username, p]));
-  const profileById = new Map((outfitProfiles ?? []).map((p) => [p.id, p]));
-  const postProfileById = new Map((postProfiles ?? []).map((p) => [p.id, p]));
-
-  const outfitTagFlags = await getOutfitCoverTagFlags((outfits ?? []).map((o) => o.id));
-  const taggedPostCoverIds = await getTaggedMediaIds(
-    "post",
-    enrichedPostRows.map((p) => p.cover_media_id).filter((id): id is number | string => id !== null)
-  );
-
-  const allPosts = enrichedPostRows.map((post) => ({
-    ...post,
-    username: postProfileById.get(post.user_id)?.username ?? "Bilinmeyen kullanıcı",
-    avatar_url: postProfileById.get(post.user_id)?.avatar_url ?? null,
-    account_type: postProfileById.get(post.user_id)?.account_type ?? null,
-    has_tag: post.cover_media_id ? taggedPostCoverIds.has(post.cover_media_id) : false,
-  }));
-
-  const productIds = (products ?? []).map((p) => p.id);
-  const { data: commentRows } = productIds.length
-    ? await supabase.from("comments").select("product_id").in("product_id", productIds)
-    : { data: [] as { product_id: number | string }[] };
-
-  const commentCountByProduct = new Map<number | string, number>();
-  (commentRows ?? []).forEach((c) => {
-    commentCountByProduct.set(c.product_id, (commentCountByProduct.get(c.product_id) ?? 0) + 1);
-  });
+  const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
+  const activeWeek = (activeWeeks && activeWeeks[0]) || null;
 
   const allProducts = (products ?? []).map((product) => ({
     ...product,
-    avatar_url: profileByUsername.get(product.username)?.avatar_url ?? null,
-    account_type: profileByUsername.get(product.username)?.account_type ?? null,
-    comment_count: commentCountByProduct.get(product.id) ?? 0,
+    avatar_url: profileById.get(product.user_id)?.avatar_url ?? null,
+    account_type: profileById.get(product.user_id)?.account_type ?? null,
   }));
 
   const allOutfits = (outfits ?? []).map((outfit) => ({
@@ -123,7 +111,13 @@ export default async function Home({ searchParams }: Props) {
     username: profileById.get(outfit.user_id)?.username ?? "Bilinmeyen kullanıcı",
     avatar_url: profileById.get(outfit.user_id)?.avatar_url ?? null,
     account_type: profileById.get(outfit.user_id)?.account_type ?? null,
-    has_tag: outfitTagFlags.get(outfit.id) ?? false,
+  }));
+
+  const allPosts = enrichedPostRows.map((post) => ({
+    ...post,
+    username: profileById.get(post.user_id)?.username ?? "Bilinmeyen kullanıcı",
+    avatar_url: profileById.get(post.user_id)?.avatar_url ?? null,
+    account_type: profileById.get(post.user_id)?.account_type ?? null,
   }));
 
   type FeedItem =
@@ -137,16 +131,33 @@ export default async function Home({ searchParams }: Props) {
     ...allPosts.map((p): FeedItem => ({ kind: "post", created_at: p.created_at, data: p })),
   ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-  // Mobile home: posts-weighted feed — all posts, plus a thinned sample of
-  // products/outfits so posts stay in the majority.
+  // Mobil: posts ağırlıklı akış — tüm gönderiler + inceltilmiş ürün/kombin örneklemi
   const mobilePostItems = mixedFeed.filter((item) => item.kind === "post");
   const mobileNonPostItems = mixedFeed
     .filter((item) => item.kind !== "post")
     .filter((_, index) => index % 2 === 0)
     .slice(0, Math.max(4, mobilePostItems.length));
-  const mobileFeed = [...mobilePostItems, ...mobileNonPostItems].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
+  const mobileFeed = [...mobilePostItems, ...mobileNonPostItems]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, INITIAL_FEED_MOBILE);
+
+  const mobileCursor =
+    mobileFeed.length > 0 ? mobileFeed[mobileFeed.length - 1].created_at : null;
+
+  const desktopFeed = mixedFeed.slice(0, INITIAL_FEED_DESKTOP);
+  const desktopCursor =
+    desktopFeed.length > 0 ? desktopFeed[desktopFeed.length - 1].created_at : null;
+
+  // Mobil: AIStylist'siz sade kartlar (daha az JS); masaüstü grid'i stil
+  // ipuçlarını korur.
+  const renderMobileFeedItem = (item: FeedItem, priority = false) =>
+    item.kind === "product" ? (
+      <ProductCard key={`p-${item.data.id}`} product={item.data} priority={priority} />
+    ) : item.kind === "outfit" ? (
+      <OutfitCard key={`o-${item.data.id}`} outfit={item.data} priority={priority} />
+    ) : (
+      <PostCard key={`post-${item.data.id}`} post={item.data} priority={priority} />
+    );
 
   const renderFeedItem = (item: FeedItem) =>
     item.kind === "product" ? (
@@ -164,71 +175,8 @@ export default async function Home({ searchParams }: Props) {
   const communityOutfits = allOutfits.filter((o) => o.creator_type === "user").slice(0, 6);
   const brandCreatorOutfits = allOutfits.filter((o) => o.creator_type === "brand").slice(0, 6);
 
-  const { data: popularProductsRaw } = await supabase
-    .from("popular_products")
-    .select("*")
-    .gt("popularity_score", 0)
-    .order("popularity_score", { ascending: false })
-    .limit(8);
-
-  const popularProducts = popularProductsRaw ?? [];
-
-  const [{ data: trendingProductsRaw }, { data: trendingOutfitsRaw }] = await Promise.all([
-    supabase
-      .from("trending_products")
-      .select("*")
-      .gt("trend_score", 0)
-      .order("trend_score", { ascending: false }),
-    supabase
-      .from("trending_outfits")
-      .select("*")
-      .gt("trend_score", 0)
-      .order("trend_score", { ascending: false }),
-  ]);
-
-  const rankedTrendingItems = [
-    ...(trendingProductsRaw ?? []).map((p) => ({
-      score: p.trend_score as number,
-      item: {
-        kind: "product" as const,
-        id: p.id,
-        title: p.title,
-        price: p.price,
-        image_url: p.image_url,
-      },
-    })),
-    ...(trendingOutfitsRaw ?? []).map((o) => ({
-      score: o.trend_score as number,
-      item: {
-        kind: "outfit" as const,
-        id: o.id,
-        title: o.title,
-        image_url: o.image_url,
-      },
-    })),
-  ].sort((a, b) => b.score - a.score);
-
-  const trendingItems: TrendingItem[] = rankedTrendingItems.slice(0, 8).map((r) => r.item);
-
-  // active fashion week for announcement strip
-  const now = new Date().toISOString();
-  const { data: activeWeeks } = await supabase
-    .from("fashion_weeks")
-    .select("*")
-    .lte("starts_at", now)
-    .gte("ends_at", now)
-    .limit(1);
-  const activeWeek = (activeWeeks && activeWeeks[0]) || null;
-
   const brandProducts = allProducts.filter((p) => p.seller_type === "brand");
-
-  const brandPicks = [...brandProducts]
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 12);
-
-  const brandShowcase = brandProducts.slice(0, 4);
-  const isBrandShowcase = brandShowcase.length > 0;
-  const sidePanelProducts = isBrandShowcase ? brandShowcase : allProducts.slice(0, 4);
+  const recommendedProducts = allProducts.slice(0, 3);
 
   const tabs = [
     { label: "Tümü", value: "all", href: "/" },
@@ -257,8 +205,9 @@ export default async function Home({ searchParams }: Props) {
           </div>
         </div>
       )}
-      {/* Mobile home: posts-weighted single-column feed with horizontal strips
-          woven in. Desktop layout below is untouched (hidden md:*). */}
+
+      {/* Mobil ana sayfa: posts ağırlıklı tek sütun akış + araya giren şeritler.
+          Masaüstü düzeni aşağıda, dokunulmadan (hidden md:*). */}
       <div className="md:hidden max-w-xl mx-auto">
         {mobileFeed.length === 0 ? (
           <div className="flex flex-col items-center text-center py-12 gap-4">
@@ -270,21 +219,32 @@ export default async function Home({ searchParams }: Props) {
             <FreshPosts />
             {mobileFeed.map((item, index) => (
               <Fragment key={`m-${item.kind}-${item.data.id}`}>
-                {item.kind === "product" ? (
-                  <ProductCard product={item.data} />
-                ) : item.kind === "outfit" ? (
-                  <OutfitCard outfit={item.data} />
-                ) : (
-                  <PostCard post={item.data} />
+                {renderMobileFeedItem(item, index < 2)}
+                {index === 4 && (
+                  <LazyVisible>
+                    <TrendingStrip />
+                  </LazyVisible>
                 )}
-                {index === 4 && <TrendingSection items={trendingItems} />}
-                {index === 9 && <BrandPicks products={brandPicks} />}
+                {index === 9 && (
+                  <LazyVisible>
+                    <BrandPicksStrip />
+                  </LazyVisible>
+                )}
               </Fragment>
             ))}
           </div>
         )}
-        {mobileFeed.length <= 4 && <TrendingSection items={trendingItems} />}
-        {mobileFeed.length <= 9 && <BrandPicks products={brandPicks} />}
+        {mobileFeed.length <= 4 && (
+          <LazyVisible>
+            <TrendingStrip />
+          </LazyVisible>
+        )}
+        {mobileFeed.length <= 9 && (
+          <LazyVisible>
+            <BrandPicksStrip />
+          </LazyVisible>
+        )}
+        <FeedLoadMore initialCursor={mobileCursor} variant="list" />
       </div>
 
       <section className="hidden md:block max-w-6xl mx-auto pt-6 pb-10 md:pb-14 border-b border-neutral-200 mb-12">
@@ -302,43 +262,39 @@ export default async function Home({ searchParams }: Props) {
       </section>
 
       <div className="hidden md:block max-w-6xl mx-auto">
-        <FadeInSection>
-          <OutfitRecommendations
-            featured={featuredOutfits}
-            community={communityOutfits}
-            brand={brandCreatorOutfits}
-          />
-        </FadeInSection>
+        <OutfitRecommendations
+          featured={featuredOutfits}
+          community={communityOutfits}
+          brand={brandCreatorOutfits}
+        />
 
-        <FadeInSection>
-          <TrendingSection items={trendingItems} />
-        </FadeInSection>
-        <FadeInSection>
-          <BrandPicks products={brandPicks} />
-        </FadeInSection>
-        <FadeInSection>
-          <PopularProducts products={popularProducts} />
-        </FadeInSection>
+        <LazyVisible minHeight={280}>
+          <TrendingStrip />
+        </LazyVisible>
+        <LazyVisible minHeight={280}>
+          <BrandPicksStrip />
+        </LazyVisible>
+        <LazyVisible minHeight={280}>
+          <PopularStrip />
+        </LazyVisible>
       </div>
 
       <div id="feed" className="hidden max-w-6xl mx-auto md:flex flex-col lg:flex-row items-start gap-8 pt-16 scroll-mt-24">
         <div className="w-full lg:w-[65%] min-w-0">
-          <FadeInSection>
-            <RecommendedItems />
-          </FadeInSection>
+          <RecommendedItems products={recommendedProducts} />
 
-          <FadeInSection>
+          <LazyVisible minHeight={200}>
             <OutfitBattle />
-          </FadeInSection>
+          </LazyVisible>
 
-          <FadeInSection>
+          <LazyVisible minHeight={200}>
             <SocialFeed />
-          </FadeInSection>
+          </LazyVisible>
 
-          <FadeInSection className="mb-6">
+          <div className="mb-6">
             <h2 className="text-2xl tracking-tight text-ink">Sizin İçin Seçilenler</h2>
             <p className="text-gray-500 text-sm mt-1">En yeni kombinleri ve parçaları keşfedin.</p>
-          </FadeInSection>
+          </div>
 
           <div className="flex gap-6 border-b border-neutral-200 mb-8 overflow-x-auto">
             {tabs.map((tab) => (
@@ -367,51 +323,61 @@ export default async function Home({ searchParams }: Props) {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 md:gap-6">
-              {activeFilter === "all" && (
-                <>
-                  <FreshPosts />
-                  {mixedFeed.slice(0, 4).map(renderFeedItem)}
-                  <div className="col-span-full lg:hidden">
-                    <SuggestedUsers variant="mobile" />
-                  </div>
-                  {mixedFeed.slice(4).map(renderFeedItem)}
-                </>
-              )}
-              {activeFilter === "products" &&
-                allProducts.map((p) => (
-                  <div key={p.id}>
-                    <ProductCard product={p} />
-                    <AIStylist productName={p.title} />
-                  </div>
-                ))}
-              {activeFilter === "outfits" &&
-                allOutfits.map((o) => <OutfitCard key={o.id} outfit={o} />)}
-              {activeFilter === "posts" && (
-                <>
-                  <FreshPosts />
-                  {allPosts.map((p) => (
-                    <PostCard key={p.id} post={p} />
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 md:gap-6">
+                {activeFilter === "all" && (
+                  <>
+                    <FreshPosts />
+                    {desktopFeed.map((item) => renderFeedItem(item))}
+                  </>
+                )}
+                {activeFilter === "products" &&
+                  allProducts.map((p) => (
+                    <div key={p.id}>
+                      <ProductCard product={p} />
+                      <AIStylist productName={p.title} />
+                    </div>
                   ))}
-                </>
+                {activeFilter === "outfits" &&
+                  allOutfits.map((o) => <OutfitCard key={o.id} outfit={o} />)}
+                {activeFilter === "posts" && (
+                  <>
+                    <FreshPosts />
+                    {allPosts.map((p) => (
+                      <PostCard key={p.id} post={p} />
+                    ))}
+                  </>
+                )}
+                {activeFilter === "brand" &&
+                  brandProducts.map((p) => (
+                    <div key={p.id}>
+                      <ProductCard product={p} />
+                      <AIStylist productName={p.title} />
+                    </div>
+                  ))}
+              </div>
+              {activeFilter === "all" && (
+                <FeedLoadMore initialCursor={desktopCursor} variant="grid" />
               )}
-              {activeFilter === "brand" &&
-                brandProducts.map((p) => (
-                  <div key={p.id}>
-                    <ProductCard product={p} />
-                    <AIStylist productName={p.title} />
-                  </div>
-                ))}
-            </div>
+            </>
           )}
         </div>
 
         <aside id="brand-showcase" className="hidden lg:flex flex-col gap-6 lg:w-[35%] sticky top-24">
-          <BrandShowcase />
-          <FashionEncyclopedia />
+          <LazyVisible minHeight={200}>
+            <BrandShowcase />
+          </LazyVisible>
+          <LazyVisible minHeight={200}>
+            <FashionEncyclopedia />
+          </LazyVisible>
         </aside>
       </div>
 
+      <div className="hidden md:block lg:hidden max-w-6xl mx-auto pt-8">
+        <LazyVisible minHeight={160}>
+          <SuggestedUsers variant="mobile" />
+        </LazyVisible>
+      </div>
     </main>
   );
 }

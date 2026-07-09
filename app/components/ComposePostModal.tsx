@@ -7,27 +7,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ImagePlus, X } from "lucide-react";
 import { supabase } from "../utils/supabase";
 
-export const COMPOSE_POST_OPEN_EVENT = "neith:compose-post-open";
-export const POST_CREATED_EVENT = "neith:post-created";
-
-export type CreatedPost = {
-  id: number | string;
-  user_id: string;
-  caption: string | null;
-  created_at: string;
-  cover_url: string;
-  cover_type: "image" | "video";
-  media: { url: string; type: "image" | "video" }[];
-  media_count: number;
-  like_count: number;
-  username: string;
-  avatar_url: string | null;
-  account_type: string | null;
-};
-
-export function openComposePost() {
-  window.dispatchEvent(new Event(COMPOSE_POST_OPEN_EVENT));
-}
+import {
+  COMPOSE_POST_OPEN_EVENT,
+  POST_CREATED_EVENT,
+  type CreatedPost,
+} from "../utils/composeEvents";
 
 const MAX_PHOTOS = 6;
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
@@ -57,9 +41,9 @@ async function uploadPhoto(userId: string, file: File, index: number) {
   return { url: publicUrlData.publicUrl };
 }
 
-export default function ComposePostModal() {
+export default function ComposePostModal({ initialOpen = false }: { initialOpen?: boolean }) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(initialOpen);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [text, setText] = useState("");
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
@@ -106,7 +90,7 @@ export default function ComposePostModal() {
 
     const focusTimer = window.setTimeout(() => textareaRef.current?.focus(), 250);
     return () => window.clearTimeout(focusTimer);
-  }, [open]);
+  }, [open, router]);
 
   useEffect(() => {
     if (!open) return;

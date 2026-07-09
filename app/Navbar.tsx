@@ -5,13 +5,18 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
 import { Search, Heart, Mail, ChevronDown, X, User as UserIcon, ShoppingBag, PenLine } from "lucide-react";
 import { supabase } from "./utils/supabase";
 import { CART_UPDATED_EVENT } from "./utils/cart";
-import { openComposePost } from "./components/ComposePostModal";
+import { runWhenIdle } from "./utils/idle";
+import { openComposePost } from "./utils/composeEvents";
 import NotificationBell from "./components/NotificationBell";
-import MobileMessagesPanel from "./components/MobileMessagesPanel";
+
+// Mesaj paneli (framer-motion kullanır) yalnızca açıldığında yüklenir.
+const MobileMessagesPanel = dynamic(() => import("./components/MobileMessagesPanel"), {
+  ssr: false,
+});
 import type { User } from "@supabase/supabase-js";
 
 type Profile = { username: string; avatar_url: string | null };
@@ -47,12 +52,15 @@ export default function Navbar() {
       }
     }
 
-    // Sayfa ilk yüklendiğinde mevcut oturumu al
+    // Sayfa ilk yüklendiğinde mevcut oturumu al. Sepet sayısı ilk boyamayı
+    // bekletmesin — tarayıcı boşta kalınca yüklenir.
+    let cancelIdle = () => {};
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user ?? null);
       if (data.user) {
-        loadProfile(data.user.id);
-        loadCart(data.user.id);
+        const uid = data.user.id;
+        loadProfile(uid);
+        cancelIdle = runWhenIdle(() => loadCart(uid));
       }
     });
 
@@ -80,6 +88,7 @@ export default function Navbar() {
 
     return () => {
       active = false;
+      cancelIdle();
       listener.subscription.unsubscribe();
       window.removeEventListener(CART_UPDATED_EVENT, handleCartUpdated);
     };
@@ -369,10 +378,9 @@ export default function Navbar() {
       )}
 
       {mounted &&
+        messagesOpen &&
         createPortal(
-          <AnimatePresence>
-            {messagesOpen && <MobileMessagesPanel onClose={() => setMessagesOpen(false)} />}
-          </AnimatePresence>,
+          <MobileMessagesPanel onClose={() => setMessagesOpen(false)} />,
           document.body
         )}
     </nav>

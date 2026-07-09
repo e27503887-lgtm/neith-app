@@ -32,9 +32,11 @@ type Post = {
 export default function PostCard({
   post,
   onDeleted,
+  priority = false,
 }: {
   post: Post;
   onDeleted?: () => void;
+  priority?: boolean;
 }) {
   const [deleted, setDeleted] = useState(false);
 
@@ -78,7 +80,9 @@ export default function PostCard({
             {post.account_type === "brand" && <BrandBadge />}
           </Link>
           <p className="flex items-center gap-1.5 text-xs text-gray-400">
-            {post.created_at && <span>{timeAgo(post.created_at)}</span>}
+            {/* Relatif zaman sunucu ve istemcide saniye farkıyla değişebilir —
+                hydration uyuşmazlığı uyarısını bastır. */}
+            {post.created_at && <span suppressHydrationWarning>{timeAgo(post.created_at)}</span>}
             {post.has_tag && <ShoppingBag size={11} strokeWidth={1.5} />}
           </p>
         </div>
@@ -119,7 +123,7 @@ export default function PostCard({
 
       {media.length > 0 && (
         <div className="mt-3">
-          <PostMediaGrid postId={post.id} media={media} />
+          <PostMediaGrid postId={post.id} media={media} priority={priority} />
         </div>
       )}
 

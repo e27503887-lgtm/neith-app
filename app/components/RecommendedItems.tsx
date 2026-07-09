@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { supabase } from "../utils/supabase";
 
 type RecommendedProduct = {
   id: number | string;
@@ -9,24 +8,9 @@ type RecommendedProduct = {
   image_url: string;
 };
 
-function pickRandom<T>(items: T[], count: number): T[] {
-  const pool = [...items];
-  const picked: T[] = [];
-  while (pool.length > 0 && picked.length < count) {
-    const index = Math.floor(Math.random() * pool.length);
-    picked.push(pool.splice(index, 1)[0]);
-  }
-  return picked;
-}
-
-export default async function RecommendedItems() {
-  const { data } = await supabase
-    .from("products")
-    .select("id, title, price, image_url")
-    .order("created_at", { ascending: false })
-    .limit(30);
-
-  const products = pickRandom((data ?? []) as RecommendedProduct[], 3);
+// Ürün listesi çağıran taraftan gelir (ana sayfa zaten ürünleri çekiyor) —
+// bu bölüm ek sorgu atmaz.
+export default function RecommendedItems({ products }: { products: RecommendedProduct[] }) {
 
   if (products.length === 0) {
     return null;

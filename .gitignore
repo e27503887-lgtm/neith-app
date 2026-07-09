@@ -42,3 +42,7 @@ next-env.d.ts
 
 # claude code local settings
 .claude/settings.local.json
+
+# local perf measurement artifacts
+home_baseline.html
+home_after.html

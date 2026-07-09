@@ -22,7 +22,8 @@ export type EnrichedPost = PostRow & {
 };
 
 export async function enrichPostsWithMedia<T extends PostRow>(
-  posts: T[]
+  posts: T[],
+  options?: { includeLikes?: boolean }
 ): Promise<
   (T & {
     cover_url: string;
@@ -36,13 +37,17 @@ export async function enrichPostsWithMedia<T extends PostRow>(
   const postIds = posts.map((p) => p.id);
   if (postIds.length === 0) return [];
 
+  const includeLikes = options?.includeLikes ?? true;
+
   const [{ data: mediaRows }, { data: likeRows }] = await Promise.all([
     supabase
       .from("post_media")
       .select("id, post_id, media_url, media_type, position")
       .in("post_id", postIds)
       .order("position", { ascending: true }),
-    supabase.from("post_likes").select("post_id").in("post_id", postIds),
+    includeLikes
+      ? supabase.from("post_likes").select("post_id").in("post_id", postIds)
+      : Promise.resolve({ data: [] as { post_id: number | string }[] }),
   ]);
 
   const firstMediaByPost = new Map<

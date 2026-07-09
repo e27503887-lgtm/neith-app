@@ -63,10 +63,26 @@ h2 {
 
   /* Shared premium hover-lift for card components (ProductCard, OutfitCard,
      and their siblings) — a hint of elevation on an otherwise flat, hairline-
-     bordered system. */
+     bordered system. Desktop-only: transform/shadow transitions cause jank on
+     mobile scroll. */
   .card-hover {
-    @apply transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)];
+    @apply md:transition-all md:duration-300 md:ease-out md:hover:-translate-y-0.5 md:hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)];
   }
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-in {
+  animation: page-in 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes pop {

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Heart, Images } from "lucide-react";
 import WardrobeGrid from "./WardrobeGrid";
 import { supabase } from "../utils/supabase";
-import { openComposePost } from "./ComposePostModal";
+import { openComposePost } from "../utils/composeEvents";
 
 type ProductGridItem = {
   id: number | string;

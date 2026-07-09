@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Bell } from "lucide-react";
 import { supabase } from "../utils/supabase";
+import { runWhenIdle } from "../utils/idle";
 
 type Notification = {
   id: number | string;
@@ -66,9 +67,11 @@ export default function NotificationBell() {
       setUnreadCount(count ?? 0);
     }
 
-    init();
+    // Rozet sayısı ilk boyamayı bekletmesin — tarayıcı boşta kalınca yükle.
+    const cancel = runWhenIdle(init);
     return () => {
       active = false;
+      cancel();
     };
   }, []);
 

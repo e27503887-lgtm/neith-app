@@ -23,7 +23,13 @@ type Product = {
   seller_type?: string | null;
 };
 
-export default function ProductCard({ product }: { product: Product }) {
+export default function ProductCard({
+  product,
+  priority = false,
+}: {
+  product: Product;
+  priority?: boolean;
+}) {
   const [showToast, setShowToast] = useState(false);
   const [buttonLabel, setButtonLabel] = useState("Sepete Ekle");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -83,7 +89,8 @@ export default function ProductCard({ product }: { product: Product }) {
               alt={product.title}
               fill
               sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              priority={priority}
+              className="object-cover transition-transform duration-500 ease-out md:group-hover:scale-105"
             />
           </div>
 

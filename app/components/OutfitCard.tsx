@@ -14,7 +14,13 @@ type Outfit = {
   has_tag?: boolean;
 };
 
-export default function OutfitCard({ outfit }: { outfit: Outfit }) {
+export default function OutfitCard({
+  outfit,
+  priority = false,
+}: {
+  outfit: Outfit;
+  priority?: boolean;
+}) {
   return (
     <article className="card-hover bg-paper border border-neutral-200 overflow-hidden">
       <div className="flex items-center gap-3 p-3">
@@ -59,7 +65,8 @@ export default function OutfitCard({ outfit }: { outfit: Outfit }) {
           alt={outfit.title}
           fill
           sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-          className="object-cover transition-transform duration-500 ease-out hover:scale-105"
+          priority={priority}
+          className="object-cover transition-transform duration-500 ease-out md:hover:scale-105"
         />
       </Link>
 

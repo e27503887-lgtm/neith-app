@@ -7,16 +7,18 @@ function MediaTile({
   item,
   sizes,
   overlayCount,
+  priority = false,
 }: {
   item: PostMediaItem;
   sizes: string;
   overlayCount?: number;
+  priority?: boolean;
 }) {
   return (
     <div className="relative w-full h-full overflow-hidden bg-neutral-100">
       {item.type === "video" ? (
         <>
-          <video src={item.url} className="absolute inset-0 w-full h-full object-cover" muted />
+          <video src={item.url} className="absolute inset-0 w-full h-full object-cover" muted preload="none" />
           <span className="absolute inset-0 flex items-center justify-center">
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-paper">
               <Play size={16} fill="currentColor" />
@@ -24,7 +26,14 @@ function MediaTile({
           </span>
         </>
       ) : (
-        <Image src={item.url} alt="Gönderi fotoğrafı" fill sizes={sizes} className="object-cover" />
+        <Image
+          src={item.url}
+          alt="Gönderi fotoğrafı"
+          fill
+          sizes={sizes}
+          priority={priority}
+          className="object-cover"
+        />
       )}
       {overlayCount !== undefined && overlayCount > 0 && (
         <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-paper font-serif text-2xl">
@@ -40,9 +49,11 @@ function MediaTile({
 export default function PostMediaGrid({
   postId,
   media,
+  priority = false,
 }: {
   postId: number | string;
   media: PostMediaItem[];
+  priority?: boolean;
 }) {
   if (media.length === 0) return null;
 
@@ -53,7 +64,7 @@ export default function PostMediaGrid({
     return (
       <Link href={href} className={frame}>
         <div className="relative w-full max-h-[500px] aspect-[4/3]">
-          <MediaTile item={media[0]} sizes="(min-width: 768px) 600px, 100vw" />
+          <MediaTile item={media[0]} sizes="(min-width: 768px) 600px, 100vw" priority={priority} />
         </div>
       </Link>
     );
