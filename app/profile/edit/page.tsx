@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "../../utils/supabase";
+import { compressImage, UnsupportedImageError } from "../../utils/compressImage";
 import { STYLE_TAGS } from "@/lib/styleTags";
 
 const BODY_SIZES = ["XS", "S", "M", "L", "XL", "XXL"] as const;
@@ -33,6 +34,7 @@ export default function EditProfilePage() {
   const [showWardrobeValue, setShowWardrobeValue] = useState(true);
 
   const [loading, setLoading] = useState(false);
+  const [preparing, setPreparing] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
@@ -129,15 +131,36 @@ export default function EditProfilePage() {
     setError("");
     setSuccess(false);
 
+    // Avatar/banner yüklenmeden önce tarayıcıda küçültülüp WebP'ye çevrilir.
+    let preparedAvatar: File | null = null;
+    let preparedBanner: File | null = null;
+    try {
+      setPreparing(true);
+      [preparedAvatar, preparedBanner] = await Promise.all([
+        avatarFile ? compressImage(avatarFile, "avatar") : Promise.resolve(null),
+        bannerFile ? compressImage(bannerFile, "banner") : Promise.resolve(null),
+      ]);
+    } catch (err) {
+      setError(
+        err instanceof UnsupportedImageError
+          ? err.message
+          : "Fotoğraf hazırlanırken bir hata oluştu."
+      );
+      setPreparing(false);
+      setLoading(false);
+      return;
+    }
+    setPreparing(false);
+
     let newAvatarUrl = avatarUrl;
 
-    if (avatarFile) {
-      const extension = avatarFile.name.split(".").pop() || "jpg";
+    if (preparedAvatar) {
+      const extension = preparedAvatar.name.split(".").pop() || "jpg";
       const path = `${user.id}/avatar.${extension}`;
 
       const { error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(path, avatarFile, { upsert: true });
+        .upload(path, preparedAvatar, { upsert: true });
 
       if (uploadError) {
         setError("Fotoğraf yüklenirken bir hata oluştu: " + uploadError.message);
@@ -154,13 +177,13 @@ export default function EditProfilePage() {
 
     let newBannerUrl = bannerUrl;
 
-    if (bannerFile) {
-      const extension = bannerFile.name.split(".").pop() || "jpg";
+    if (preparedBanner) {
+      const extension = preparedBanner.name.split(".").pop() || "jpg";
       const path = `${user.id}/banner.${extension}`;
 
       const { error: uploadError } = await supabase.storage
         .from("product-images")
-        .upload(path, bannerFile, { upsert: true });
+        .upload(path, preparedBanner, { upsert: true });
 
       if (uploadError) {
         setError("Banner yüklenirken bir hata oluştu: " + uploadError.message);
@@ -451,7 +474,7 @@ export default function EditProfilePage() {
           </div>
 
           <button disabled={loading} className="btn-primary w-full">
-            {loading ? "Kaydediliyor..." : "Kaydet"}
+            {preparing ? "Fotoğraf hazırlanıyor..." : loading ? "Kaydediliyor..." : "Kaydet"}
           </button>
         </form>
       </div>

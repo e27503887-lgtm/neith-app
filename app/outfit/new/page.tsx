@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Check, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../utils/supabase";
+import { compressImage, UnsupportedImageError } from "../../utils/compressImage";
 import type { User } from "@supabase/supabase-js";
 import EraPicker from "../../components/EraPicker";
 import StyleTagPicker from "../../components/StyleTagPicker";
@@ -61,6 +62,7 @@ export default function NewOutfitPage() {
   const [styleTag, setStyleTag] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
+  const [preparing, setPreparing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -220,11 +222,32 @@ export default function NewOutfitPage() {
     const title = formData.get("title");
     const description = formData.get("description");
 
+    // Fotoğrafları yüklemeden önce tarayıcıda küçült + WebP'ye çevir.
+    let preparedGallery: File[];
+    let preparedCustom: File[];
+    try {
+      setPreparing(true);
+      [preparedGallery, preparedCustom] = await Promise.all([
+        Promise.all(galleryItems.map((item) => compressImage(item.file, "main"))),
+        Promise.all(customPieces.map((c) => compressImage(c.file, "main"))),
+      ]);
+    } catch (err) {
+      setError(
+        err instanceof UnsupportedImageError
+          ? err.message
+          : "Fotoğraf hazırlanırken bir hata oluştu."
+      );
+      setPreparing(false);
+      setLoading(false);
+      return;
+    }
+    setPreparing(false);
+
     setUploading(true);
 
     const [galleryUploadResults, customUploadResults] = await Promise.all([
-      Promise.all(galleryItems.map((item, i) => uploadImage(user.id, item.file, i))),
-      Promise.all(customPieces.map((c, i) => uploadImage(user.id, c.file, i))),
+      Promise.all(preparedGallery.map((file, i) => uploadImage(user.id, file, i))),
+      Promise.all(preparedCustom.map((file, i) => uploadImage(user.id, file, i))),
     ]);
 
     setUploading(false);
@@ -490,7 +513,13 @@ export default function NewOutfitPage() {
           </div>
 
           <button disabled={loading} className="btn-primary w-full">
-            {uploading ? "Fotoğraflar yükleniyor..." : loading ? "Paylaşılıyor..." : "Kombini Paylaş"}
+            {preparing
+              ? "Fotoğraf hazırlanıyor..."
+              : uploading
+              ? "Fotoğraflar yükleniyor..."
+              : loading
+              ? "Paylaşılıyor..."
+              : "Kombini Paylaş"}
           </button>
         </form>
       </div>

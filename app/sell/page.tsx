@@ -5,6 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { X } from "lucide-react";
 import { supabase } from "../utils/supabase";
+import {
+  compressImage,
+  getVideoDurationSeconds,
+  UnsupportedImageError,
+} from "../utils/compressImage";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import EraPicker from "../components/EraPicker";
@@ -12,7 +17,8 @@ import CategoryPicker from "../components/CategoryPicker";
 
 const MAX_FILES = 5;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
+const MAX_VIDEO_SIZE = 25 * 1024 * 1024;
+const MAX_VIDEO_SECONDS = 60;
 const MAX_DESCRIPTION = 2000;
 
 type MediaItem = {
@@ -33,6 +39,7 @@ export default function SellPage() {
   const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(
     null
   );
+  const [preparing, setPreparing] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -49,7 +56,7 @@ export default function SellPage() {
     });
   }, [router]);
 
-  function handleFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = Array.from(e.target.files ?? []);
     e.target.value = "";
 
@@ -72,8 +79,16 @@ export default function SellPage() {
 
       const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
       if (file.size > maxSize) {
-        setError(isVideo ? "Video 50MB'dan büyük olamaz." : "Fotoğraf 5MB'dan büyük olamaz.");
+        setError(isVideo ? "Video 25MB'dan büyük olamaz." : "Fotoğraf 5MB'dan büyük olamaz.");
         continue;
+      }
+
+      if (isVideo) {
+        const duration = await getVideoDurationSeconds(file);
+        if (duration > MAX_VIDEO_SECONDS) {
+          setError(`Videolar en fazla ${MAX_VIDEO_SECONDS} saniye olabilir.`);
+          continue;
+        }
       }
 
       accepted.push({
@@ -115,12 +130,35 @@ export default function SellPage() {
     const price = formData.get("price");
     const username = user.email?.split("@")[0] ?? "";
 
+    // Fotoğrafları yüklemeden önce tarayıcıda küçült + WebP'ye çevir
+    // (videolar dokunulmadan geçer).
+    let preparedMedia: MediaItem[];
+    try {
+      setPreparing(true);
+      preparedMedia = await Promise.all(
+        media.map(async (item) => ({
+          ...item,
+          file: await compressImage(item.file, "main"),
+        }))
+      );
+    } catch (err) {
+      setError(
+        err instanceof UnsupportedImageError
+          ? err.message
+          : "Fotoğraf hazırlanırken bir hata oluştu."
+      );
+      setPreparing(false);
+      setLoading(false);
+      return;
+    }
+    setPreparing(false);
+
     const uploadedMedia: { url: string; type: "image" | "video" }[] = [];
 
-    for (let i = 0; i < media.length; i++) {
-      setUploadProgress({ current: i + 1, total: media.length });
+    for (let i = 0; i < preparedMedia.length; i++) {
+      setUploadProgress({ current: i + 1, total: preparedMedia.length });
 
-      const item = media[i];
+      const item = preparedMedia[i];
       const extension = item.file.name.split(".").pop() || (item.type === "video" ? "mp4" : "jpg");
       const path = `${user.id}/${Date.now()}-${i}.${extension}`;
 
@@ -285,11 +323,13 @@ export default function SellPage() {
           </div>
 
           <button disabled={loading} className="btn-primary w-full">
-            {uploadProgress
-              ? `${uploadProgress.current}/${uploadProgress.total} yükleniyor...`
-              : loading
-                ? "Ekleniyor..."
-                : "İlanı Yayınla"}
+            {preparing
+              ? "Fotoğraf hazırlanıyor..."
+              : uploadProgress
+                ? `${uploadProgress.current}/${uploadProgress.total} yükleniyor...`
+                : loading
+                  ? "Ekleniyor..."
+                  : "İlanı Yayınla"}
           </button>
         </form>
       </div>

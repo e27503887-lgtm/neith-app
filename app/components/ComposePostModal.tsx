@@ -6,7 +6,7 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { ImagePlus, X } from "lucide-react";
 import { supabase } from "../utils/supabase";
-
+import { compressImage, UnsupportedImageError } from "../utils/compressImage";
 import {
   COMPOSE_POST_OPEN_EVENT,
   POST_CREATED_EVENT,
@@ -47,6 +47,7 @@ export default function ComposePostModal({ initialOpen = false }: { initialOpen?
   const [profile, setProfile] = useState<Profile | null>(null);
   const [text, setText] = useState("");
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
+  const [preparing, setPreparing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
@@ -179,8 +180,25 @@ export default function ComposePostModal({ initialOpen = false }: { initialOpen?
     setSubmitting(true);
     setError("");
 
+    // Ham fotoğrafları (3-8MB) yüklemeden önce tarayıcıda küçült + WebP'ye çevir.
+    let prepared: File[];
+    try {
+      setPreparing(true);
+      prepared = await Promise.all(photos.map((photo) => compressImage(photo.file, "main")));
+    } catch (err) {
+      setError(
+        err instanceof UnsupportedImageError
+          ? err.message
+          : "Fotoğraf hazırlanırken bir hata oluştu."
+      );
+      setPreparing(false);
+      setSubmitting(false);
+      return;
+    }
+    setPreparing(false);
+
     const uploadResults = await Promise.all(
-      photos.map((photo, i) => uploadPhoto(profile.id, photo.file, i))
+      prepared.map((file, i) => uploadPhoto(profile.id, file, i))
     );
 
     const failed = uploadResults.find((r) => r.error);
@@ -350,7 +368,7 @@ export default function ComposePostModal({ initialOpen = false }: { initialOpen?
           disabled={!canSubmit}
           className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {submitting ? "Paylaşılıyor..." : "Paylaş"}
+          {preparing ? "Fotoğraf hazırlanıyor..." : submitting ? "Paylaşılıyor..." : "Paylaş"}
         </button>
       </div>
     </>

@@ -3,6 +3,11 @@
 import { useEffect, useState, type SubmitEvent } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../utils/supabase";
+import {
+  compressImage,
+  getVideoDurationSeconds,
+  UnsupportedImageError,
+} from "../../utils/compressImage";
 import type { User } from "@supabase/supabase-js";
 import ProductGalleryUploader, {
   type GalleryItem,
@@ -12,7 +17,8 @@ import ProductGalleryUploader, {
 
 const MAX_FILES = 6;
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
-const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
+const MAX_VIDEO_SIZE = 25 * 1024 * 1024;
+const MAX_VIDEO_SECONDS = 60;
 
 async function uploadMedia(userId: string, file: File, index: number) {
   const extension = file.name.split(".").pop() || "jpg";
@@ -36,6 +42,7 @@ export default function NewPostPage() {
   const [caption, setCaption] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [preparing, setPreparing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
@@ -58,7 +65,7 @@ export default function NewPostPage() {
     });
   }, [router]);
 
-  function handleAddFiles(files: File[]) {
+  async function handleAddFiles(files: File[]) {
     setError("");
 
     const accepted: GalleryItem[] = [];
@@ -73,8 +80,16 @@ export default function NewPostPage() {
       const isVideo = file.type.startsWith("video");
       const limit = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
       if (file.size > limit) {
-        setError(isVideo ? "Her video 50MB'dan küçük olmalı." : "Her fotoğraf 8MB'dan küçük olmalı.");
+        setError(isVideo ? "Her video 25MB'dan küçük olmalı." : "Her fotoğraf 8MB'dan küçük olmalı.");
         continue;
+      }
+
+      if (isVideo) {
+        const duration = await getVideoDurationSeconds(file);
+        if (duration > MAX_VIDEO_SECONDS) {
+          setError(`Videolar en fazla ${MAX_VIDEO_SECONDS} saniye olabilir.`);
+          continue;
+        }
       }
 
       accepted.push({
@@ -118,10 +133,31 @@ export default function NewPostPage() {
 
     setLoading(true);
     setError("");
+    setPreparing(true);
+
+    // Fotoğrafları yüklemeden önce tarayıcıda küçült + WebP'ye çevir
+    // (videolar dokunulmadan geçer).
+    let preparedFiles: File[];
+    try {
+      preparedFiles = await Promise.all(
+        galleryItems.map((item) => compressImage(item.file, "main"))
+      );
+    } catch (err) {
+      setError(
+        err instanceof UnsupportedImageError
+          ? err.message
+          : "Fotoğraf hazırlanırken bir hata oluştu."
+      );
+      setPreparing(false);
+      setLoading(false);
+      return;
+    }
+
+    setPreparing(false);
     setUploading(true);
 
     const uploadResults = await Promise.all(
-      galleryItems.map((item, i) => uploadMedia(user.id, item.file, i))
+      preparedFiles.map((file, i) => uploadMedia(user.id, file, i))
     );
 
     setUploading(false);
@@ -212,7 +248,8 @@ export default function NewPostPage() {
               onTagsChange={handleTagsChange}
             />
             <p className="text-xs text-gray-400 mt-1">
-              1-6 fotoğraf/video · fotoğraflar 8MB'dan, videolar 50MB'dan küçük olmalı.
+              1-6 fotoğraf/video · fotoğraflar 8MB&apos;dan, videolar 25MB&apos;dan küçük ve en
+              fazla 60 saniye olmalı. Fotoğraflar yüklenmeden önce otomatik küçültülür.
             </p>
           </div>
 
@@ -225,7 +262,13 @@ export default function NewPostPage() {
           />
 
           <button disabled={loading} className="btn-primary w-full">
-            {uploading ? "Yükleniyor..." : loading ? "Paylaşılıyor..." : "Paylaş"}
+            {preparing
+              ? "Fotoğraf hazırlanıyor..."
+              : uploading
+              ? "Yükleniyor..."
+              : loading
+              ? "Paylaşılıyor..."
+              : "Paylaş"}
           </button>
         </form>
       </div>

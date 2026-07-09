@@ -5,6 +5,9 @@ const supabaseHostname = supabaseUrl ? new URL(supabaseUrl).hostname : undefined
 
 const nextConfig: NextConfig = {
   images: {
+    // Eski (büyük) storage görselleri de dahil her şey image optimizer'dan
+    // WebP olarak servis edilir.
+    formats: ["image/webp"],
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       ...(supabaseHostname
