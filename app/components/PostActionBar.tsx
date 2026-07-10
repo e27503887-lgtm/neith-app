@@ -121,7 +121,7 @@ export default function PostActionBar({
   }
 
   return (
-    <div className="flex items-center gap-8 border-t border-neutral-200 pt-2.5 mt-3">
+    <div className="mt-2 flex items-center gap-8">
       <button
         type="button"
         onClick={handleLike}

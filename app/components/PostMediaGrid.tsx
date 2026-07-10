@@ -58,7 +58,9 @@ export default function PostMediaGrid({
   if (media.length === 0) return null;
 
   const href = `/post/${postId}`;
-  const frame = "block overflow-hidden rounded-lg border border-neutral-200";
+  // Tema radius token'ları 2px'e düzleştirildiği için köşeler arbitrary değerle
+  // yuvarlanıyor; çerçevesiz, Threads tarzı medya bloğu.
+  const frame = "block overflow-hidden rounded-[12px]";
 
   if (media.length === 1) {
     return (

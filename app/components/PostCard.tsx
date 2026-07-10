@@ -29,6 +29,8 @@ type Post = {
   has_tag?: boolean;
 };
 
+// X / Threads hibrit akış kartı: solda sabit avatar sütunu; kullanıcı adı,
+// metin, görsel ve etkileşim satırı sağda tek içerik bloğu halinde.
 export default function PostCard({
   post,
   onDeleted,
@@ -50,11 +52,10 @@ export default function PostCard({
   const captionTooLong =
     caption.length > CAPTION_CLAMP_CHARS ||
     caption.split("\n").length > CAPTION_CLAMP_LINES;
-  const textOnly = media.length === 0;
 
   return (
-    <article className="w-full border-b border-neutral-200 px-4 py-3.5 md:hover:bg-neutral-50 transition-colors">
-      <div className="flex items-start gap-3">
+    <article className="w-full border-b border-[#e1e1e1] px-4 py-3 md:hover:bg-neutral-50 transition-colors">
+      <div className="flex gap-3">
         <Link href={`/profile/${post.username}`} className="shrink-0">
           {post.avatar_url ? (
             <Image
@@ -72,62 +73,68 @@ export default function PostCard({
         </Link>
 
         <div className="flex-1 min-w-0">
-          <Link
-            href={`/profile/${post.username}`}
-            className="flex items-center gap-1.5 hover:text-accent transition-colors"
-          >
-            <span className="truncate text-sm font-medium text-ink">{post.username}</span>
-            {post.account_type === "brand" && <BrandBadge />}
-          </Link>
-          <p className="flex items-center gap-1.5 text-xs text-gray-400">
-            {/* Relatif zaman sunucu ve istemcide saniye farkıyla değişebilir —
-                hydration uyuşmazlığı uyarısını bastır. */}
-            {post.created_at && <span suppressHydrationWarning>{timeAgo(post.created_at)}</span>}
-            {post.has_tag && <ShoppingBag size={11} strokeWidth={1.5} />}
-          </p>
-        </div>
-
-        {post.user_id && (
-          <PostMenu
-            postId={post.id}
-            ownerId={post.user_id}
-            onDeleted={() => {
-              setDeleted(true);
-              onDeleted?.();
-            }}
-          />
-        )}
-      </div>
-
-      {caption && (
-        <div className="mt-2">
-          <Link href={`/post/${post.id}`} className="block">
-            <p
-              className={`${textOnly ? "text-[16px]" : "text-[15px]"} leading-relaxed text-ink whitespace-pre-wrap ${
-                captionTooLong ? "line-clamp-4" : ""
-              }`}
-            >
-              {caption}
-            </p>
-          </Link>
-          {captionTooLong && (
+          <div className="flex items-center gap-2">
             <Link
-              href={`/post/${post.id}`}
-              className="text-sm text-accent hover:underline underline-offset-4 transition-colors"
+              href={`/profile/${post.username}`}
+              className="flex min-w-0 items-center gap-1.5 hover:text-accent transition-colors"
             >
-              devamını gör
+              <span className="truncate font-sans text-sm font-medium text-ink">
+                {post.username}
+              </span>
+              {post.account_type === "brand" && <BrandBadge />}
             </Link>
+
+            <span className="ml-auto flex shrink-0 items-center gap-2 text-xs text-gray-400">
+              {post.has_tag && <ShoppingBag size={11} strokeWidth={1.5} />}
+              {/* Relatif zaman sunucu ve istemcide saniye farkıyla değişebilir —
+                  hydration uyuşmazlığı uyarısını bastır. */}
+              {post.created_at && (
+                <span suppressHydrationWarning>{timeAgo(post.created_at)}</span>
+              )}
+              {post.user_id && (
+                <PostMenu
+                  postId={post.id}
+                  ownerId={post.user_id}
+                  onDeleted={() => {
+                    setDeleted(true);
+                    onDeleted?.();
+                  }}
+                />
+              )}
+            </span>
+          </div>
+
+          {caption && (
+            <div className="mt-0.5">
+              <Link href={`/post/${post.id}`} className="block">
+                <p
+                  className={`font-sans text-[15px] leading-[1.5] text-ink whitespace-pre-wrap ${
+                    captionTooLong ? "line-clamp-4" : ""
+                  }`}
+                >
+                  {caption}
+                </p>
+              </Link>
+              {captionTooLong && (
+                <Link
+                  href={`/post/${post.id}`}
+                  className="text-sm text-accent hover:underline underline-offset-4 transition-colors"
+                >
+                  devamını gör
+                </Link>
+              )}
+            </div>
           )}
-        </div>
-      )}
 
-      {media.length > 0 && (
-        <div className="mt-3">
-          <PostMediaGrid postId={post.id} media={media} priority={priority} />
-        </div>
-      )}
+          {media.length > 0 && (
+            <div className="mt-2">
+              <PostMediaGrid postId={post.id} media={media} priority={priority} />
+            </div>
+          )}
 
-      <PostActionBar postId={post.id} />
+          <PostActionBar postId={post.id} />
+        </div>
+      </div>
     </article>
   );
 }
