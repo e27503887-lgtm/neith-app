@@ -12,6 +12,7 @@ import FeedLoadMore from "./components/FeedLoadMore";
 import LazyVisible from "./components/LazyVisible";
 import { supabase } from "./utils/supabase";
 import { enrichPostsWithMedia } from "@/lib/posts";
+import { FRESH_WINDOW_MS, applyFreshQuota, isFreshLowEngagement } from "@/lib/feed-mixer";
 
 // Ekran dışı / masaüstüne özel / koşullu bileşenler ayrı chunk'lara bölünür:
 // LazyVisible görünene kadar mount etmediği için kodları da ancak o zaman iner.
@@ -125,11 +126,46 @@ export default async function Home({ searchParams }: Props) {
     | { kind: "outfit"; created_at: string; data: (typeof allOutfits)[number] }
     | { kind: "post"; created_at: string; data: (typeof allPosts)[number] };
 
-  const mixedFeed: FeedItem[] = [
+  const dateSortedFeed: FeedItem[] = [
     ...allProducts.map((p): FeedItem => ({ kind: "product", created_at: p.created_at, data: p })),
     ...allOutfits.map((o): FeedItem => ({ kind: "outfit", created_at: o.created_at, data: o })),
     ...allPosts.map((p): FeedItem => ({ kind: "post", created_at: p.created_at, data: p })),
   ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  // Hibrit kota: her 5 karttan biri son 24 saatin az beğenilmiş (<3)
+  // içeriklerinden gelir. Beğeni sayıları yalnızca taze küme için sorgulanır.
+  const freshCutoff = new Date(Date.now() - FRESH_WINDOW_MS).toISOString();
+  const freshItems = dateSortedFeed.filter((item) => item.created_at >= freshCutoff);
+  const freshProductIds = freshItems.filter((i) => i.kind === "product").map((i) => i.data.id);
+  const freshOutfitIds = freshItems.filter((i) => i.kind === "outfit").map((i) => i.data.id);
+  const freshPostIds = freshItems.filter((i) => i.kind === "post").map((i) => i.data.id);
+
+  const [{ data: productLikes }, { data: outfitLikes }, { data: postLikes }] = await Promise.all([
+    freshProductIds.length
+      ? supabase.from("likes").select("product_id").in("product_id", freshProductIds)
+      : Promise.resolve({ data: [] as { product_id: number | string }[] }),
+    freshOutfitIds.length
+      ? supabase.from("outfit_likes").select("outfit_id").in("outfit_id", freshOutfitIds)
+      : Promise.resolve({ data: [] as { outfit_id: number | string }[] }),
+    freshPostIds.length
+      ? supabase.from("post_likes").select("post_id").in("post_id", freshPostIds)
+      : Promise.resolve({ data: [] as { post_id: number | string }[] }),
+  ]);
+
+  const likeCountByKey = new Map<string, number>();
+  const bump = (key: string) => likeCountByKey.set(key, (likeCountByKey.get(key) ?? 0) + 1);
+  (productLikes ?? []).forEach((row) => bump(`product-${row.product_id}`));
+  (outfitLikes ?? []).forEach((row) => bump(`outfit-${row.outfit_id}`));
+  (postLikes ?? []).forEach((row) => bump(`post-${row.post_id}`));
+
+  const mixedFeed = applyFreshQuota(dateSortedFeed, {
+    isFresh: (item) =>
+      isFreshLowEngagement(
+        item.created_at,
+        likeCountByKey.get(`${item.kind}-${item.data.id}`) ?? 0
+      ),
+    getCreatedAt: (item) => item.created_at,
+  });
 
   // Mobil: posts ağırlıklı akış — tüm gönderiler + inceltilmiş ürün/kombin örneklemi
   const mobilePostItems = mixedFeed.filter((item) => item.kind === "post");
@@ -137,8 +173,11 @@ export default async function Home({ searchParams }: Props) {
     .filter((item) => item.kind !== "post")
     .filter((_, index) => index % 2 === 0)
     .slice(0, Math.max(4, mobilePostItems.length));
-  const mobileFeed = [...mobilePostItems, ...mobileNonPostItems]
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+  // Kota yerleşimini korumak için mixedFeed'in kendi sırası esas alınır
+  // (tarih sıralaması kota kartlarını geri gömerdi).
+  const mobileSelection = new Set([...mobilePostItems, ...mobileNonPostItems]);
+  const mobileFeed = mixedFeed
+    .filter((item) => mobileSelection.has(item))
     .slice(0, INITIAL_FEED_MOBILE);
 
   const mobileCursor =

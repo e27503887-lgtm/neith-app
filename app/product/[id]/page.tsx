@@ -10,6 +10,7 @@ import ProductActions from "./ProductActions";
 import ProductGallery from "./ProductGallery";
 import CompleteTheLook from "../../components/CompleteTheLook";
 import type { EngineProduct } from "@/lib/outfit-engine";
+import { formatSustainabilityLine, getSustainabilityEstimate } from "@/lib/sustainability";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -44,6 +45,9 @@ export default async function ProductDetailPage({ params }: Props) {
       : [{ media_url: product.image_url, media_type: "image" as const }];
 
   const isBrand = product.seller_type === "brand";
+  // Rozet yalnızca ikinci el (kullanıcı) ilanlarında — sıfır/marka ürünlerde
+  // "tasarruf" iddiası yanıltıcı olurdu.
+  const sustainability = isBrand ? null : getSustainabilityEstimate(product.category);
 
   return (
     <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
@@ -64,6 +68,12 @@ export default async function ProductDetailPage({ params }: Props) {
                   </span>
                 )}
               </div>
+              {sustainability && (
+                <p className="mt-2 text-xs text-accent leading-5">
+                  <span className="mr-1">♻</span>
+                  {formatSustainabilityLine(sustainability)}
+                </p>
+              )}
               {product.description && (
                 <p className="text-gray-600 text-sm mt-3 whitespace-pre-line">
                   {product.description}

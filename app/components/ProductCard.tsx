@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import LikeButton from "./LikeButton";
 import SaveButton from "./SaveButton";
 import BrandBadge from "./BrandBadge";
+import SellerRating from "./SellerRating";
 import { supabase } from "../utils/supabase";
 import { notifyCartUpdated } from "../utils/cart";
 
@@ -21,6 +22,7 @@ type Product = {
   comment_count?: number;
   account_type?: string | null;
   seller_type?: string | null;
+  user_id?: string | null;
 };
 
 export default function ProductCard({
@@ -102,6 +104,7 @@ export default function ProductCard({
             >
               <span>@{product.username}</span>
               {product.account_type === "brand" && <BrandBadge />}
+              {product.user_id && <SellerRating sellerId={product.user_id} className="ml-1" />}
             </Link>
           </div>
         </Link>

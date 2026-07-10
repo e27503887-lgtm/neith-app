@@ -14,6 +14,7 @@ import ProductGalleryUploader, {
   type LocalTag,
   type OwnProduct,
 } from "../../components/ProductGalleryUploader";
+import PhotoTipCard from "../../components/PhotoTipCard";
 
 const MAX_FILES = 6;
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
@@ -235,6 +236,8 @@ export default function NewPostPage() {
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <PhotoTipCard />
+
           <div>
             <ProductGalleryUploader
               items={galleryItems}

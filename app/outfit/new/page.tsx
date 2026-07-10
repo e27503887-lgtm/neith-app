@@ -11,6 +11,7 @@ import type { User } from "@supabase/supabase-js";
 import EraPicker from "../../components/EraPicker";
 import StyleTagPicker from "../../components/StyleTagPicker";
 import ProductGalleryUploader, { type GalleryItem, type LocalTag } from "../../components/ProductGalleryUploader";
+import PhotoTipCard from "../../components/PhotoTipCard";
 
 const MAX_FILES = 6;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -391,6 +392,8 @@ export default function NewOutfitPage() {
 
           <EraPicker value={era} onChange={setEra} />
           <StyleTagPicker value={styleTag} onChange={setStyleTag} />
+
+          <PhotoTipCard />
 
           <div>
             <ProductGalleryUploader

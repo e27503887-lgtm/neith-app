@@ -1,15 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Shirt } from "lucide-react";
 import OutfitCard from "./OutfitCard";
 import { STYLE_TAGS } from "@/lib/styleTags";
+import { mixFeed } from "@/lib/feed-mixer";
+import { supabase } from "../utils/supabase";
 
 type FeedOutfit = {
   id: number | string;
   title: string;
   image_url: string;
   style_tag: string | null;
+  created_at?: string | null;
+  like_count?: number | null;
   username: string;
   avatar_url: string | null;
   account_type: string | null;
@@ -18,10 +22,45 @@ type FeedOutfit = {
 
 export default function OutfitsFeed({ outfits }: { outfits: FeedOutfit[] }) {
   const [activeTag, setActiveTag] = useState<string>("all");
+  const [userStyleTags, setUserStyleTags] = useState<string[]>([]);
+
+  // Stil DNA lite: giriş yapan kullanıcının profil etiketleri doluysa
+  // eşleşen kombinler öne çekilir; yoksa akış aynen kalır.
+  useEffect(() => {
+    let active = true;
+
+    async function loadStyleDna() {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) return;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("style_tags")
+        .eq("id", data.user.id)
+        .maybeSingle();
+      if (active && profile?.style_tags?.length) {
+        setUserStyleTags(profile.style_tags);
+      }
+    }
+
+    loadStyleDna();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const mixed = useMemo(
+    () =>
+      mixFeed(outfits, {
+        getCreatedAt: (o) => o.created_at,
+        getLikeCount: (o) => o.like_count,
+        getStyleTag: (o) => o.style_tag,
+        userStyleTags,
+      }),
+    [outfits, userStyleTags]
+  );
 
   const filters = ["all", ...STYLE_TAGS];
-  const visible =
-    activeTag === "all" ? outfits : outfits.filter((o) => o.style_tag === activeTag);
+  const visible = activeTag === "all" ? mixed : mixed.filter((o) => o.style_tag === activeTag);
 
   return (
     <div>

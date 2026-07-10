@@ -2,6 +2,7 @@ import OutfitRecommendations from "../components/OutfitRecommendations";
 import OutfitsFeed from "../components/OutfitsFeed";
 import { supabase } from "../utils/supabase";
 import { getOutfitCoverTagFlags } from "@/lib/photoTags";
+import { FRESH_WINDOW_MS } from "@/lib/feed-mixer";
 
 export default async function OutfitsPage() {
   const { data: outfits } = await supabase
@@ -20,12 +21,29 @@ export default async function OutfitsPage() {
   const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
   const tagFlags = await getOutfitCoverTagFlags((outfits ?? []).map((o) => o.id));
 
+  // Hibrit kota için yalnızca son 24 saatin kombinlerine beğeni sayısı
+  // gerekir — sorgu o küçük kümeyle sınırlı tutulur.
+  const freshCutoff = new Date(Date.now() - FRESH_WINDOW_MS).toISOString();
+  const freshIds = (outfits ?? [])
+    .filter((o) => o.created_at >= freshCutoff)
+    .map((o) => o.id);
+  const { data: freshLikes } = freshIds.length
+    ? await supabase.from("outfit_likes").select("outfit_id").in("outfit_id", freshIds)
+    : { data: [] as { outfit_id: number | string }[] };
+
+  const likeCountById = new Map<number | string, number>();
+  (freshLikes ?? []).forEach((row) => {
+    likeCountById.set(row.outfit_id, (likeCountById.get(row.outfit_id) ?? 0) + 1);
+  });
+
   const enriched = (outfits ?? []).map((o) => ({
     ...o,
     id: o.id,
     title: o.title,
     image_url: o.image_url,
     style_tag: o.style_tag ?? null,
+    created_at: o.created_at,
+    like_count: likeCountById.get(o.id) ?? 0,
     username: profileById.get(o.user_id)?.username ?? "Bilinmeyen kullanıcı",
     avatar_url: profileById.get(o.user_id)?.avatar_url ?? null,
     account_type: profileById.get(o.user_id)?.account_type ?? null,

@@ -16,6 +16,7 @@ import EraPicker from "../components/EraPicker";
 import CategoryPicker from "../components/CategoryPicker";
 import StyleTagPicker from "../components/StyleTagPicker";
 import FitPicker from "../components/FitPicker";
+import PhotoTipCard from "../components/PhotoTipCard";
 import { extractDominantColor } from "../utils/dominantColor";
 import {
   COLOR_GROUP_LABELS,
@@ -326,6 +327,8 @@ export default function SellPage() {
           <FitPicker value={fit} onChange={setFit} />
 
           <StyleTagPicker value={styleTag} onChange={setStyleTag} />
+
+          <PhotoTipCard />
 
           <div>
             <input

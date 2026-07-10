@@ -227,6 +227,10 @@ export default function CartPage() {
               <p className="mt-3 text-center text-xs uppercase tracking-[0.2em] text-gray-500">
                 Ödeme sistemi yakında aktif olacak.
               </p>
+              <p className="mt-4 border-t border-neutral-200 pt-4 text-xs text-gray-500 leading-5">
+                Satıcılar genellikle 3 iş günü içinde kargolar. Gecikme olursa mesajla iletişime
+                geçebilirsin.
+              </p>
             </aside>
           </div>
         )}
