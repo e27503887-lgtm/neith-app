@@ -2,8 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, MessageCircle, Share2, Check } from "lucide-react";
+import dynamic from "next/dynamic";
+import { Heart, MessageCircle, Share2 } from "lucide-react";
 import { supabase } from "../utils/supabase";
+
+// Hızlı görünüm modalı ilk tıklamada yüklenir (bundle'ı şişirmesin).
+const PostQuickViewModal = dynamic(() => import("./PostQuickViewModal"), { ssr: false });
 
 // İnce üst çizgiyle ayrılmış etkileşim satırı: kalp, yorum balonu, paylaş.
 export default function PostActionBar({
@@ -19,7 +23,7 @@ export default function PostActionBar({
   const [count, setCount] = useState(0);
   const [busy, setBusy] = useState(false);
   const [popping, setPopping] = useState(false);
-  const [shared, setShared] = useState(false);
+  const [quickViewOpen, setQuickViewOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -98,28 +102,6 @@ export default function PostActionBar({
     setBusy(false);
   }
 
-  async function handleShare() {
-    const url = `${window.location.origin}/post/${postId}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ url });
-        return;
-      } catch {
-        // Kullanıcı paylaşımı iptal ettiyse sessizce geç.
-        return;
-      }
-    }
-
-    try {
-      await navigator.clipboard.writeText(url);
-      setShared(true);
-      setTimeout(() => setShared(false), 1800);
-    } catch {
-      // Pano erişimi yoksa sessizce geç.
-    }
-  }
-
   return (
     <div className="mt-2 flex items-center gap-8">
       <button
@@ -151,19 +133,16 @@ export default function PostActionBar({
 
       <button
         type="button"
-        onClick={handleShare}
-        aria-label="Paylaş"
+        onClick={() => setQuickViewOpen(true)}
+        aria-label="Hızlı görünüm ve paylaş"
         className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-accent transition-colors"
       >
-        {shared ? (
-          <>
-            <Check size={18} strokeWidth={1.5} className="text-accent" />
-            <span className="text-accent text-xs">Kopyalandı</span>
-          </>
-        ) : (
-          <Share2 size={18} strokeWidth={1.5} />
-        )}
+        <Share2 size={18} strokeWidth={1.5} />
       </button>
+
+      {quickViewOpen && (
+        <PostQuickViewModal postId={postId} onClose={() => setQuickViewOpen(false)} />
+      )}
     </div>
   );
 }

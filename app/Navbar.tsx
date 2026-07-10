@@ -6,7 +6,19 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Search, Heart, Mail, ChevronDown, X, User as UserIcon, ShoppingBag, PenLine } from "lucide-react";
+import {
+  Search,
+  Heart,
+  Mail,
+  Compass,
+  Sparkles,
+  Trophy,
+  UsersRound,
+  X,
+  User as UserIcon,
+  ShoppingBag,
+  PenLine,
+} from "lucide-react";
 import { supabase } from "./utils/supabase";
 import { CART_UPDATED_EVENT } from "./utils/cart";
 import { runWhenIdle } from "./utils/idle";
@@ -113,23 +125,23 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="fixed w-full z-40 flex items-center gap-4 px-4 py-3 md:px-8 md:py-5 bg-paper border-b border-neutral-200">
+    <nav className="fixed w-full z-40 flex items-center gap-4 px-4 py-2.5 md:px-8 md:py-3 bg-paper border-b border-neutral-200">
       <div className="flex items-center gap-3 shrink-0">
-        <Link href="/" className="text-xl md:text-2xl font-serif tracking-wide">
+        <Link href="/" className="text-xl font-serif tracking-wide">
           Neith
         </Link>
 
-        {/* Explore dropdown */}
+        {/* Explore dropdown — ikon odaklı kompakt tetikleyici */}
         <div className="relative">
           <button
             aria-expanded={open}
             onClick={() => setOpen((s) => !s)}
             onBlur={() => setTimeout(() => setOpen(false), 150)}
-            className="flex items-center gap-2 text-sm text-gray-700 hover:text-ink px-3 py-1 rounded"
+            className="flex items-center p-1.5 text-gray-500 hover:text-accent transition-colors"
             aria-label="Keşfet"
+            title="Keşfet"
           >
-            Keşfet
-            <ChevronDown size={14} className="text-gray-500" />
+            <Compass size={19} strokeWidth={1.5} />
           </button>
 
           {open && (
@@ -176,16 +188,31 @@ export default function Navbar() {
           <Search size={19} strokeWidth={1.5} />
         </button>
 
-        <Link href="/intelligence" className="hidden md:inline hover:text-accent transition-colors">
-          Stil Asistanı
+        <Link
+          href="/intelligence"
+          aria-label="Stil Asistanı"
+          title="Stil Asistanı"
+          className="hidden md:inline text-gray-500 hover:text-accent transition-colors"
+        >
+          <Sparkles size={19} strokeWidth={1.5} />
         </Link>
 
-        <Link href="/achievements" className="hidden md:inline hover:text-accent transition-colors">
-          Başarılarım
+        <Link
+          href="/achievements"
+          aria-label="Başarılarım"
+          title="Başarılarım"
+          className="hidden md:inline text-gray-500 hover:text-accent transition-colors"
+        >
+          <Trophy size={19} strokeWidth={1.5} />
         </Link>
 
-        <Link href="/twins" className="hidden md:inline hover:text-accent transition-colors">
-          Stil İkizlerim
+        <Link
+          href="/twins"
+          aria-label="Stil İkizlerim"
+          title="Stil İkizlerim"
+          className="hidden md:inline text-gray-500 hover:text-accent transition-colors"
+        >
+          <UsersRound size={19} strokeWidth={1.5} />
         </Link>
 
         <Link
@@ -229,15 +256,12 @@ export default function Navbar() {
         <NotificationBell />
 
         {user ? (
-          <>
-            <span className="hidden md:inline text-gray-500 text-xs">{user.email}</span>
-            <button
-              onClick={handleLogout}
-              className="hidden md:inline-flex border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300"
-            >
-              Çıkış
-            </button>
-          </>
+          <button
+            onClick={handleLogout}
+            className="hidden md:inline-flex border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300"
+          >
+            Çıkış
+          </button>
         ) : (
           <Link
             href="/login"

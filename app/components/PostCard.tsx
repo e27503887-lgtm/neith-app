@@ -54,7 +54,7 @@ export default function PostCard({
     caption.split("\n").length > CAPTION_CLAMP_LINES;
 
   return (
-    <article className="w-full border-b border-[#e1e1e1] px-4 py-3 md:hover:bg-neutral-50 transition-colors">
+    <article className="w-full border-b border-[#e1e1e1] px-4 py-3 md:hover:bg-zinc-50 transition-colors">
       <div className="flex gap-3">
         <Link href={`/profile/${post.username}`} className="shrink-0">
           {post.avatar_url ? (
