@@ -1,4 +1,5 @@
 import { getEraLabel } from "./eras";
+import { buildOutfitSuggestions, type EngineProduct } from "./outfit-engine";
 
 // Deterministic, rule-based "Stil Asistanı" engine — no external API calls.
 // Every function here is a pure computation over the user's own products/outfits.
@@ -188,44 +189,98 @@ export function buildStyleReport({
 export function buildWeeklyCalendar({
   userId,
   products,
+  userStyleTags = [],
 }: {
   userId: string;
-  products: { id: number | string }[];
+  products: (EngineProduct | { id: number | string })[];
+  userStyleTags?: string[];
 }): WeeklyCalendarDay[] {
   const seed = hashString(`${userId}:${getISOWeekKey(new Date())}`);
   const rng = mulberry32(seed);
   const shuffled = shuffleWithRng(products, rng);
 
-  const n = shuffled.length;
-  const perDay = n === 0 ? 0 : n >= 8 ? 2 : 1;
+  // Deterministik (hafta + kullanıcı) sıradaki her ürünü gün ankrajı olarak
+  // dener; motor o ankraj etrafında kullanıcının kendi gardırobundan skorlu
+  // bir kombin kurabiliyorsa gün o kombinle dolar. Kategori verisi olmayan
+  // gardıroplar için eski rastgele dağıtım geriye dönüş olarak korunur.
+  const engineProducts = shuffled.filter(
+    (p): p is EngineProduct => "category" in p && !!p.category
+  );
 
-  let cursor = 0;
+  const days: WeeklyCalendarDay[] = [];
+  const usedAnchorIds = new Set<number | string>();
   let prevDayIds: (number | string)[] = [];
 
-  return DAYS.map((day, dayIndex) => {
-    const ids: (number | string)[] = [];
+  for (let dayIndex = 0; dayIndex < DAYS.length; dayIndex++) {
+    const day = DAYS[dayIndex];
+    let built: WeeklyCalendarDay | null = null;
 
-    for (let k = 0; k < perDay && n > 0; k++) {
-      let attempts = 0;
-      let candidate = shuffled[cursor % n];
+    for (const anchor of engineProducts) {
+      if (usedAnchorIds.has(anchor.id)) continue;
+      if (anchor.is_sold) continue;
 
-      while (
-        n > perDay &&
-        attempts < n &&
-        (prevDayIds.includes(candidate.id) || ids.includes(candidate.id))
-      ) {
-        cursor++;
-        candidate = shuffled[cursor % n];
-        attempts++;
-      }
+      const [best] = buildOutfitSuggestions({
+        anchor,
+        candidates: engineProducts,
+        userStyleTags,
+        maxOutfits: 1,
+        wardrobeMode: true,
+      });
+      if (!best) continue;
 
-      ids.push(candidate.id);
-      cursor++;
+      usedAnchorIds.add(anchor.id);
+      built = {
+        day,
+        product_ids: [anchor.id, ...best.items.map((i) => i.product.id)],
+        note: best.explanation,
+      };
+      break;
     }
 
-    prevDayIds = ids;
-    const note = NOTE_POOL[(dayIndex + seed) % NOTE_POOL.length];
+    if (built) {
+      days.push(built);
+      prevDayIds = built.product_ids;
+      continue;
+    }
 
-    return { day, product_ids: ids, note };
-  });
+    // Geriye dönüş: motor kombin kuramadıysa eski dağıtım mantığı.
+    days.push(fallbackDay(shuffled, day, dayIndex, seed, prevDayIds));
+    prevDayIds = days[days.length - 1].product_ids;
+  }
+
+  return days;
+}
+
+function fallbackDay(
+  shuffled: { id: number | string }[],
+  day: string,
+  dayIndex: number,
+  seed: number,
+  prevDayIds: (number | string)[]
+): WeeklyCalendarDay {
+  const n = shuffled.length;
+  const perDay = n === 0 ? 0 : n >= 8 ? 2 : 1;
+  const ids: (number | string)[] = [];
+  let cursor = dayIndex * perDay;
+
+  for (let k = 0; k < perDay && n > 0; k++) {
+    let attempts = 0;
+    let candidate = shuffled[cursor % n];
+
+    while (
+      n > perDay &&
+      attempts < n &&
+      (prevDayIds.includes(candidate.id) || ids.includes(candidate.id))
+    ) {
+      cursor++;
+      candidate = shuffled[cursor % n];
+      attempts++;
+    }
+
+    ids.push(candidate.id);
+    cursor++;
+  }
+
+  const note = NOTE_POOL[(dayIndex + seed) % NOTE_POOL.length];
+  return { day, product_ids: ids, note };
 }

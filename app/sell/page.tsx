@@ -14,6 +14,16 @@ import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import EraPicker from "../components/EraPicker";
 import CategoryPicker from "../components/CategoryPicker";
+import StyleTagPicker from "../components/StyleTagPicker";
+import FitPicker from "../components/FitPicker";
+import { extractDominantColor } from "../utils/dominantColor";
+import {
+  COLOR_GROUP_LABELS,
+  PRESET_COLORS,
+  deriveColorGroup,
+  type ColorGroup,
+} from "@/lib/colors";
+import type { Fit } from "@/lib/outfit-engine";
 
 const MAX_FILES = 5;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
@@ -35,6 +45,12 @@ export default function SellPage() {
   const [description, setDescription] = useState("");
   const [era, setEra] = useState<string | null>(null);
   const [category, setCategory] = useState<string | null>(null);
+  const [styleTag, setStyleTag] = useState<string | null>(null);
+  const [fit, setFit] = useState<Fit | null>(null);
+  const [dominantColor, setDominantColor] = useState<string | null>(null);
+  const [colorGroup, setColorGroup] = useState<ColorGroup | null>(null);
+  const [colorManual, setColorManual] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(
     null
@@ -100,16 +116,35 @@ export default function SellPage() {
     }
 
     if (accepted.length > 0) {
-      setMedia((prev) => [...prev, ...accepted]);
+      const next = [...media, ...accepted];
+      setMedia(next);
+      void updateAutoColor(next);
+    }
+  }
+
+  // Kapak fotoğrafından dominant rengi hesaplar; kullanıcı elle renk
+  // seçtiyse otomatik tespit üzerine yazmaz.
+  async function updateAutoColor(items: MediaItem[]) {
+    if (colorManual) return;
+    const firstImage = items.find((m) => m.type === "image");
+    if (!firstImage) {
+      setDominantColor(null);
+      setColorGroup(null);
+      return;
+    }
+    const hex = await extractDominantColor(firstImage.file);
+    if (hex) {
+      setDominantColor(hex);
+      setColorGroup(deriveColorGroup(hex));
     }
   }
 
   function removeMedia(index: number) {
-    setMedia((prev) => {
-      const target = prev[index];
-      if (target) URL.revokeObjectURL(target.previewUrl);
-      return prev.filter((_, i) => i !== index);
-    });
+    const target = media[index];
+    if (target) URL.revokeObjectURL(target.previewUrl);
+    const next = media.filter((_, i) => i !== index);
+    setMedia(next);
+    void updateAutoColor(next);
   }
 
   async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
@@ -193,6 +228,10 @@ export default function SellPage() {
           description,
           era,
           category,
+          style_tag: styleTag,
+          fit,
+          dominant_color: dominantColor,
+          color_group: colorGroup,
           image_url: coverImage,
           username,
           user_id: user.id,
@@ -230,6 +269,12 @@ export default function SellPage() {
     setDescription("");
     setEra(null);
     setCategory(null);
+    setStyleTag(null);
+    setFit(null);
+    setDominantColor(null);
+    setColorGroup(null);
+    setColorManual(false);
+    setPaletteOpen(false);
   }
 
   if (checkingAuth) {
@@ -278,6 +323,10 @@ export default function SellPage() {
 
           <CategoryPicker value={category} onChange={setCategory} />
 
+          <FitPicker value={fit} onChange={setFit} />
+
+          <StyleTagPicker value={styleTag} onChange={setStyleTag} />
+
           <div>
             <input
               type="file"
@@ -290,6 +339,51 @@ export default function SellPage() {
             <p className="text-xs text-gray-400 mt-1">
               En fazla {MAX_FILES} medya · fotoğraf başına 5MB · video başına 50MB.
             </p>
+
+            {dominantColor && (
+              <div className="mt-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPaletteOpen((open) => !open)}
+                    className="flex items-center gap-2 group"
+                    aria-label="Baskın rengi düzelt"
+                  >
+                    <span
+                      className="w-4 h-4 rounded-full border border-neutral-300 shrink-0"
+                      style={{ backgroundColor: dominantColor }}
+                    />
+                    <span className="text-xs text-gray-500 group-hover:text-ink transition-colors">
+                      Baskın renk{colorGroup ? ` · ${COLOR_GROUP_LABELS[colorGroup]}` : ""} —
+                      dokunarak düzelt
+                    </span>
+                  </button>
+                </div>
+                {paletteOpen && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {PRESET_COLORS.map((preset) => (
+                      <button
+                        key={preset.hex}
+                        type="button"
+                        title={preset.label}
+                        onClick={() => {
+                          setDominantColor(preset.hex);
+                          setColorGroup(preset.group);
+                          setColorManual(true);
+                          setPaletteOpen(false);
+                        }}
+                        className={`w-7 h-7 rounded-full border transition-transform hover:scale-110 ${
+                          dominantColor === preset.hex
+                            ? "border-ink ring-1 ring-ink"
+                            : "border-neutral-300"
+                        }`}
+                        style={{ backgroundColor: preset.hex }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {media.length > 0 && (
               <div className="grid grid-cols-5 gap-2 mt-3">

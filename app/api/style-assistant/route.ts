@@ -25,9 +25,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Giriş yapmalısın." }, { status: 401 });
   }
 
-  const [{ data: products }, { data: outfits }] = await Promise.all([
-    supabase.from("products").select("id, title, price, era").eq("user_id", user.id),
+  const [{ data: products }, { data: outfits }, { data: profile }] = await Promise.all([
+    supabase
+      .from("products")
+      .select(
+        "id, title, price, era, category, style_tag, fit, color_group, image_url, user_id, is_sold"
+      )
+      .eq("user_id", user.id),
     supabase.from("outfits").select("id, title, era").eq("user_id", user.id),
+    supabase.from("profiles").select("style_tags").eq("id", user.id).maybeSingle(),
   ]);
 
   const productList = products ?? [];
@@ -41,7 +47,11 @@ export async function POST(request: NextRequest) {
   }
 
   const reportText = buildStyleReport({ userId: user.id, products: productList, outfits: outfitList });
-  const weeklyCalendar = buildWeeklyCalendar({ userId: user.id, products: productList });
+  const weeklyCalendar = buildWeeklyCalendar({
+    userId: user.id,
+    products: productList,
+    userStyleTags: profile?.style_tags ?? [],
+  });
   const generatedAt = new Date().toISOString();
 
   const { error: upsertError } = await supabase.from("style_reports").upsert(

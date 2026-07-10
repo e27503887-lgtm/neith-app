@@ -8,6 +8,8 @@ import StartChatButton from "../../components/StartChatButton";
 import CommentSection from "../../components/CommentSection";
 import ProductActions from "./ProductActions";
 import ProductGallery from "./ProductGallery";
+import CompleteTheLook from "../../components/CompleteTheLook";
+import type { EngineProduct } from "@/lib/outfit-engine";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -107,6 +109,24 @@ export default async function ProductDetailPage({ params }: Props) {
             />
           </div>
         </div>
+
+        <CompleteTheLook
+          anchor={
+            {
+              id: product.id,
+              title: product.title,
+              price: product.price,
+              category: product.category,
+              era: product.era,
+              style_tag: product.style_tag ?? null,
+              fit: product.fit ?? null,
+              color_group: product.color_group ?? null,
+              image_url: product.image_url,
+              user_id: product.user_id,
+              is_sold: product.is_sold ?? null,
+            } satisfies EngineProduct
+          }
+        />
 
         <div className="bg-paper border border-neutral-200 p-6 md:p-10">
           <CommentSection productId={product.id} />

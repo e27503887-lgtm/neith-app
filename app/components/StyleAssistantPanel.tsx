@@ -181,7 +181,9 @@ export default function StyleAssistantPanel({
                         })
                       )}
                     </div>
-                    <p className="text-sm text-gray-600 leading-6 flex-1">{d.note}</p>
+                    <p className="font-serif italic text-sm text-gray-600 leading-6 flex-1">
+                      {d.note}
+                    </p>
                   </div>
                 ))}
               </div>
