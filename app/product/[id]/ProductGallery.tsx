@@ -108,7 +108,7 @@ export default function ProductGallery({
                     <Link
                       href={`/product/${tag.product_id}`}
                       onClick={(e) => e.stopPropagation()}
-                      className={`group/tagcard absolute left-1/2 z-20 flex w-48 -translate-x-1/2 items-center gap-2 border border-neutral-200 bg-paper p-2 shadow-lg transition-colors hover:border-accent ${
+                      className={`group/tagcard absolute left-1/2 z-20 flex w-48 -translate-x-1/2 items-center gap-2 border border-neutral-200 bg-surface p-2 shadow-lg transition-colors hover:border-accent ${
                         tag.y_percent > 60 ? "bottom-full mb-2" : "top-full mt-2"
                       }`}
                     >

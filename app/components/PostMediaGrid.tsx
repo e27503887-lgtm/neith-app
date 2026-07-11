@@ -20,7 +20,7 @@ function MediaTile({
         <>
           <video src={item.url} className="absolute inset-0 w-full h-full object-cover" muted preload="none" />
           <span className="absolute inset-0 flex items-center justify-center">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-paper">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-white">
               <Play size={16} fill="currentColor" />
             </span>
           </span>
@@ -36,7 +36,7 @@ function MediaTile({
         />
       )}
       {overlayCount !== undefined && overlayCount > 0 && (
-        <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-paper font-serif text-2xl">
+        <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-white font-serif text-2xl">
           +{overlayCount}
         </span>
       )}

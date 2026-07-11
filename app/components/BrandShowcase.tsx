@@ -36,13 +36,13 @@ export default function BrandShowcase() {
   const [products] = useState<BrandProduct[]>(mock);
 
   return (
-    <div className="bg-paper border border-neutral-200 p-4 rounded">
+    <div className="bg-surface border border-neutral-200 p-4 rounded">
       <h3 className="text-sm font-semibold">Brand Partners</h3>
       <p className="text-xs text-gray-500 mt-1 mb-4">New Arrivals</p>
 
       <div className="flex flex-col gap-3">
         {products.map((p) => (
-          <div key={p.id} className="flex items-center gap-3 bg-white p-3 rounded shadow-sm">
+          <div key={p.id} className="flex items-center gap-3 bg-surface p-3 rounded shadow-sm">
             <Link href={`/product/${p.id}`} className="relative w-16 h-16 rounded overflow-hidden flex-shrink-0">
               <Image src={p.image_url} alt={p.title} fill className="object-cover" />
             </Link>

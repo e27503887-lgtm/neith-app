@@ -74,6 +74,7 @@ export function BrandPicksStrip() {
     supabase
       .from("products")
       .select("id, title, price, image_url, username")
+      .or("is_sold.is.null,is_sold.eq.false")
       .eq("seller_type", "brand")
       .order("created_at", { ascending: false })
       .limit(12)

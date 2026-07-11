@@ -84,7 +84,7 @@ export default function PostCard({
               {post.account_type === "brand" && <BrandBadge />}
             </Link>
 
-            <span className="ml-auto flex shrink-0 items-center gap-2 text-xs text-gray-400">
+            <span className="ml-auto flex shrink-0 items-center gap-2 text-xs text-gray-500">
               {post.has_tag && <ShoppingBag size={11} strokeWidth={1.5} />}
               {/* Relatif zaman sunucu ve istemcide saniye farkıyla değişebilir —
                   hydration uyuşmazlığı uyarısını bastır. */}

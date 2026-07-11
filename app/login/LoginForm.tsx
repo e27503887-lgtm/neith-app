@@ -4,10 +4,30 @@ import { useState, useEffect } from "react";
 import { supabase } from "../utils/supabase";
 import { useRouter, useSearchParams } from "next/navigation";
 import { consumePendingInviteCode } from "@/lib/invites";
+import FieldHint from "../components/FieldHint";
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MIN_PASSWORD = 6;
+
+function validateEmail(value: string): string | null {
+  if (!value.trim()) return "E-posta gerekli.";
+  if (!EMAIL_PATTERN.test(value)) return "Geçerli bir e-posta adresi gir.";
+  return null;
+}
+
+function validatePassword(value: string): string | null {
+  if (!value) return "Şifre gerekli.";
+  if (value.length < MIN_PASSWORD) return `Şifre en az ${MIN_PASSWORD} karakter olmalı.`;
+  return null;
+}
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [touched, setTouched] = useState({ email: false, password: false });
+
+  const emailError = validateEmail(email);
+  const passwordError = validatePassword(password);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: "error" | "success" } | null>(null);
   const [oauthError, setOauthError] = useState<string | null>(null);
@@ -21,8 +41,10 @@ export default function LoginForm() {
   }, [searchParams]);
 
   async function handleAuth(type: "signup" | "signin") {
-    if (!email || !password) {
-      setMessage({ text: "E-posta ve şifre alanlarını doldurun.", type: "error" });
+    // Toplu hata mesajı yerine alan bazlı geri bildirim: geçersizse ilgili
+    // alanların uyarıları görünür kılınır, gönderim yapılmaz.
+    if (emailError || passwordError) {
+      setTouched({ email: true, password: true });
       return;
     }
 
@@ -98,20 +120,31 @@ export default function LoginForm() {
           </p>
         )}
 
-        <input
-          type="email"
-          placeholder="E-posta"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 border rounded-md"
-        />
-        <input
-          type="password"
-          placeholder="Şifre"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 border rounded-md"
-        />
+        <div>
+          <input
+            type="email"
+            placeholder="E-posta"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+            className="w-full p-3 border rounded-md"
+          />
+          <FieldHint error={touched.email ? emailError : null} valid={touched.email && !emailError} />
+        </div>
+        <div>
+          <input
+            type="password"
+            placeholder="Şifre"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+            className="w-full p-3 border rounded-md"
+          />
+          <FieldHint
+            error={touched.password ? passwordError : null}
+            valid={touched.password && !passwordError}
+          />
+        </div>
 
         {message && (
           <p

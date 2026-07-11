@@ -140,11 +140,12 @@ function scoreCandidate(
   const a = anchor.color_group;
   const c = candidate.color_group;
   if (a && c) {
+    // Renk uyumu en kritik parametre (Net-a-Porter bulgusu) — +30.
     if (a === "notr" && c === "notr") {
-      score += 25;
+      score += 30;
       reasons.push("color_both_neutral");
     } else if ((a === "notr" && c === "canli") || (a === "canli" && c === "notr")) {
-      score += 25;
+      score += 30;
       reasons.push("color_neutral_accent");
     } else if (a === c) {
       score += 20;

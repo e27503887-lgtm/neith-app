@@ -33,7 +33,7 @@ const stories: Story[] = [
 
 export default function EditorialHub() {
   return (
-    <aside className="bg-paper border border-neutral-200 rounded-3xl overflow-hidden">
+    <aside className="bg-surface border border-neutral-200 rounded-3xl overflow-hidden">
       <div className="bg-ink text-paper px-6 py-5">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -41,7 +41,7 @@ export default function EditorialHub() {
             <h2 className="mt-2 text-2xl font-serif tracking-tight">Editorial Hub</h2>
           </div>
           <div className="rounded-full bg-white/10 p-2">
-            <Sparkles size={22} className="text-paper" />
+            <Sparkles size={22} className="text-white" />
           </div>
         </div>
       </div>
@@ -54,7 +54,7 @@ export default function EditorialHub() {
           </div>
           <div className="space-y-4">
             {stories.slice(0, 2).map((story) => (
-              <div key={story.id} className="rounded-3xl bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+              <div key={story.id} className="rounded-3xl bg-surface p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
                 <p className="text-xs uppercase tracking-[0.24em] text-accent mb-2">{story.category}</p>
                 <h3 className="text-lg font-semibold text-ink leading-tight">{story.title}</h3>
                 <p className="mt-2 text-sm text-gray-600">{story.excerpt}</p>
@@ -63,7 +63,7 @@ export default function EditorialHub() {
           </div>
         </div>
 
-        <div className="rounded-3xl bg-white border border-neutral-200 p-5 shadow-sm">
+        <div className="rounded-3xl bg-surface border border-neutral-200 p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3 mb-4">
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-gray-500">Canlı Sohbet</p>

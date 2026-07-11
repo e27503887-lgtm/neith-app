@@ -45,7 +45,7 @@ function ToastItem({
 
   return (
     <div
-      className={`flex items-start gap-3 bg-paper border border-neutral-200 px-4 py-3 shadow-[0_2px_14px_rgba(0,0,0,0.08)] transition-all duration-300 ${
+      className={`flex items-start gap-3 bg-surface border border-neutral-200 px-4 py-3 shadow-[0_2px_14px_rgba(0,0,0,0.08)] transition-all duration-300 ${
         visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"
       }`}
     >
@@ -60,7 +60,7 @@ function ToastItem({
       </p>
       <button
         onClick={() => onDismiss(toast.id)}
-        className="text-gray-400 hover:text-ink transition-colors shrink-0"
+        className="text-gray-500 hover:text-ink transition-colors shrink-0"
       >
         <X size={14} />
       </button>

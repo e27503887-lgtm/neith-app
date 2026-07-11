@@ -26,7 +26,7 @@ export default function StoreCard({
   onUnfollow?: () => void;
 }) {
   return (
-    <div className="card-hover group bg-paper border border-neutral-200 overflow-hidden flex flex-col">
+    <div className="card-hover group bg-surface border border-neutral-200 overflow-hidden flex flex-col">
       <Link href={`/profile/${store.username}`} className="block">
         <div className="grid grid-cols-3 gap-px bg-neutral-200">
           {[0, 1, 2].map((i) => {

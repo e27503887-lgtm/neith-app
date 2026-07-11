@@ -141,7 +141,7 @@ export default function ConversationPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-paper pt-24 pb-6 px-6 flex flex-col">
-      <div className="max-w-lg mx-auto w-full flex-1 flex flex-col bg-paper border border-neutral-200 rounded-xl overflow-hidden">
+      <div className="max-w-lg mx-auto w-full flex-1 flex flex-col bg-surface border border-neutral-200 rounded-xl overflow-hidden">
         <div className="border-b border-neutral-200 p-4 flex items-center gap-3">
           <Link
             href="/messages"

@@ -179,7 +179,7 @@ export default function SuggestedUsers({
         key={user.id}
         className={`flex items-center gap-3 transition-opacity duration-300 ${
           fading ? "opacity-0" : "opacity-100"
-        } ${variant === "mobile" ? "shrink-0 w-[70vw] sm:w-56 snap-start bg-paper border border-neutral-200 p-3" : ""}`}
+        } ${variant === "mobile" ? "shrink-0 w-[70vw] sm:w-56 snap-start bg-surface border border-neutral-200 p-3" : ""}`}
       >
         <Link href={`/profile/${user.username}`} className="shrink-0">
           {user.avatar_url ? (
@@ -246,7 +246,7 @@ export default function SuggestedUsers({
   }
 
   return (
-    <div className="bg-paper border border-neutral-200 p-4">
+    <div className="bg-surface border border-neutral-200 p-4">
       {twinPromoProfile && (
         <Link
           href="/twins"

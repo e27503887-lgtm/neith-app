@@ -43,7 +43,7 @@ export default function OutfitBattle() {
   const total = votes[fighters[0].id] + votes[fighters[1].id];
 
   return (
-    <section id="kombin-savasi" className="mb-10 border border-neutral-200 bg-paper scroll-mt-24">
+    <section id="kombin-savasi" className="mb-10 border border-neutral-200 bg-surface scroll-mt-24">
       <div className="flex items-center justify-center gap-2 border-b border-neutral-200 py-3">
         <Swords size={16} className="text-ink" strokeWidth={1.5} />
         <h2 className="text-xs uppercase tracking-[0.24em] font-medium text-ink">
@@ -86,7 +86,7 @@ export default function OutfitBattle() {
                     hasVoted
                       ? "border-ink bg-ink text-paper"
                       : votedId
-                      ? "border-neutral-200 text-gray-400"
+                      ? "border-neutral-200 text-gray-500"
                       : "border-ink text-ink hover:bg-ink hover:text-paper"
                   }`}
                 >
@@ -101,7 +101,7 @@ export default function OutfitBattle() {
                 </button>
 
                 {votedId && (
-                  <span className="font-serif text-ink text-lg leading-none">
+                  <span className="font-semibold text-ink text-lg leading-none">
                     {votes[fighter.id]}
                     <span className="text-xs text-gray-500 font-sans ml-1">
                       ({percent}%)

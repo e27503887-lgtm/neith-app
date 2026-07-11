@@ -79,7 +79,7 @@ export default function CompleteTheLook({ anchor }: { anchor: EngineProduct }) {
   if (!suggestions || suggestions.length === 0) return null;
 
   return (
-    <section className="bg-paper border border-neutral-200 p-6 md:p-10">
+    <section className="bg-surface border border-neutral-200 p-6 md:p-10">
       <div className="mb-6">
         <p className="section-label mb-2">Stilist Önerisi</p>
         <h2 className="font-serif italic text-3xl text-ink">Bu Parçayla Kombin Kur</h2>
@@ -127,7 +127,7 @@ export default function CompleteTheLook({ anchor }: { anchor: EngineProduct }) {
 
             <p className="text-xs uppercase tracking-wide text-ink mt-3 pt-3 border-t border-neutral-200">
               Bu görünüm:{" "}
-              <span className="font-serif normal-case text-base">
+              <span className="font-semibold normal-case text-base">
                 {suggestion.totalPrice.toLocaleString("tr-TR")} ₺
               </span>
             </p>

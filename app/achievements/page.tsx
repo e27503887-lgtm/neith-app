@@ -41,7 +41,7 @@ export default async function AchievementsPage() {
   return (
     <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
       <div className="max-w-6xl mx-auto">
-        <div className="bg-white border border-neutral-200 rounded-3xl p-8 shadow-sm mb-8">
+        <div className="bg-surface border border-neutral-200 rounded-3xl p-8 shadow-sm mb-8">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="section-label">Başarılar</p>
@@ -65,14 +65,14 @@ export default async function AchievementsPage() {
                 key={card.key}
                 className={`group relative overflow-hidden rounded-3xl border p-6 transition-all duration-300 ${
                   card.earned
-                    ? "border-ink bg-white shadow-sm"
+                    ? "border-ink bg-surface shadow-sm"
                     : "border-neutral-200 bg-paper text-gray-500"
                 }`}
               >
                 <div className="flex items-center gap-3 mb-4">
                   <span
                     className={`flex h-12 w-12 items-center justify-center rounded-full border ${
-                      card.earned ? "border-ink bg-ink text-paper" : "border-neutral-300 bg-white text-gray-400"
+                      card.earned ? "border-ink bg-ink text-paper" : "border-neutral-300 bg-surface text-gray-500"
                     }`}
                   >
                     {Icon ? <Icon size={20} strokeWidth={1.5} /> : "🏅"}

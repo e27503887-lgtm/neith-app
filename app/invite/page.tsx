@@ -96,7 +96,7 @@ export default function InvitePage() {
 
         <div className="border border-neutral-200 p-6 mt-8 text-left">
           <p className="text-xs uppercase tracking-wide text-gray-500 mb-2">Davet Linkin</p>
-          <p className="font-serif text-lg text-ink break-all">{inviteUrl}</p>
+          <p className="font-medium text-sm text-ink break-all">{inviteUrl}</p>
 
           <div className="flex flex-col sm:flex-row gap-3 mt-5">
             <button
@@ -157,7 +157,7 @@ export default function InvitePage() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-2 mt-6 text-gray-400">
+            <div className="flex flex-col items-center gap-2 mt-6 text-gray-500">
               <Users size={24} strokeWidth={1} />
               <p className="text-sm">Henüz kimseyi davet etmedin.</p>
             </div>

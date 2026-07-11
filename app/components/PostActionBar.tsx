@@ -109,7 +109,7 @@ export default function PostActionBar({
         onClick={handleLike}
         aria-label={liked ? "Beğenmekten vazgeç" : "Beğen"}
         className={`flex items-center gap-1.5 text-sm transition-colors ${
-          liked ? "text-accent" : "text-gray-400 hover:text-accent"
+          liked ? "text-accent" : "text-gray-500 hover:text-accent"
         }`}
       >
         <Heart
@@ -125,7 +125,7 @@ export default function PostActionBar({
         type="button"
         onClick={() => router.push(`/post/${postId}`)}
         aria-label="Yorumlar"
-        className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-accent transition-colors"
+        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-accent transition-colors"
       >
         <MessageCircle size={18} strokeWidth={1.5} />
         {commentCount > 0 && <span>{commentCount}</span>}
@@ -135,7 +135,7 @@ export default function PostActionBar({
         type="button"
         onClick={() => setQuickViewOpen(true)}
         aria-label="Hızlı görünüm ve paylaş"
-        className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-accent transition-colors"
+        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-accent transition-colors"
       >
         <Share2 size={18} strokeWidth={1.5} />
       </button>

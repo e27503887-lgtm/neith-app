@@ -8,6 +8,7 @@ export default async function EraIndexPage() {
     supabase
       .from("products")
       .select("era, image_url, created_at")
+      .or("is_sold.is.null,is_sold.eq.false")
       .order("created_at", { ascending: false }),
     supabase.from("outfits").select("era, created_at"),
   ]);
@@ -55,8 +56,8 @@ export default async function EraIndexPage() {
               )}
               <div className="absolute inset-0 bg-ink/40" />
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-                <h2 className="font-serif text-3xl text-paper">{card.label}</h2>
-                <p className="text-paper/80 text-xs uppercase tracking-wide mt-2">
+                <h2 className="font-serif text-3xl text-white">{card.label}</h2>
+                <p className="text-white/80 text-xs uppercase tracking-wide mt-2">
                   {card.count} içerik
                 </p>
               </div>

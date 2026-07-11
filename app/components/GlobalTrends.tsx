@@ -69,7 +69,7 @@ export default function GlobalTrends({ compact = false }: { compact?: boolean })
   }, []);
 
   return (
-    <div id="global-trends" className={`bg-paper border border-neutral-200 p-4 ${compact ? "text-sm" : ""}`}>
+    <div id="global-trends" className={`bg-surface border border-neutral-200 p-4 ${compact ? "text-sm" : ""}`}>
       <h3 className="section-label mb-3">Dünyada Şu Anda Moda</h3>
 
       <div className="flex items-center gap-2 mb-3">
@@ -115,7 +115,7 @@ export default function GlobalTrends({ compact = false }: { compact?: boolean })
             .filter((t) => (sourceFilter === "all" ? true : t.source === sourceFilter))
             .map((t) => (
               <article key={t.id} className="flex items-center gap-3">
-                <div className="w-12 h-12 flex items-center justify-center bg-white rounded-md shadow-sm border overflow-hidden">
+                <div className="w-12 h-12 flex items-center justify-center bg-surface rounded-md shadow-sm border overflow-hidden">
                   <img
                     src={getFlagAsset(t)}
                     alt={t.region}
@@ -136,7 +136,7 @@ export default function GlobalTrends({ compact = false }: { compact?: boolean })
                     <div className="w-3/4 h-2 bg-neutral-100 rounded-full overflow-hidden mr-3">
                       <div style={{ width: `${t.score}%` }} className="h-2 bg-accent" />
                     </div>
-                    <div className="text-xs text-gray-400">{t.publishedAt ? new Date(t.publishedAt).toLocaleDateString() : ""}</div>
+                    <div className="text-xs text-gray-500">{t.publishedAt ? new Date(t.publishedAt).toLocaleDateString() : ""}</div>
                   </div>
                 </div>
               </article>

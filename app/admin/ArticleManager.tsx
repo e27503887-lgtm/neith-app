@@ -264,7 +264,7 @@ export default function ArticleManager() {
             <select
               value={form.category}
               onChange={(e) => setForm((prev) => (prev ? { ...prev, category: e.target.value } : prev))}
-              className="border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+              className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
             >
               {ARTICLE_CATEGORIES.map((c) => (
                 <option key={c.value} value={c.value}>

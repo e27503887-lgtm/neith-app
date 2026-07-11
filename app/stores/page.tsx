@@ -119,6 +119,7 @@ function StoresPageContent() {
         supabase
           .from("products")
           .select("id, user_id, username, title, price, image_url, category, created_at")
+          .or("is_sold.is.null,is_sold.eq.false")
           .eq("seller_type", "brand")
           .in("user_id", brandIds)
           .order("created_at", { ascending: false }),
@@ -215,6 +216,7 @@ function StoresPageContent() {
             const { data: followedProductRows } = await supabase
               .from("products")
               .select("id, user_id, username, title, price, image_url, category, created_at")
+              .or("is_sold.is.null,is_sold.eq.false")
               .eq("seller_type", "brand")
               .in("user_id", followedBrandIds)
               .order("created_at", { ascending: false });
@@ -347,13 +349,13 @@ function StoresPageContent() {
           <div className="mt-6 flex flex-wrap gap-2">
             <button
               onClick={() => setTab("all")}
-              className={`px-4 py-2 text-sm transition-colors ${activeTab === "all" ? "bg-ink text-white" : "bg-white text-gray-700 border border-neutral-200 hover:border-ink"}`}
+              className={`px-4 py-2 text-sm transition-colors ${activeTab === "all" ? "bg-ink text-paper" : "bg-surface text-gray-700 border border-neutral-200 hover:border-ink"}`}
             >
               Tüm Ürünler
             </button>
             <button
               onClick={() => setTab("following")}
-              className={`px-4 py-2 text-sm transition-colors ${activeTab === "following" ? "bg-ink text-white" : "bg-white text-gray-700 border border-neutral-200 hover:border-ink"}`}
+              className={`px-4 py-2 text-sm transition-colors ${activeTab === "following" ? "bg-ink text-paper" : "bg-surface text-gray-700 border border-neutral-200 hover:border-ink"}`}
             >
               Takip Ettiklerim
             </button>
@@ -390,7 +392,7 @@ function StoresPageContent() {
                     <Link
                       key={brand.id}
                       href={`/profile/${brand.username}`}
-                      className="flex items-center gap-3 rounded-full border border-neutral-200 bg-white px-3 py-2 shadow-sm hover:border-ink transition-colors"
+                      className="flex items-center gap-3 rounded-full border border-neutral-200 bg-surface px-3 py-2 shadow-sm hover:border-ink transition-colors"
                     >
                       {brand.avatar_url ? (
                         <Image
@@ -429,7 +431,7 @@ function StoresPageContent() {
         ) : (
           <>
             <div className="relative max-w-md mt-2">
-              <Search size={15} strokeWidth={1.5} className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Search size={15} strokeWidth={1.5} className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-500" />
               <input
                 type="text"
                 value={search}
@@ -445,7 +447,7 @@ function StoresPageContent() {
                 <select
                   value={brandFilter}
                   onChange={(e) => setBrandFilter(e.target.value)}
-                  className="border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+                  className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
                 >
                   <option value="">Tüm Markalar</option>
                   {stores.map((s) => (
@@ -461,7 +463,7 @@ function StoresPageContent() {
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+                  className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
                 >
                   <option value="">Tüm Kategoriler</option>
                   {CATEGORIES.map((c) => (
@@ -480,7 +482,7 @@ function StoresPageContent() {
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
                   placeholder="0"
-                  className="w-24 border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+                  className="w-24 border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
                 />
               </div>
 
@@ -492,7 +494,7 @@ function StoresPageContent() {
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
                   placeholder="∞"
-                  className="w-24 border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+                  className="w-24 border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
                 />
               </div>
 
@@ -501,7 +503,7 @@ function StoresPageContent() {
                 <select
                   value={sort}
                   onChange={(e) => setSort(e.target.value as Sort)}
-                  className="border border-neutral-200 bg-paper text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+                  className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
                 >
                   {SORT_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>
@@ -527,7 +529,7 @@ function StoresPageContent() {
               <div className="flex flex-col items-center text-center py-20 gap-3">
                 <StoreIcon size={28} strokeWidth={1.2} className="text-gray-300" />
                 <p className="text-neutral-500 text-sm">Henüz mağaza yok.</p>
-                <p className="text-neutral-400 text-xs">Markalar onaylandıkça burada listelenecek.</p>
+                <p className="text-neutral-500 text-xs">Markalar onaylandıkça burada listelenecek.</p>
                 {viewerAccountType && viewerAccountType !== "brand" && (
                   <Link
                     href="/brand/apply"

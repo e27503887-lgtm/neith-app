@@ -405,7 +405,7 @@ export default function NewOutfitPage() {
               tagsByItemId={tagsByItemId}
               onTagsChange={handleTagsChange}
             />
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               En fazla {MAX_FILES} fotoğraf · her biri 5MB'dan küçük olmalı.
             </p>
           </div>
@@ -443,7 +443,7 @@ export default function NewOutfitPage() {
                   placeholder="Kısa etiket (ör. Annemden kalan kolye)"
                   className="w-full p-2 border border-neutral-200 text-sm focus:outline-none focus:border-ink transition-colors"
                 />
-                <p className="text-xs text-gray-400 text-right">
+                <p className="text-xs text-gray-500 text-right">
                   {customLabel.length}/{MAX_LABEL_LENGTH}
                 </p>
                 <button
@@ -486,7 +486,7 @@ export default function NewOutfitPage() {
                       />
                       {selected && (
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                          <Check size={18} className="text-paper" />
+                          <Check size={18} className="text-white" />
                         </div>
                       )}
                     </button>

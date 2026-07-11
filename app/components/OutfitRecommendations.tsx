@@ -70,11 +70,11 @@ export default function OutfitRecommendations({ featured, community, brand }: Pr
             <Link
               key={outfit.id}
               href={`/outfit/${outfit.id}`}
-              className="relative shrink-0 w-[78vw] sm:w-48 md:w-56 snap-start bg-paper border border-neutral-200 overflow-hidden hover:border-neutral-400 transition-colors"
+              className="relative shrink-0 w-[78vw] sm:w-48 md:w-56 snap-start bg-surface border border-neutral-200 overflow-hidden hover:border-neutral-400 transition-colors"
             >
               <div className="relative w-full aspect-[3/4] overflow-hidden">
                 {activeTab === "featured" && idx < 3 && (
-                  <div className="absolute -top-3 -left-3 bg-paper border border-neutral-200 px-3 py-2 font-serif text-xl z-10">
+                  <div className="absolute -top-3 -left-3 bg-surface border border-neutral-200 px-3 py-2 font-serif text-xl z-10">
                     {idx + 1}
                   </div>
                 )}

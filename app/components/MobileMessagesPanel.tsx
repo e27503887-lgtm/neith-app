@@ -337,7 +337,7 @@ export default function MobileMessagesPanel({ onClose }: { onClose: () => void }
                         </p>
                       </div>
                       {c.lastMessage && (
-                        <span className="text-xs text-gray-400 shrink-0">
+                        <span className="text-xs text-gray-500 shrink-0">
                           {new Date(c.lastMessage.created_at).toLocaleDateString("tr-TR")}
                         </span>
                       )}

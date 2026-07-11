@@ -145,7 +145,7 @@ export default function ProfileTabs({
                   />
                 )}
                 {post.media_count > 1 && (
-                  <span className="absolute top-1.5 right-1.5 z-10 text-paper">
+                  <span className="absolute top-1.5 right-1.5 z-10 text-white">
                     <Images size={14} strokeWidth={1.5} />
                   </span>
                 )}

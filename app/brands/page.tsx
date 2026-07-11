@@ -15,6 +15,7 @@ export default async function BrandsPage() {
     ? await supabase
         .from("products")
         .select("user_id, image_url, created_at")
+        .or("is_sold.is.null,is_sold.eq.false")
         .in("user_id", brandIds)
         .order("created_at", { ascending: false })
     : { data: [] as { user_id: string; image_url: string }[] };
@@ -60,10 +61,10 @@ export default async function BrandsPage() {
                 )}
                 <div className="absolute inset-0 bg-ink/35 transition-colors duration-500 group-hover:bg-ink/45" />
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-                  <h2 className="font-serif text-4xl md:text-5xl text-paper tracking-tight">
+                  <h2 className="font-serif text-4xl md:text-5xl text-white tracking-tight">
                     {brand.username}
                   </h2>
-                  <span className="mt-3 text-[11px] uppercase tracking-[0.24em] text-paper/70">
+                  <span className="mt-3 text-[11px] uppercase tracking-[0.24em] text-white/70">
                     Markayı Keşfet
                   </span>
                 </div>

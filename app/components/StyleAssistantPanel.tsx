@@ -111,14 +111,14 @@ export default function StyleAssistantPanel({
   const isStale = report ? Date.now() - new Date(report.generated_at).getTime() > STALE_MS : false;
 
   return (
-    <section className="border border-neutral-200 bg-paper p-6 md:p-8">
+    <section className="border border-neutral-200 bg-surface p-6 md:p-8">
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
           <p className="section-label mb-2">Kural Tabanlı Analiz</p>
           <h2 className="font-serif italic text-3xl text-ink">Stil Karnen ve Haftalık Planın</h2>
         </div>
         {report && (
-          <span className="text-xs text-gray-400 whitespace-nowrap mt-1">
+          <span className="text-xs text-gray-500 whitespace-nowrap mt-1">
             {new Date(report.generated_at).toLocaleDateString("tr-TR")} tarihinde oluşturuldu
           </span>
         )}

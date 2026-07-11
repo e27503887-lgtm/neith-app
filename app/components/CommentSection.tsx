@@ -169,7 +169,7 @@ export default function CommentSection({ productId, outfitId }: Props) {
                     @{c.username}
                     {c.account_type === "brand" && <BrandBadge />}
                   </Link>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-gray-500">
                     {new Date(c.created_at).toLocaleDateString("tr-TR")}
                   </span>
                 </div>
@@ -179,7 +179,7 @@ export default function CommentSection({ productId, outfitId }: Props) {
               {c.user_id === userId && (
                 <button
                   onClick={() => handleDelete(c.id)}
-                  className="text-gray-400 hover:text-accent shrink-0"
+                  className="text-gray-500 hover:text-accent shrink-0"
                 >
                   <Trash2 size={16} />
                 </button>

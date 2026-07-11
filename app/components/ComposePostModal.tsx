@@ -305,7 +305,7 @@ export default function ComposePostModal({ initialOpen = false }: { initialOpen?
             }}
             placeholder="Bugün ne giydin?"
             rows={3}
-            className="w-full resize-none overflow-hidden bg-transparent text-lg leading-relaxed text-ink placeholder:text-gray-400 focus:outline-none"
+            className="w-full resize-none overflow-hidden bg-transparent text-lg leading-relaxed text-ink placeholder:text-gray-500 focus:outline-none"
           />
 
           {photos.length > 0 && (
@@ -325,7 +325,7 @@ export default function ComposePostModal({ initialOpen = false }: { initialOpen?
                     type="button"
                     onClick={() => handleRemovePhoto(photo.id)}
                     aria-label="Fotoğrafı kaldır"
-                    className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-paper hover:bg-black/80 transition-colors"
+                    className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
                   >
                     <X size={13} strokeWidth={2} />
                   </button>
@@ -357,7 +357,7 @@ export default function ComposePostModal({ initialOpen = false }: { initialOpen?
             onChange={handleAddFiles}
             className="hidden"
           />
-          <span className={`text-xs ${text.length >= MAX_CHARS ? "text-accent" : "text-gray-400"}`}>
+          <span className={`text-xs ${text.length >= MAX_CHARS ? "text-accent" : "text-gray-500"}`}>
             {text.length}/{MAX_CHARS}
           </span>
         </div>
@@ -399,7 +399,7 @@ export default function ComposePostModal({ initialOpen = false }: { initialOpen?
                 role="dialog"
                 aria-modal="true"
                 aria-label="Gönderi paylaş"
-                className="bg-paper border border-neutral-200 rounded-2xl shadow-xl overflow-hidden"
+                className="bg-surface border border-neutral-200 rounded-2xl shadow-xl overflow-hidden"
               >
                 {composeBody}
               </div>
@@ -438,7 +438,7 @@ export default function ComposePostModal({ initialOpen = false }: { initialOpen?
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.2 }}
           >
-            <span className="block whitespace-nowrap rounded-full bg-ink text-paper text-sm px-5 py-2.5 shadow-lg">
+            <span className="block whitespace-nowrap rounded-full bg-ink text-white text-sm px-5 py-2.5 shadow-lg">
               Gönderin paylaşıldı ✓
             </span>
           </motion.div>

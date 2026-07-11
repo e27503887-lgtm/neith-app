@@ -8,7 +8,7 @@ import { runWhenIdle } from "../utils/idle";
 
 type Notification = {
   id: number | string;
-  type: "like" | "comment" | "offer" | "message" | "follow" | "badge";
+  type: "like" | "comment" | "offer" | "message" | "follow" | "badge" | "deal";
   actor_username: string;
   badge_key?: string;
   product_id: number | string | null;
@@ -31,6 +31,8 @@ function formatMessage(n: Notification) {
       return `${n.actor_username} seni takip etmeye başladı`;
     case "badge":
       return `🏅 Yeni rozet kazandın!`;
+    case "deal":
+      return `🤝 Anlaşmanda bir gelişme var`;
     default:
       return "";
   }
@@ -154,7 +156,9 @@ export default function NotificationBell() {
 
     setOpen(false);
 
-    if (n.product_id) {
+    if (n.type === "deal") {
+      router.push("/deals");
+    } else if (n.product_id) {
       router.push(`/product/${n.product_id}`);
     } else if (n.conversation_id) {
       router.push(`/messages/${n.conversation_id}`);
@@ -177,7 +181,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-[85vw] max-w-80 bg-paper border border-neutral-200 rounded-xl shadow-lg overflow-hidden z-50 text-left">
+        <div className="absolute right-0 mt-2 w-[85vw] max-w-80 bg-surface border border-neutral-200 rounded-xl shadow-lg overflow-hidden z-50 text-left">
           <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200">
             <span className="text-sm font-semibold text-ink">Bildirimler</span>
             <button
@@ -201,7 +205,7 @@ export default function NotificationBell() {
                   }`}
                 >
                   <p className="text-ink">{formatMessage(n)}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-xs text-gray-500 mt-0.5">
                     {new Date(n.created_at).toLocaleDateString("tr-TR")}
                   </p>
                 </button>

@@ -50,7 +50,7 @@ export default function MobileTabBar() {
         key={item.href}
         href={item.href}
         className={`flex flex-1 flex-col items-center justify-center gap-1 ${
-          active ? "text-ink" : "text-gray-400"
+          active ? "text-ink" : "text-gray-500"
         }`}
       >
         <Icon size={20} strokeWidth={1.5} />

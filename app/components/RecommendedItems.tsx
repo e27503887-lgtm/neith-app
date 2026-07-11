@@ -17,7 +17,7 @@ export default function RecommendedItems({ products }: { products: RecommendedPr
   }
 
   return (
-    <section className="mb-12 border border-neutral-200 bg-paper p-6 md:p-8">
+    <section className="mb-12 border border-neutral-200 bg-surface p-6 md:p-8">
       <div className="flex items-end justify-between gap-4 mb-6">
         <div>
           <p className="section-label mb-2">Senin İçin</p>
@@ -44,7 +44,7 @@ export default function RecommendedItems({ products }: { products: RecommendedPr
             </div>
             <div className="pt-3">
               <h3 className="text-sm text-ink truncate">{product.title}</h3>
-              <p className="font-serif text-ink text-lg mt-0.5">
+              <p className="font-semibold text-ink text-lg mt-0.5">
                 {product.price.toLocaleString("tr-TR")} ₺
               </p>
             </div>

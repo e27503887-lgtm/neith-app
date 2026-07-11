@@ -250,7 +250,7 @@ export default function NewPostPage() {
               tagsByItemId={tagsByItemId}
               onTagsChange={handleTagsChange}
             />
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               1-6 fotoğraf/video · fotoğraflar 8MB&apos;dan, videolar 25MB&apos;dan küçük ve en
               fazla 60 saniye olmalı. Fotoğraflar yüklenmeden önce otomatik küçültülür.
             </p>

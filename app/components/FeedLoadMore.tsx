@@ -60,6 +60,7 @@ export default function FeedLoadMore({
       supabase
         .from("products")
         .select("*")
+        .or("is_sold.is.null,is_sold.eq.false")
         .lt("created_at", before)
         .order("created_at", { ascending: false })
         .limit(BATCH_SIZE),
@@ -176,9 +177,9 @@ export default function FeedLoadMore({
       )}
 
       <div ref={sentinelRef} className="h-10" />
-      {loading && <p className="text-center text-xs text-gray-400 py-4">Yükleniyor...</p>}
+      {loading && <p className="text-center text-xs text-gray-500 py-4">Yükleniyor...</p>}
       {done && items.length > 0 && (
-        <p className="text-center text-xs text-gray-400 py-4">Akışın sonuna geldin.</p>
+        <p className="text-center text-xs text-gray-500 py-4">Akışın sonuna geldin.</p>
       )}
     </>
   );

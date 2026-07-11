@@ -27,6 +27,7 @@ export default async function BrandDetailPage({ params }: Props) {
   const { data: products } = await supabase
     .from("products")
     .select("id, title, price, image_url")
+    .or("is_sold.is.null,is_sold.eq.false")
     .eq("user_id", brand.id)
     .order("created_at", { ascending: false });
 
@@ -77,10 +78,10 @@ export default async function BrandDetailPage({ params }: Props) {
                   />
                   <div className="absolute inset-0 flex items-center justify-center bg-ink/0 transition-colors duration-300 group-hover:bg-ink/50">
                     <div className="text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                      <p className="font-serif text-xl text-paper mb-2">
+                      <p className="font-serif text-xl text-white mb-2">
                         {p.price.toLocaleString("tr-TR")} ₺
                       </p>
-                      <span className="text-[11px] uppercase tracking-[0.24em] text-paper underline underline-offset-4">
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-white underline underline-offset-4">
                         Satın Al
                       </span>
                     </div>

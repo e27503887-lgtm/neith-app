@@ -95,7 +95,7 @@ export default function SaveButton({
       <Bookmark
         size={20}
         strokeWidth={1.5}
-        className={`${saved ? "text-accent" : "text-gray-400"} ${popping ? "animate-pop" : ""}`}
+        className={`${saved ? "text-accent" : "text-gray-500"} ${popping ? "animate-pop" : ""}`}
         fill={saved ? "currentColor" : "none"}
       />
     </button>

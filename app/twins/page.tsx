@@ -171,7 +171,7 @@ export default function TwinsPage() {
   if (loading) {
     return (
       <main className="min-h-screen bg-paper pt-24 px-6">
-        <div className="max-w-3xl mx-auto bg-white border border-neutral-200 rounded-3xl p-8 shadow-sm">
+        <div className="max-w-3xl mx-auto bg-surface border border-neutral-200 rounded-3xl p-8 shadow-sm">
           <p className="text-gray-500">Yükleniyor...</p>
         </div>
       </main>
@@ -181,7 +181,7 @@ export default function TwinsPage() {
   if (!userId) {
     return (
       <main className="min-h-screen bg-paper pt-24 px-6">
-        <div className="max-w-3xl mx-auto bg-white border border-neutral-200 rounded-3xl p-8 shadow-sm">
+        <div className="max-w-3xl mx-auto bg-surface border border-neutral-200 rounded-3xl p-8 shadow-sm">
           <h1 className="text-2xl font-semibold text-ink">Stil İkizlerin</h1>
           <p className="mt-4 text-gray-500">Bu sayfayı görmek için giriş yapmalısın.</p>
           <Link href="/login" className="btn-primary mt-6 inline-block">
@@ -195,7 +195,7 @@ export default function TwinsPage() {
   if (!currentProfile) {
     return (
       <main className="min-h-screen bg-paper pt-24 px-6">
-        <div className="max-w-3xl mx-auto bg-white border border-neutral-200 rounded-3xl p-8 shadow-sm">
+        <div className="max-w-3xl mx-auto bg-surface border border-neutral-200 rounded-3xl p-8 shadow-sm">
           <h1 className="text-2xl font-semibold text-ink">Stil İkizlerin</h1>
           <p className="mt-4 text-gray-500">
             Stil ikizlerini bulmak için beden ve stil bilgini tamamla.
@@ -211,7 +211,7 @@ export default function TwinsPage() {
   return (
     <main className="min-h-screen bg-paper pt-24 px-6 pb-12">
       <div className="max-w-6xl mx-auto">
-        <div className="bg-white border border-neutral-200 rounded-3xl p-8 shadow-sm mb-8">
+        <div className="bg-surface border border-neutral-200 rounded-3xl p-8 shadow-sm mb-8">
           <h1 className="text-3xl font-serif tracking-tight text-ink">Stil İkizlerin</h1>
           <p className="mt-3 text-gray-500">
             Beden, ayakkabı ve stil etiketlerine göre en uygun ikiz adaylarını sana getiriyoruz.
@@ -219,7 +219,7 @@ export default function TwinsPage() {
         </div>
 
         {candidates.length === 0 ? (
-          <div className="bg-white border border-neutral-200 rounded-3xl p-8 shadow-sm text-center">
+          <div className="bg-surface border border-neutral-200 rounded-3xl p-8 shadow-sm text-center">
             <p className="text-2xl font-semibold text-ink">Henüz stil ikizin katılmamış</p>
             <p className="mt-4 text-gray-500">
               Henüz stil ikizin platforma katılmamış — arkadaşlarını davet et!
@@ -233,7 +233,7 @@ export default function TwinsPage() {
             {candidates.map(({ candidate, score }) => (
               <div
                 key={candidate.id}
-                className="bg-white border border-neutral-200 rounded-3xl p-6 shadow-sm"
+                className="bg-surface border border-neutral-200 rounded-3xl p-6 shadow-sm"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-4">

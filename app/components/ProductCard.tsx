@@ -82,7 +82,7 @@ export default function ProductCard({
   }
 
   return (
-    <article className="group overflow-hidden border border-neutral-200 bg-paper">
+    <article className="group overflow-hidden border border-neutral-200 bg-surface">
       <div className="relative">
         <Link href={`/product/${product.id}`} className="block">
           <div className="relative aspect-[4/5] overflow-hidden sm:aspect-[3/4]">
@@ -127,13 +127,13 @@ export default function ProductCard({
         </div>
 
         <div className="flex items-end justify-between border-t border-neutral-200 px-4 pb-4 pt-3">
-          <p className="font-serif text-xl text-ink">{product.price.toLocaleString("tr-TR")} ₺</p>
+          <p className="font-semibold text-xl text-ink">{product.price.toLocaleString("tr-TR")} ₺</p>
           {product.seller_type === "brand" ? (
             <button
               type="button"
               aria-label="Sepete ekle"
               onClick={handleCartClick}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-ink text-paper shadow-sm transition-colors hover:bg-[#4d1b1b]"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-ink text-paper shadow-sm transition-colors hover:bg-accent"
             >
               <ShoppingBag size={17} strokeWidth={1.5} />
             </button>
@@ -144,7 +144,7 @@ export default function ProductCard({
       </div>
 
       {showToast && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-neutral-200 bg-paper/95 px-3 py-1.5 text-xs uppercase tracking-[0.2em] text-ink shadow-sm backdrop-blur">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-neutral-200 bg-surface/95 px-3 py-1.5 text-xs uppercase tracking-[0.2em] text-ink shadow-sm backdrop-blur">
           {buttonLabel}
         </div>
       )}

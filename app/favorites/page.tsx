@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Heart } from "lucide-react";
 import ProductCard from "../components/ProductCard";
+import EmptyState from "../components/EmptyState";
 import { supabase } from "../utils/supabase";
 
 type Product = {
@@ -91,15 +90,14 @@ export default function FavoritesPage() {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center text-center py-12 md:py-24 gap-4">
-            <Heart size={28} strokeWidth={1} className="text-neutral-300" />
-            <p className="text-gray-500">
-              Henüz bir şey kaydetmedin. Beğendiğin kombinleri buradan takip et!
-            </p>
-            <Link href="/" className="btn-primary">
-              Ana Sayfaya Dön
-            </Link>
-          </div>
+          <EmptyState
+            className="md:py-24"
+            illustration="frame"
+            title="Henüz bir şey kaydetmedin"
+            description="Beğendiğin parçaları ve kombinleri burada topla."
+            ctaLabel="Keşfetmeye Başla"
+            ctaHref="/"
+          />
         )}
       </div>
     </main>

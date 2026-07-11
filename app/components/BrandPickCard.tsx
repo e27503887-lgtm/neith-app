@@ -14,7 +14,7 @@ export default function BrandPickCard({ product }: { product: BrandPickProduct }
   return (
     <Link
       href={`/product/${product.id}`}
-      className="card-hover group block bg-paper border border-neutral-200 overflow-hidden"
+      className="card-hover group block bg-surface border border-neutral-200 overflow-hidden"
     >
       <div className="relative w-full aspect-[3/4] overflow-hidden">
         <Image
@@ -30,7 +30,7 @@ export default function BrandPickCard({ product }: { product: BrandPickProduct }
           <BrandBadge /> {product.username}
         </span>
         <h2 className="text-sm truncate">{product.title}</h2>
-        <p className="font-serif text-lg text-ink mt-0.5">{product.price.toLocaleString("tr-TR")} ₺</p>
+        <p className="font-semibold text-lg text-ink mt-0.5">{product.price.toLocaleString("tr-TR")} ₺</p>
       </div>
     </Link>
   );

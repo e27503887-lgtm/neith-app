@@ -102,7 +102,7 @@ export default function BrandProfileHeader({
               {productCount} ürün · {followerCount} takipçi · Katılım: {joinedLabel}
             </p>
             {showWardrobeValue && typeof wardrobeValue === "number" && (
-              <p className="mt-3 font-serif text-lg text-ink">
+              <p className="mt-3 font-semibold text-lg text-ink">
                 Gardırop Değeri: {wardrobeValue.toLocaleString("tr-TR")} ₺
               </p>
             )}

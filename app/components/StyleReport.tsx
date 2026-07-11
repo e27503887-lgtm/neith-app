@@ -63,7 +63,7 @@ export default function StyleReport({ outfits }: { outfits: { style_tag: string 
   }
 
   return (
-    <section className="border border-neutral-200 bg-paper p-6 md:p-8">
+    <section className="border border-neutral-200 bg-surface p-6 md:p-8">
       <p className="section-label mb-2">Stil Karnesi</p>
       <h2 className="font-serif italic text-3xl text-ink mb-6">Tarzını Analiz Ettik</h2>
 
@@ -107,12 +107,12 @@ export default function StyleReport({ outfits }: { outfits: { style_tag: string 
                 />
                 <span className="text-sm uppercase tracking-wide text-ink flex-1">{b.tag}</span>
                 <span className="text-xs text-gray-500">{b.count} kombin</span>
-                <span className="font-serif text-xl text-ink w-14 text-right">%{b.percent}</span>
+                <span className="font-semibold text-xl text-ink w-14 text-right">%{b.percent}</span>
               </div>
             ))}
           </div>
 
-          <p className="text-xs text-gray-400 mt-4">
+          <p className="text-xs text-gray-500 mt-4">
             {taggedCount} etiketli kombin üzerinden hesaplandı.
           </p>
         </div>

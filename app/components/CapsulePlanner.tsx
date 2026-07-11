@@ -53,7 +53,7 @@ export default function CapsulePlanner({ products }: { products: OwnProduct[] })
   }
 
   return (
-    <section className="border border-neutral-200 bg-paper p-6 md:p-8">
+    <section className="border border-neutral-200 bg-surface p-6 md:p-8">
       <p className="section-label mb-2">Kapsül Dolap</p>
       <h2 className="font-serif italic text-3xl text-ink mb-4">5 Günlük Kombin Takvimi</h2>
 
@@ -72,7 +72,7 @@ export default function CapsulePlanner({ products }: { products: OwnProduct[] })
           </div>
 
           {!canGenerate && (
-            <p className="text-xs text-gray-400 mb-4">
+            <p className="text-xs text-gray-500 mb-4">
               Takvim oluşturmak için en az 2 ürün ilanın olmalı.
             </p>
           )}

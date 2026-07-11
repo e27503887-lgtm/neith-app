@@ -46,7 +46,7 @@ export default function StartChatButton({ otherUserId }: { otherUserId: string |
     return (
       <button
         disabled
-        className="border border-neutral-300 text-gray-400 text-xs uppercase tracking-wide px-4 py-1.5 cursor-not-allowed"
+        className="border border-neutral-300 text-gray-500 text-xs uppercase tracking-wide px-4 py-1.5 cursor-not-allowed"
       >
         Mesajlara Kapalı
       </button>

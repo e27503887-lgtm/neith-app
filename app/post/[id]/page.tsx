@@ -73,7 +73,7 @@ export default async function PostDetailPage({ params }: Props) {
               <span className="truncate text-sm font-medium text-ink">{username}</span>
               {owner?.account_type === "brand" && <BrandBadge />}
             </Link>
-            <p className="text-xs text-gray-400">{timeAgo(post.created_at)}</p>
+            <p className="text-xs text-gray-500">{timeAgo(post.created_at)}</p>
           </div>
 
           <PostMenu postId={post.id} ownerId={post.user_id} redirectAfterDelete="/" />

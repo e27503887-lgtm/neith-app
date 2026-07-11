@@ -44,7 +44,7 @@ export default function PhotoTipCard() {
         type="button"
         onClick={dismiss}
         aria-label="İpucunu kapat"
-        className="absolute top-2.5 right-2.5 text-gray-400 hover:text-ink transition-colors"
+        className="absolute top-2.5 right-2.5 text-gray-500 hover:text-ink transition-colors"
       >
         <X size={14} />
       </button>

@@ -88,13 +88,13 @@ export default function PostMenu({
         onClick={() => setOpen((s) => !s)}
         aria-label="Gönderi seçenekleri"
         aria-expanded={open}
-        className="p-1 -m-1 text-gray-400 hover:text-ink transition-colors"
+        className="p-1 -m-1 text-gray-500 hover:text-ink transition-colors"
       >
         <MoreHorizontal size={18} strokeWidth={1.5} />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-20 mt-1 w-36 bg-paper border border-neutral-200 rounded-lg shadow-lg overflow-hidden">
+        <div className="absolute right-0 top-full z-20 mt-1 w-36 bg-surface border border-neutral-200 rounded-lg shadow-lg overflow-hidden">
           <button
             type="button"
             onClick={handleDelete}

@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { Users } from "lucide-react";
 import ProductCard from "./ProductCard";
+import EmptyState from "./EmptyState";
 import OutfitCard from "./OutfitCard";
 import PostCard from "./PostCard";
 import PostCardSkeleton from "./PostCardSkeleton";
@@ -95,6 +94,7 @@ export default function FollowingFeed() {
         supabase
           .from("products")
           .select("*")
+          .or("is_sold.is.null,is_sold.eq.false")
           .in("user_id", followingIds)
           .order("created_at", { ascending: false }),
         supabase
@@ -216,25 +216,25 @@ export default function FollowingFeed() {
 
   if (!userId) {
     return (
-      <div className="flex flex-col items-center text-center py-12 md:py-24 gap-4">
-        <Users size={28} strokeWidth={1} className="text-neutral-300" />
-        <p className="text-gray-500">Takip ettiklerini görmek için giriş yap.</p>
-        <Link href="/login" className="btn-primary">
-          Giriş Yap
-        </Link>
-      </div>
+      <EmptyState
+        className="md:py-24"
+        title="Takip akışın seni bekliyor"
+        description="Takip ettiklerini görmek için giriş yap."
+        ctaLabel="Giriş Yap"
+        ctaHref="/login"
+      />
     );
   }
 
   if (feed.length === 0) {
     return (
-      <div className="flex flex-col items-center text-center py-12 md:py-24 gap-4">
-        <Users size={28} strokeWidth={1} className="text-neutral-300" />
-        <p className="text-gray-500">Henüz kimseyi takip etmiyorsun. Toplulukta keşfet!</p>
-        <Link href="/" className="btn-primary">
-          Tümünü Keşfet
-        </Link>
-      </div>
+      <EmptyState
+        className="md:py-24"
+        title="Henüz kimseyi takip etmiyorsun"
+        description="Toplulukta stiline yakın kişileri keşfet."
+        ctaLabel="Tümünü Keşfet"
+        ctaHref="/"
+      />
     );
   }
 

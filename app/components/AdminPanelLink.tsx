@@ -24,7 +24,7 @@ export default function AdminPanelLink({ profileId, isAdmin }: { profileId: stri
   return (
     <Link
       href="/admin"
-      className="text-xs uppercase tracking-wide text-gray-400 hover:text-accent transition-colors"
+      className="text-xs uppercase tracking-wide text-gray-500 hover:text-accent transition-colors"
     >
       Yönetici Paneli
     </Link>

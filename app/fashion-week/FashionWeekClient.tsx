@@ -127,7 +127,7 @@ export default function FashionWeekClient({ activeWeek, pastWeeks }: any) {
               {sorted.map((o, idx) => (
                 <div key={o.id} className="relative">
                   {idx < 3 && (
-                    <div className="absolute -top-3 -left-3 bg-paper border border-neutral-200 px-3 py-2 font-serif text-xl">
+                    <div className="absolute -top-3 -left-3 bg-surface border border-neutral-200 px-3 py-2 font-serif text-xl">
                       {idx + 1}.
                     </div>
                   )}
@@ -180,7 +180,7 @@ export default function FashionWeekClient({ activeWeek, pastWeeks }: any) {
           </div>
 
           {pastWeeks.map((w: any) => (
-            <div key={w.id} className="bg-paper border border-neutral-200 rounded mb-6 p-4">
+            <div key={w.id} className="bg-surface border border-neutral-200 rounded mb-6 p-4">
               <div className="flex items-center gap-4">
                 {w.cover_image_url && (
                   <div className="w-28 h-20 relative">

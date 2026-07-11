@@ -60,7 +60,7 @@ export default function StyleTags({
         ))}
 
       {!editing && tags.length === 0 && isOwner && (
-        <span className="text-xs text-gray-400">Henüz moda kimliği seçilmedi.</span>
+        <span className="text-xs text-gray-500">Henüz moda kimliği seçilmedi.</span>
       )}
 
       {isOwner && !editing && (
@@ -77,7 +77,7 @@ export default function StyleTags({
       )}
 
       {editing && (
-        <div className="w-full border border-neutral-200 bg-paper p-4 mt-1">
+        <div className="w-full border border-neutral-200 bg-surface p-4 mt-1">
           <div className="flex flex-wrap gap-2 mb-4">
             {STYLE_TAGS.map((tag) => {
               const selected = draft.includes(tag);

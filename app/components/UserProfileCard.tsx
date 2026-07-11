@@ -93,14 +93,14 @@ export default function UserProfileCard({
         <p className="mt-2 max-w-xl text-sm leading-6 text-gray-600">{bio ?? "Moda, stil ve ilham odaklı bir profil."}</p>
         <BadgeChips badgeKeys={badgeKeys} />
         {showWardrobeValue && typeof wardrobeValue === "number" && (
-          <p className="mt-4 font-serif text-lg text-ink">Gardırop Değeri: {wardrobeValue.toLocaleString("tr-TR")} ₺</p>
+          <p className="mt-4 font-semibold text-lg text-ink">Gardırop Değeri: {wardrobeValue.toLocaleString("tr-TR")} ₺</p>
         )}
       </div>
     </div>
   );
 
   return (
-    <section className="bg-white border border-neutral-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+    <section className="bg-surface border border-neutral-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
       <div className="relative overflow-hidden bg-ink/5 p-7">
         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white to-amber-100 opacity-60 pointer-events-none" />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

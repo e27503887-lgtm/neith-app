@@ -132,7 +132,7 @@ export default function PhotoTagEditor({
                     onRemove(tag.id);
                     setOpenRemoveId(null);
                   }}
-                  className="absolute left-1/2 top-full mt-1 flex min-h-11 -translate-x-1/2 items-center whitespace-nowrap rounded-full bg-ink px-3 py-2 text-xs text-paper"
+                  className="absolute left-1/2 top-full mt-1 flex min-h-11 -translate-x-1/2 items-center whitespace-nowrap rounded-full bg-ink px-3 py-2 text-xs text-white"
                 >
                   Kaldır
                 </button>
@@ -142,7 +142,7 @@ export default function PhotoTagEditor({
 
           {pendingPoint && (
             <div
-              className={`absolute z-10 w-56 max-w-[70vw] -translate-x-1/2 border border-neutral-200 bg-paper p-2 shadow-lg ${
+              className={`absolute z-10 w-56 max-w-[70vw] -translate-x-1/2 border border-neutral-200 bg-surface p-2 shadow-lg ${
                 pendingPoint.y > 60 ? "-translate-y-full -mt-2" : "mt-2"
               }`}
               style={{ left: `${pendingPoint.x}%`, top: `${pendingPoint.y}%` }}
@@ -169,7 +169,7 @@ export default function PhotoTagEditor({
                   />
                   <div className="flex max-h-48 flex-col gap-1 overflow-y-auto">
                     {filteredProducts.length === 0 ? (
-                      <p className="py-2 text-center text-xs text-gray-400">Sonuç yok.</p>
+                      <p className="py-2 text-center text-xs text-gray-500">Sonuç yok.</p>
                     ) : (
                       filteredProducts.map((product) => (
                         <button
@@ -205,7 +205,7 @@ export default function PhotoTagEditor({
         </div>
 
         {limitError && <p className="text-xs text-red-300">{limitError}</p>}
-        <p className="text-xs text-paper/70">{tags.length}/{MAX_TAGS_PER_PHOTO} etiket · fotoğrafa dokunarak ürün ekle</p>
+        <p className="text-xs text-white/70">{tags.length}/{MAX_TAGS_PER_PHOTO} etiket · fotoğrafa dokunarak ürün ekle</p>
       </div>
     </div>
   );

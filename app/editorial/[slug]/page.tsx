@@ -37,7 +37,7 @@ export default async function ArticlePage({ params }: Props) {
           {getArticleCategoryLabel(article.category)}
         </p>
         <h1 className="font-serif text-4xl md:text-5xl tracking-tight text-ink mb-3">{article.title}</h1>
-        <p className="text-sm text-gray-400 mb-10">
+        <p className="text-sm text-gray-500 mb-10">
           {new Date(article.created_at).toLocaleDateString("tr-TR", {
             day: "numeric",
             month: "long",

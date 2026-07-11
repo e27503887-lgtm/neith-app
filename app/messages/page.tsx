@@ -96,12 +96,12 @@ export default function MessagesPage() {
         <h1 className="text-xl font-bold mb-6">Mesajlar</h1>
 
         {conversations.length === 0 ? (
-          <div className="bg-paper border border-neutral-200 rounded-xl p-10 text-center text-gray-500 flex flex-col items-center gap-3">
+          <div className="bg-surface border border-neutral-200 rounded-xl p-10 text-center text-gray-500 flex flex-col items-center gap-3">
             <Mail size={28} strokeWidth={1} className="text-neutral-300" />
             Henüz mesajın yok.
           </div>
         ) : (
-          <div className="bg-paper border border-neutral-200 rounded-xl divide-y divide-neutral-200 overflow-hidden">
+          <div className="bg-surface border border-neutral-200 rounded-xl divide-y divide-neutral-200 overflow-hidden">
             {conversations.map((c) => (
               <Link
                 key={c.id}

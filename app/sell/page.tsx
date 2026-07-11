@@ -17,6 +17,20 @@ import CategoryPicker from "../components/CategoryPicker";
 import StyleTagPicker from "../components/StyleTagPicker";
 import FitPicker from "../components/FitPicker";
 import PhotoTipCard from "../components/PhotoTipCard";
+import FieldHint from "../components/FieldHint";
+
+function validateTitle(value: string): string | null {
+  if (!value.trim()) return "Başlık gerekli.";
+  if (value.trim().length < 3) return "Başlık en az 3 karakter olmalı.";
+  return null;
+}
+
+function validatePrice(value: string): string | null {
+  if (!value.trim()) return "Fiyat gerekli.";
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return "Geçerli bir fiyat gir (0'dan büyük).";
+  return null;
+}
 import { extractDominantColor } from "../utils/dominantColor";
 import {
   COLOR_GROUP_LABELS,
@@ -43,6 +57,9 @@ export default function SellPage() {
   const [user, setUser] = useState<User | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
+  const [title, setTitle] = useState("");
+  const [price, setPrice] = useState("");
+  const [touched, setTouched] = useState({ title: false, price: false });
   const [description, setDescription] = useState("");
   const [era, setEra] = useState<string | null>(null);
   const [category, setCategory] = useState<string | null>(null);
@@ -61,6 +78,9 @@ export default function SellPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  const titleError = validateTitle(title);
+  const priceError = validatePrice(price);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -152,6 +172,11 @@ export default function SellPage() {
     e.preventDefault();
     if (!user) return;
 
+    if (titleError || priceError) {
+      setTouched({ title: true, price: true });
+      return;
+    }
+
     if (media.length === 0) {
       setError("En az bir fotoğraf veya video eklemelisin.");
       return;
@@ -161,9 +186,6 @@ export default function SellPage() {
     setError("");
     setSuccess(false);
 
-    const formData = new FormData(e.target);
-    const title = formData.get("title");
-    const price = formData.get("price");
     const username = user.email?.split("@")[0] ?? "";
 
     // Fotoğrafları yüklemeden önce tarayıcıda küçült + WebP'ye çevir
@@ -224,8 +246,8 @@ export default function SellPage() {
       .from("products")
       .insert([
         {
-          title,
-          price,
+          title: title.trim(),
+          price: Number(price),
           description,
           era,
           category,
@@ -265,6 +287,9 @@ export default function SellPage() {
 
     setSuccess(true);
     e.target.reset();
+    setTitle("");
+    setPrice("");
+    setTouched({ title: false, price: false });
     media.forEach((m) => URL.revokeObjectURL(m.previewUrl));
     setMedia([]);
     setDescription("");
@@ -284,7 +309,7 @@ export default function SellPage() {
 
   return (
     <main className="min-h-screen bg-paper pt-24 px-6 pb-12">
-      <div className="max-w-md mx-auto bg-paper p-8 border border-neutral-200">
+      <div className="max-w-md mx-auto bg-surface p-8 border border-neutral-200">
         <div className="flex gap-6 border-b border-neutral-200 mb-6">
           <span className="pb-3 -mb-px border-b-2 border-accent text-sm font-medium text-ink">
             Ürün
@@ -303,8 +328,31 @@ export default function SellPage() {
         {success && <p className="text-green-600 text-sm mb-4">İlanınız yayınlandı!</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input name="title" placeholder="Ürün Başlığı" className="w-full p-3 border rounded-md" required />
-          <input name="price" type="number" placeholder="Fiyat (TL)" className="w-full p-3 border rounded-md" required />
+          <div>
+            <input
+              name="title"
+              placeholder="Ürün Başlığı"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onBlur={() => setTouched((t) => ({ ...t, title: true }))}
+              className="w-full p-3 border rounded-md"
+              required
+            />
+            <FieldHint error={touched.title ? titleError : null} valid={touched.title && !titleError} />
+          </div>
+          <div>
+            <input
+              name="price"
+              type="number"
+              placeholder="Fiyat (TL)"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              onBlur={() => setTouched((t) => ({ ...t, price: true }))}
+              className="w-full p-3 border rounded-md"
+              required
+            />
+            <FieldHint error={touched.price ? priceError : null} valid={touched.price && !priceError} />
+          </div>
 
           <div>
             <textarea
@@ -315,7 +363,7 @@ export default function SellPage() {
               maxLength={MAX_DESCRIPTION}
               className="w-full p-3 border rounded-md resize-none"
             />
-            <p className="text-xs text-gray-400 text-right mt-1">
+            <p className="text-xs text-gray-500 text-right mt-1">
               {description.length}/{MAX_DESCRIPTION}
             </p>
           </div>
@@ -339,7 +387,7 @@ export default function SellPage() {
               disabled={media.length >= MAX_FILES}
               className="w-full p-3 border rounded-md disabled:opacity-50"
             />
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               En fazla {MAX_FILES} medya · fotoğraf başına 5MB · video başına 50MB.
             </p>
 

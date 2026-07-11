@@ -26,7 +26,7 @@ export default function AIStylist({ productName }: { productName: string }) {
   const [tips] = useState(() => buildStyleTips(productName));
 
   return (
-    <div className="mt-2 border border-neutral-200 bg-paper p-3">
+    <div className="mt-2 border border-neutral-200 bg-surface p-3">
       <button
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-gray-600 hover:text-accent transition-colors"

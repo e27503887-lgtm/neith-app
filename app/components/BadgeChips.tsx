@@ -11,8 +11,8 @@ export default function BadgeChips({
 
   const chipClass =
     variant === "dark"
-      ? "border border-neutral-200 bg-paper/90 text-ink"
-      : "border border-neutral-200 bg-white text-gray-600";
+      ? "border border-neutral-200 bg-surface/90 text-ink"
+      : "border border-neutral-200 bg-surface text-gray-600";
 
   return (
     <div className="flex flex-wrap items-center gap-2 mt-4">
@@ -30,7 +30,7 @@ export default function BadgeChips({
           >
             <Icon size={14} strokeWidth={1.5} className="text-accent shrink-0" />
             {badge.label}
-            <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 hidden w-max -translate-x-1/2 rounded-2xl border border-neutral-200 bg-paper px-3 py-2 text-xs text-gray-600 shadow-lg group-hover:block">
+            <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 hidden w-max -translate-x-1/2 rounded-2xl border border-neutral-200 bg-surface px-3 py-2 text-xs text-gray-600 shadow-lg group-hover:block">
               {badge.description}
             </span>
           </span>

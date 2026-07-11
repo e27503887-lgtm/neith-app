@@ -23,14 +23,14 @@ export default function TrendingCard({ item }: { item: TrendingItem }) {
   const href = item.kind === "product" ? `/product/${item.id}` : `/outfit/${item.id}`;
 
   return (
-    <Link href={href} className="card-hover block bg-paper border border-neutral-200 overflow-hidden">
+    <Link href={href} className="card-hover block bg-surface border border-neutral-200 overflow-hidden">
       <div className="relative w-full aspect-[3/4] overflow-hidden">
         {item.kind === "outfit" && (
           <span className="absolute top-2 left-2 z-10 bg-paper/90 text-ink text-xs uppercase tracking-wide font-medium px-2 py-1">
             Kombin
           </span>
         )}
-        <span className="absolute top-2 right-2 z-10 flex items-center gap-1 bg-accent text-paper text-[11px] uppercase tracking-wide font-medium px-2 py-1">
+        <span className="absolute top-2 right-2 z-10 flex items-center gap-1 bg-accent-solid text-white text-[11px] uppercase tracking-wide font-medium px-2 py-1">
           <TrendingUp size={11} strokeWidth={2} />
           Trend
         </span>
@@ -45,7 +45,7 @@ export default function TrendingCard({ item }: { item: TrendingItem }) {
       <div className="p-3">
         <h2 className="text-sm truncate">{item.title}</h2>
         {item.kind === "product" && (
-          <p className="font-serif text-lg text-ink mt-0.5">
+          <p className="font-semibold text-lg text-ink mt-0.5">
             {item.price.toLocaleString("tr-TR")} ₺
           </p>
         )}

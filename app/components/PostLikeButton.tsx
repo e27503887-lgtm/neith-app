@@ -98,7 +98,7 @@ export default function PostLikeButton({ postId }: { postId: number | string }) 
       <Heart
         size={18}
         strokeWidth={1.5}
-        className={`${liked ? "text-accent" : "text-gray-400"} ${popping ? "animate-pop" : ""}`}
+        className={`${liked ? "text-accent" : "text-gray-500"} ${popping ? "animate-pop" : ""}`}
         fill={liked ? "currentColor" : "none"}
       />
       <span>{count}</span>

@@ -1,16 +1,68 @@
 @import "tailwindcss";
 
+/* Sınıf tabanlı karanlık mod: <html class="dark"> ile açılır. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #fdfcfa;
+  /* Sıcak fildişi zemin; kartlar/paneller saf beyaz kalır (kontrast katmanı). */
+  --background: #faf7f2;
   --foreground: #1a1a1a;
+  --surface: #ffffff;
+  --line: #e5e5e5; /* neutral-200 */
+  --line-strong: #d4d4d4; /* neutral-300 */
+  --wash: #fafafa; /* neutral-50 */
+  --wash-strong: #f5f5f5; /* neutral-100 */
+  --faint: #99a1af; /* gray-400 (yalnızca dekoratif) */
+  --muted: #6a7282; /* gray-500 */
+  --muted-strong: #4a5565; /* gray-600 */
+  --body-text: #364153; /* gray-700 */
+  --accent-color: #7a2e2e;
+}
+
+/* "Gece dergisi": sıcak kömür zemin, koyu deri kartlar, krem metin.
+   Vurgu bordo koyu zeminde okunması için bir ton açık. */
+.dark {
+  --background: #16130f;
+  --foreground: #ede7dc;
+  --surface: #1e1a15;
+  --line: #2e2921;
+  --line-strong: #3a342a;
+  --wash: #211d17;
+  --wash-strong: #262019;
+  --faint: #7d7466;
+  --muted: #a89f90;
+  --muted-strong: #c0b7a7;
+  --body-text: #d3cabb;
+  --accent-color: #c47a7a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-paper: #fdfcfa;
-  --color-ink: #1a1a1a;
-  --color-accent: #7a2e2e;
+  --color-paper: var(--background);
+  --color-ink: var(--foreground);
+  --color-surface: var(--surface);
+  --color-accent: var(--accent-color);
+  /* Beyaz metinli rozet/badge zeminleri: iki modda da koyu bordo kalır
+     (açılan vurgu tonu üzerinde beyaz 4.5:1'i kaçırıyor). */
+  --color-accent-solid: #7a2e2e;
+
+  /* Nötr/gri skalaları semantik değişkenlere bağlanır: aynı sınıflar iki
+     modda da doğru tona düşer, sayfa sayfa dark: varyantı gerekmez. */
+  --color-neutral-50: var(--wash);
+  --color-neutral-100: var(--wash-strong);
+  --color-neutral-200: var(--line);
+  --color-neutral-300: var(--line-strong);
+  --color-neutral-400: var(--faint);
+  --color-neutral-500: var(--muted);
+  --color-neutral-700: var(--body-text);
+  --color-gray-50: var(--wash);
+  --color-gray-100: var(--wash-strong);
+  --color-gray-200: var(--line);
+  --color-gray-400: var(--faint);
+  --color-gray-500: var(--muted);
+  --color-gray-600: var(--muted-strong);
+  --color-gray-700: var(--body-text);
 
   --font-sans: var(--font-inter);
   --font-serif: var(--font-playfair);
@@ -35,6 +87,13 @@ body {
 h1,
 h2 {
   font-family: var(--font-serif), Georgia, serif;
+}
+
+/* Klavye kullanıcıları için görünür odak: outline'ı kendisi yöneten
+   öğeler (ör. focus:border-ink inputları) sınıf özgüllüğüyle bunu ezer. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 @layer components {
@@ -99,6 +158,31 @@ h2 {
 
 .animate-pop {
   animation: pop 200ms ease-out;
+}
+
+/* Çift dokunuş beğenisi: fotoğrafın ortasında beliren ve sönen kalp.
+   transform/opacity dışında özellik animasyonu yok (performans kuralı). */
+@keyframes heart-burst {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  25% {
+    transform: scale(1.08);
+    opacity: 0.95;
+  }
+  45% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.animate-heart-burst {
+  animation: heart-burst 700ms ease-out forwards;
 }
 
 @keyframes fade-in {

@@ -8,10 +8,12 @@ export default function ProductActions({
   productId,
   ownerId,
   sellerType,
+  isSold = false,
 }: {
   productId: number | string;
   ownerId: string | null;
   sellerType?: string | null;
+  isSold?: boolean;
 }) {
   const router = useRouter();
   const [checked, setChecked] = useState(false);
@@ -56,6 +58,15 @@ export default function ProductActions({
 
   if (sellerType === "brand") {
     return null;
+  }
+
+  // Satılan ürüne teklif verilemez.
+  if (isSold) {
+    return (
+      <p className="text-xs uppercase tracking-wide text-gray-500 border border-neutral-200 px-4 py-3 text-center">
+        Bu ürün satıldı — teklif kapalı
+      </p>
+    );
   }
 
   return (

@@ -110,7 +110,7 @@ export default function PostQuickViewModal({
         role="dialog"
         aria-modal="true"
         aria-label="Gönderi önizlemesi"
-        className="relative w-full max-w-lg max-h-[85dvh] overflow-y-auto bg-paper border border-neutral-200 rounded-[16px] shadow-xl animate-fade-in"
+        className="relative w-full max-w-lg max-h-[85dvh] overflow-y-auto bg-surface border border-neutral-200 rounded-[16px] shadow-xl animate-fade-in"
       >
         <div className="flex items-center justify-between px-5 py-3 border-b border-neutral-200">
           <span className="text-xs uppercase tracking-[0.24em] text-gray-500">Hızlı Görünüm</span>
@@ -163,7 +163,7 @@ export default function PostQuickViewModal({
                   {post.account_type === "brand" && <BrandBadge />}
                 </Link>
                 {post.created_at && (
-                  <p className="text-xs text-gray-400" suppressHydrationWarning>
+                  <p className="text-xs text-gray-500" suppressHydrationWarning>
                     {timeAgo(post.created_at)}
                   </p>
                 )}

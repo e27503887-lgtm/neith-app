@@ -56,7 +56,7 @@ export default function SocialFeed() {
     <div>
       <div className="flex flex-col gap-6">
         {posts.map((p) => (
-          <article key={p.id} className="bg-white border border-neutral-200 rounded overflow-hidden">
+          <article key={p.id} className="bg-surface border border-neutral-200 rounded overflow-hidden">
             <div className="relative w-full h-[520px] bg-gray-50">
               <Image src={p.image_url} alt={p.caption ?? "Outfit görseli"} fill className="object-cover" />
               <div className="absolute right-4 top-4 rounded-full bg-white/95 px-3 py-1 text-[11px] uppercase tracking-[0.24em] text-black shadow-sm">

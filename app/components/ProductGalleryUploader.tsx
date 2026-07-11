@@ -69,7 +69,7 @@ export default function ProductGalleryUploader({
 
       <div
         onClick={handleClick}
-        className={`${disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer hover:text-ink hover:border-ink"} bg-neutral-50 border border-neutral-200 flex items-center justify-center gap-2 py-6 text-gray-400 transition-colors duration-300 ${CARD_STYLE}`}
+        className={`${disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer hover:text-ink hover:border-ink"} bg-neutral-50 border border-neutral-200 flex items-center justify-center gap-2 py-6 text-gray-500 transition-colors duration-300 ${CARD_STYLE}`}
       >
         <input
           ref={inputRef}

@@ -1,6 +1,7 @@
 import FollowButton from "../../components/FollowButton";
 import { supabase } from "../../utils/supabase";
 import UserProfileCard from "../../components/UserProfileCard";
+import ProfileReviews from "../../components/ProfileReviews";
 import EditorialHub from "../../components/EditorialHub";
 import StyleTags from "../../components/StyleTags";
 import ProfileTabs from "../../components/ProfileTabs";
@@ -221,7 +222,9 @@ export default async function ProfilePage({ params }: Props) {
             }
           />
 
-          <section id="outfits" className="bg-paper border border-neutral-200 p-6 scroll-mt-24">
+          <ProfileReviews userId={profile.id} />
+
+          <section id="outfits" className="bg-surface border border-neutral-200 p-6 scroll-mt-24">
             <div className="flex items-center justify-between gap-4 mb-6">
               <div>
                 <p className="section-label">Tarz Defteri</p>

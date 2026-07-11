@@ -174,7 +174,7 @@ export default async function EditorialPage() {
   return (
     <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
       <div className="max-w-6xl mx-auto grid gap-8 lg:grid-cols-[1.4fr_0.6fr]">
-        <section className="bg-white border border-neutral-200 rounded-3xl p-8 shadow-sm">
+        <section className="bg-surface border border-neutral-200 rounded-3xl p-8 shadow-sm">
           <div className="mb-10">
             <p className="text-xs uppercase tracking-[0.28em] text-gray-500">Moda Dergisi</p>
             <h1 className="mt-3 text-4xl font-serif tracking-tight text-ink">Neith Editorial Hub</h1>

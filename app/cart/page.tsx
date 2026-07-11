@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Minus, Plus, Trash2 } from "lucide-react";
 import { supabase } from "../utils/supabase";
 import { CART_UPDATED_EVENT, notifyCartUpdated } from "../utils/cart";
+import EmptyState from "../components/EmptyState";
 
 type CartItem = {
   id: number;
@@ -148,12 +149,14 @@ export default function CartPage() {
         </div>
 
         {items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 rounded border border-neutral-200 bg-white px-6 py-16 text-center">
-            <ShoppingBag size={28} strokeWidth={1.2} className="text-neutral-300" />
-            <p className="text-sm text-neutral-500">Sepetin boş.</p>
-            <Link href="/listings" className="text-xs uppercase tracking-[0.2em] text-accent underline underline-offset-4 hover:text-ink">
-              Ürünleri keşfet
-            </Link>
+          <div className="rounded border border-neutral-200 bg-surface">
+            <EmptyState
+              illustration="frame"
+              title="Sepetin boş"
+              description="Gözüne kestirdiğin parçaları buraya taşı."
+              ctaLabel="Ürünleri Keşfet"
+              ctaHref="/listings"
+            />
           </div>
         ) : (
           <div className="grid gap-8 lg:grid-cols-[1.6fr_0.8fr]">
@@ -161,7 +164,7 @@ export default function CartPage() {
               {items.map((item) => {
                 if (!item.product) return null;
                 return (
-                  <div key={item.id} className="flex flex-col gap-4 border border-neutral-200 bg-white p-4 sm:flex-row sm:items-center">
+                  <div key={item.id} className="flex flex-col gap-4 border border-neutral-200 bg-surface p-4 sm:flex-row sm:items-center">
                     <Link href={`/product/${item.product.id}`} className="relative h-24 w-full shrink-0 overflow-hidden rounded border border-neutral-200 sm:w-24">
                       <Image src={item.product.image_url} alt={item.product.title} fill className="object-cover" />
                     </Link>
@@ -171,7 +174,7 @@ export default function CartPage() {
                         {item.product.title}
                       </Link>
                       <p className="mt-1 text-xs uppercase tracking-[0.2em] text-gray-500">{item.product.username}</p>
-                      <p className="mt-2 font-serif text-lg text-ink">{item.product.price.toLocaleString("tr-TR")} ₺</p>
+                      <p className="mt-2 font-semibold text-lg text-ink">{item.product.price.toLocaleString("tr-TR")} ₺</p>
                     </div>
 
                     <div className="flex items-center justify-between gap-3 sm:ml-auto sm:flex-col sm:items-end">
@@ -180,7 +183,7 @@ export default function CartPage() {
                           type="button"
                           aria-label="Azalt"
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 bg-paper transition-colors hover:border-accent"
+                          className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 bg-surface transition-colors hover:border-accent"
                         >
                           <Minus size={14} strokeWidth={1.5} />
                         </button>
@@ -189,13 +192,13 @@ export default function CartPage() {
                           type="button"
                           aria-label="Arttır"
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 bg-paper transition-colors hover:border-accent"
+                          className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 bg-surface transition-colors hover:border-accent"
                         >
                           <Plus size={14} strokeWidth={1.5} />
                         </button>
                       </div>
                       <div className="flex items-center gap-3">
-                        <p className="font-serif text-lg text-ink">{(item.product.price * item.quantity).toLocaleString("tr-TR")} ₺</p>
+                        <p className="font-semibold text-lg text-ink">{(item.product.price * item.quantity).toLocaleString("tr-TR")} ₺</p>
                         <button
                           type="button"
                           aria-label="Kaldır"
@@ -211,11 +214,11 @@ export default function CartPage() {
               })}
             </div>
 
-            <aside className="rounded border border-neutral-200 bg-white p-6">
+            <aside className="rounded border border-neutral-200 bg-surface p-6">
               <h2 className="font-serif text-2xl text-ink">Özet</h2>
               <div className="mt-4 flex items-center justify-between border-b border-neutral-200 pb-4 text-sm text-gray-600">
                 <span>Ara Toplam</span>
-                <span className="font-serif text-lg text-ink">{subtotal.toLocaleString("tr-TR")} ₺</span>
+                <span className="font-semibold text-lg text-ink">{subtotal.toLocaleString("tr-TR")} ₺</span>
               </div>
               <button
                 type="button"

@@ -7,8 +7,21 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "../../utils/supabase";
 import { compressImage, UnsupportedImageError } from "../../utils/compressImage";
 import { STYLE_TAGS } from "@/lib/styleTags";
+import ThemeToggle from "../../components/ThemeToggle";
+import FieldHint from "../../components/FieldHint";
 
 const BODY_SIZES = ["XS", "S", "M", "L", "XL", "XXL"] as const;
+
+const USERNAME_PATTERN = /^[a-zA-Z0-9_.]+$/;
+
+function validateUsername(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) return "Kullanıcı adı gerekli.";
+  if (trimmed.length < 3) return "Kullanıcı adı en az 3 karakter olmalı.";
+  if (trimmed.length > 24) return "Kullanıcı adı en fazla 24 karakter olabilir.";
+  if (!USERNAME_PATTERN.test(trimmed)) return "Sadece harf, rakam, alt çizgi ve nokta kullan.";
+  return null;
+}
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -16,6 +29,7 @@ export default function EditProfilePage() {
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   const [username, setUsername] = useState("");
+  const [usernameTouched, setUsernameTouched] = useState(false);
   const [bio, setBio] = useState("");
   const [accountType, setAccountType] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -123,9 +137,16 @@ export default function EditProfilePage() {
     );
   }
 
+  const usernameError = validateUsername(username);
+
   async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user) return;
+
+    if (usernameError) {
+      setUsernameTouched(true);
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -240,6 +261,10 @@ export default function EditProfilePage() {
       <div className="max-w-md mx-auto bg-paper p-8 rounded-xl shadow-sm border border-neutral-200">
         <h1 className="text-xl font-bold mb-6">Profili Düzenle</h1>
 
+        <div className="mb-6 pb-6 border-b border-neutral-200">
+          <ThemeToggle />
+        </div>
+
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
         {success && (
           <p className="text-green-600 text-sm mb-4">Profil güncellendi!</p>
@@ -280,7 +305,7 @@ export default function EditProfilePage() {
                     className="object-cover"
                   />
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-xs uppercase tracking-wide text-neutral-400">
+                  <div className="absolute inset-0 flex items-center justify-center text-xs uppercase tracking-wide text-neutral-500">
                     Banner yok
                   </div>
                 )}
@@ -291,17 +316,24 @@ export default function EditProfilePage() {
                 onChange={handleBannerChange}
                 className="mt-2 w-full text-sm"
               />
-              <p className="text-xs text-gray-400 mt-1">Önerilen oran: 16:5 (geniş dikdörtgen).</p>
+              <p className="text-xs text-gray-500 mt-1">Önerilen oran: 16:5 (geniş dikdörtgen).</p>
             </div>
           )}
 
-          <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Kullanıcı Adı"
-            className="w-full p-3 border rounded-md"
-            required
-          />
+          <div>
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              onBlur={() => setUsernameTouched(true)}
+              placeholder="Kullanıcı Adı"
+              className="w-full p-3 border rounded-md"
+              required
+            />
+            <FieldHint
+              error={usernameTouched ? usernameError : null}
+              valid={usernameTouched && !usernameError}
+            />
+          </div>
 
           <textarea
             value={bio}

@@ -50,7 +50,7 @@ export default function SearchResults() {
       setLoading(true);
 
       const [{ data: matchedProducts }, { data: matchedUsers }, { data: matchedStores }] = await Promise.all([
-        supabase.from("products").select("*").ilike("title", `%${q}%`),
+        supabase.from("products").select("*").or("is_sold.is.null,is_sold.eq.false").ilike("title", `%${q}%`),
         supabase
           .from("profiles")
           .select("id, username, avatar_url, account_type")
@@ -197,7 +197,7 @@ export default function SearchResults() {
             {users.length > 0 && (
               <section>
                 <h3 className="section-label mb-3">Kullanıcılar</h3>
-                <div className="bg-paper border border-neutral-200 rounded-xl divide-y divide-neutral-200 overflow-hidden">
+                <div className="bg-surface border border-neutral-200 rounded-xl divide-y divide-neutral-200 overflow-hidden">
                   {users.map((u) => (
                     <div key={u.id} className="flex items-center gap-3 p-4 hover:bg-gray-50">
                       <Link

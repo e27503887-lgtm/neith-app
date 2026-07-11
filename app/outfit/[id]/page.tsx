@@ -106,7 +106,7 @@ export default async function OutfitDetailPage({ params }: Props) {
   return (
     <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
       <div className="max-w-4xl mx-auto flex flex-col gap-6">
-        <div className="bg-paper border border-neutral-200 p-6 md:p-10 flex flex-col md:flex-row gap-8">
+        <div className="bg-surface border border-neutral-200 p-6 md:p-10 flex flex-col md:flex-row gap-8">
           <ProductGallery media={media} title={outfit.title} />
 
           <div className="flex-1 flex flex-col gap-4">
@@ -140,7 +140,7 @@ export default async function OutfitDetailPage({ params }: Props) {
           </div>
         </div>
 
-        <div className="bg-paper border border-neutral-200 p-6 md:p-10">
+        <div className="bg-surface border border-neutral-200 p-6 md:p-10">
           <h3 className="section-label mb-4">
             Bu Kombindeki Parçalar
           </h3>
@@ -156,7 +156,7 @@ export default async function OutfitDetailPage({ params }: Props) {
               {customPieces.map((c, index) => (
                 <div
                   key={`custom-${index}`}
-                  className="bg-paper border border-neutral-200 overflow-hidden"
+                  className="bg-surface border border-neutral-200 overflow-hidden"
                 >
                   <div className="relative w-full aspect-[3/4] overflow-hidden bg-neutral-100">
                     <Image

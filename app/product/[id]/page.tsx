@@ -9,6 +9,7 @@ import CommentSection from "../../components/CommentSection";
 import ProductActions from "./ProductActions";
 import ProductGallery from "./ProductGallery";
 import CompleteTheLook from "../../components/CompleteTheLook";
+import SocialProofLine from "../../components/SocialProofLine";
 import type { EngineProduct } from "@/lib/outfit-engine";
 import { formatSustainabilityLine, getSustainabilityEstimate } from "@/lib/sustainability";
 
@@ -52,14 +53,22 @@ export default async function ProductDetailPage({ params }: Props) {
   return (
     <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
       <div className="max-w-4xl mx-auto flex flex-col gap-6">
-        <div className="bg-paper border border-neutral-200 p-6 md:p-10 flex flex-col md:flex-row gap-8">
+        {product.is_sold && (
+          <div className="bg-ink text-paper px-6 py-3">
+            <p className="text-xs uppercase tracking-[0.24em]">
+              Satıldı — bu parça yeni sahibini buldu
+            </p>
+          </div>
+        )}
+
+        <div className="bg-surface border border-neutral-200 p-6 md:p-10 flex flex-col md:flex-row gap-8">
           <ProductGallery media={media} title={product.title} />
 
           <div className="flex-1 flex flex-col gap-4">
             <div>
               <h1 className="text-2xl font-bold tracking-tight">{product.title}</h1>
               <div className="flex items-center gap-2 mt-2">
-                <p className="font-serif text-2xl text-ink">
+                <p className="font-semibold text-2xl text-ink">
                   {product.price.toLocaleString("tr-TR")} ₺
                 </p>
                 {isBrand && (
@@ -74,6 +83,7 @@ export default async function ProductDetailPage({ params }: Props) {
                   {formatSustainabilityLine(sustainability)}
                 </p>
               )}
+              <SocialProofLine productId={product.id} />
               {product.description && (
                 <p className="text-gray-600 text-sm mt-3 whitespace-pre-line">
                   {product.description}
@@ -116,6 +126,7 @@ export default async function ProductDetailPage({ params }: Props) {
               productId={product.id}
               ownerId={product.user_id}
               sellerType={product.seller_type}
+              isSold={product.is_sold ?? false}
             />
           </div>
         </div>
@@ -138,7 +149,7 @@ export default async function ProductDetailPage({ params }: Props) {
           }
         />
 
-        <div className="bg-paper border border-neutral-200 p-6 md:p-10">
+        <div className="bg-surface border border-neutral-200 p-6 md:p-10">
           <CommentSection productId={product.id} />
         </div>
       </div>

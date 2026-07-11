@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle, X, Shirt } from "lucide-react";
+import { MessageCircle, X } from "lucide-react";
+import EmptyState from "../components/EmptyState";
 import { supabase } from "../utils/supabase";
 import { STYLE_TAGS } from "@/lib/styleTags";
 import OutfitLikeButton from "../components/OutfitLikeButton";
@@ -154,10 +155,12 @@ export default function LivePage() {
         </div>
 
         {outfits.length === 0 && !loading ? (
-          <div className="flex flex-col items-center text-center py-16 gap-3">
-            <Shirt size={28} strokeWidth={1} className="text-neutral-300" />
-            <p className="text-gray-500 text-sm">Bu stille paylaşılmış bir kombin yok.</p>
-          </div>
+          <EmptyState
+            title="Bu stilde henüz kombin yok"
+            description="Bu stilin ilk yorumunu sen yapabilirsin."
+            ctaLabel="İlk kombini sen paylaş"
+            ctaHref="/outfit/new"
+          />
         ) : (
           <div className="flex flex-col gap-10">
             {outfits.map((outfit) => (
@@ -215,7 +218,7 @@ export default function LivePage() {
                       <span className="font-serif text-lg text-ink">Yorumlar</span>
                       <button
                         onClick={() => setOpenCommentsFor(null)}
-                        className="text-gray-400 hover:text-ink transition-colors"
+                        className="text-gray-500 hover:text-ink transition-colors"
                       >
                         <X size={18} />
                       </button>
@@ -232,7 +235,7 @@ export default function LivePage() {
                     onClick={() =>
                       setOpenCommentsFor((prev) => (prev === outfit.id ? null : outfit.id))
                     }
-                    className="flex items-center gap-1 text-gray-400 hover:text-accent transition-colors"
+                    className="flex items-center gap-1 text-gray-500 hover:text-accent transition-colors"
                   >
                     <MessageCircle size={19} strokeWidth={1.5} />
                     <span className="text-sm">{outfit.comment_count}</span>
@@ -250,10 +253,10 @@ export default function LivePage() {
 
         <div ref={sentinelRef} className="h-10" />
 
-        {loading && <p className="text-center text-xs text-gray-400 py-6">Yükleniyor...</p>}
+        {loading && <p className="text-center text-xs text-gray-500 py-6">Yükleniyor...</p>}
 
         {!hasMore && !loading && outfits.length > 0 && (
-          <p className="text-center text-xs text-gray-400 py-6">Akışın sonuna geldin.</p>
+          <p className="text-center text-xs text-gray-500 py-6">Akışın sonuna geldin.</p>
         )}
       </div>
     </main>

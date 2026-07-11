@@ -18,6 +18,7 @@ import {
   User as UserIcon,
   ShoppingBag,
   PenLine,
+  Handshake,
 } from "lucide-react";
 import { supabase } from "./utils/supabase";
 import { CART_UPDATED_EVENT } from "./utils/cart";
@@ -145,7 +146,7 @@ export default function Navbar() {
           </button>
 
           {open && (
-            <div className="absolute left-0 mt-2 w-56 bg-paper border border-neutral-200 rounded shadow-lg z-50" role="menu" aria-label="Keşfet menüsü">
+            <div className="absolute left-0 mt-2 w-56 bg-surface border border-neutral-200 rounded shadow-lg z-50" role="menu" aria-label="Keşfet menüsü">
               <nav className="flex flex-col py-2" role="menu">
                 <Link href="/outfits" role="menuitem" className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Kombin Akışı</Link>
                 <Link href="/era" role="menuitem" className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Dönemler</Link>
@@ -166,7 +167,7 @@ export default function Navbar() {
           <Search
             size={15}
             strokeWidth={1.5}
-            className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400"
+            className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-500"
           />
           <input
             type="text"
@@ -207,6 +208,15 @@ export default function Navbar() {
         </Link>
 
         <Link
+          href="/deals"
+          aria-label="Anlaşmalarım"
+          title="Anlaşmalarım"
+          className="hidden md:inline text-gray-500 hover:text-accent transition-colors"
+        >
+          <Handshake size={19} strokeWidth={1.5} />
+        </Link>
+
+        <Link
           href="/twins"
           aria-label="Stil İkizlerim"
           title="Stil İkizlerim"
@@ -238,7 +248,7 @@ export default function Navbar() {
         <Link href="/cart" className="relative">
           <ShoppingBag size={19} strokeWidth={1.5} className="text-gray-500 hover:text-accent transition-colors" />
           {cartCount > 0 && (
-            <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#7A2E2E] px-1 text-[10px] font-medium text-paper">
+            <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-solid px-1 text-[10px] font-medium text-white">
               {cartCount}
             </span>
           )}
@@ -300,7 +310,7 @@ export default function Navbar() {
 
               {accountMenuOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-44 bg-paper border border-neutral-200 rounded shadow-lg z-50"
+                  className="absolute right-0 mt-2 w-44 bg-surface border border-neutral-200 rounded shadow-lg z-50"
                   role="menu"
                   aria-label="Hesap menüsü"
                 >
@@ -317,6 +327,13 @@ export default function Navbar() {
                     className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
                   >
                     Ayarlar
+                  </Link>
+                  <Link
+                    href="/deals"
+                    role="menuitem"
+                    className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    Anlaşmalarım
                   </Link>
                   <Link
                     href="/my-posts"
@@ -378,7 +395,7 @@ export default function Navbar() {
               <Search
                 size={16}
                 strokeWidth={1.5}
-                className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-500"
               />
               <input
                 autoFocus

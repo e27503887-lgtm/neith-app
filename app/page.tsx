@@ -1,7 +1,6 @@
 import { Fragment } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Shirt } from "lucide-react";
 import ProductCard from "./components/ProductCard";
 import OutfitCard from "./components/OutfitCard";
 import PostCard from "./components/PostCard";
@@ -9,6 +8,8 @@ import OutfitRecommendations from "./components/OutfitRecommendations";
 import RecommendedItems from "./components/RecommendedItems";
 import FreshPosts from "./components/FreshPosts";
 import FeedLoadMore from "./components/FeedLoadMore";
+import EmptyState from "./components/EmptyState";
+import OutfitOfTheDayCard from "./components/OutfitOfTheDayCard";
 import LazyVisible from "./components/LazyVisible";
 import { supabase } from "./utils/supabase";
 import { enrichPostsWithMedia } from "@/lib/posts";
@@ -58,12 +59,19 @@ export default async function Home({ searchParams }: Props) {
 
   const now = new Date().toISOString();
 
-  // Sorgular 1-4 (paralel): ürünler, kombinler, gönderiler, aktif moda haftası
-  const [{ data: products }, { data: outfits }, { data: postsRaw }, { data: activeWeeks }] =
-    await Promise.all([
+  // Sorgular 1-5 (paralel): ürünler, kombinler, gönderiler, aktif moda
+  // haftası, günün kombini
+  const [
+    { data: products },
+    { data: outfits },
+    { data: postsRaw },
+    { data: activeWeeks },
+    { data: ootdRows },
+  ] = await Promise.all([
       supabase
         .from("products")
         .select("*")
+        .or("is_sold.is.null,is_sold.eq.false")
         .order("created_at", { ascending: false })
         .limit(PRODUCT_LIMIT),
       supabase
@@ -77,10 +85,13 @@ export default async function Home({ searchParams }: Props) {
         .order("created_at", { ascending: false })
         .limit(POST_LIMIT),
       supabase.from("fashion_weeks").select("*").lte("starts_at", now).gte("ends_at", now).limit(1),
+      supabase.from("outfit_of_the_day").select("*").limit(1),
     ]);
 
   // Sorgu 5: gönderi medyaları (beğeni sayıları kartta istemciden gelir)
   const enrichedPostRows = await enrichPostsWithMedia(postsRaw ?? [], { includeLikes: false });
+
+  const ootdRaw = ootdRows?.[0] ?? null;
 
   // Sorgu 6: tüm içerik sahipleri tek profil sorgusunda
   const userIds = [
@@ -88,6 +99,7 @@ export default async function Home({ searchParams }: Props) {
       ...(products ?? []).map((p) => p.user_id),
       ...(outfits ?? []).map((o) => o.user_id),
       ...enrichedPostRows.map((p) => p.user_id),
+      ...(ootdRaw?.user_id ? [ootdRaw.user_id] : []),
     ]),
   ].filter(Boolean);
 
@@ -100,6 +112,19 @@ export default async function Home({ searchParams }: Props) {
 
   const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
   const activeWeek = (activeWeeks && activeWeeks[0]) || null;
+
+  // View boş dönerse (bugün hiç beğeni yoksa) kart görünmez.
+  const outfitOfTheDay =
+    ootdRaw && ootdRaw.id && ootdRaw.image_url
+      ? {
+          id: ootdRaw.id,
+          title: ootdRaw.title ?? "",
+          image_url: ootdRaw.image_url,
+          username: profileById.get(ootdRaw.user_id)?.username ?? "Bilinmeyen kullanıcı",
+          like_count: ootdRaw.like_count ?? 0,
+          style_tag: ootdRaw.style_tag ?? null,
+        }
+      : null;
 
   const allProducts = (products ?? []).map((product) => ({
     ...product,
@@ -249,12 +274,15 @@ export default async function Home({ searchParams }: Props) {
           Masaüstü düzeni aşağıda, dokunulmadan (hidden md:*). */}
       <div className="md:hidden max-w-xl mx-auto">
         {mobileFeed.length === 0 ? (
-          <div className="flex flex-col items-center text-center py-12 gap-4">
-            <Shirt size={28} strokeWidth={1} className="text-neutral-300" />
-            <p className="text-gray-500">Henüz paylaşım yok. İlk gönderiyi sen paylaş!</p>
-          </div>
+          <EmptyState
+            title="Henüz paylaşım yok"
+            description="Akış senin ilk gönderinle canlanır."
+            ctaLabel="İlk gönderiyi sen paylaş"
+            ctaHref="/post/new"
+          />
         ) : (
           <div className="flex flex-col gap-6">
+            {outfitOfTheDay && <OutfitOfTheDayCard outfit={outfitOfTheDay} compact />}
             <FreshPosts />
             {mobileFeed.map((item, index) => (
               <Fragment key={`m-${item.kind}-${item.data.id}`}>
@@ -354,13 +382,13 @@ export default async function Home({ searchParams }: Props) {
           {activeFilter === "following" ? (
             <FollowingFeed />
           ) : showEmptyState ? (
-            <div className="flex flex-col items-center text-center py-12 md:py-24 gap-4">
-              <Shirt size={28} strokeWidth={1} className="text-neutral-300" />
-              <p className="text-gray-500">Henüz ilan yok. İlk kombini sen paylaş!</p>
-              <Link href="/sell" className="btn-primary">
-                İlan Ver
-              </Link>
-            </div>
+            <EmptyState
+              className="md:py-24"
+              title="Henüz ilan yok"
+              description="Gardırobundaki ilk parçayla vitrini sen aç."
+              ctaLabel="İlan Ver"
+              ctaHref="/sell"
+            />
           ) : (
             <>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 md:gap-6">

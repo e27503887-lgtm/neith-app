@@ -74,7 +74,7 @@ export default function FashionEncyclopedia() {
 
   return (
     <>
-      <div className="bg-paper border border-neutral-200 p-4">
+      <div className="bg-surface border border-neutral-200 p-4">
         <h3 className="font-serif italic text-xl text-ink mb-1">Moda Sözlüğü</h3>
         <p className="section-label mb-4">Moda Terimleri</p>
 
@@ -90,7 +90,7 @@ export default function FashionEncyclopedia() {
               </span>
               <ChevronRight
                 size={16}
-                className="text-gray-400 group-hover:text-accent transition-colors shrink-0"
+                className="text-gray-500 group-hover:text-accent transition-colors shrink-0"
               />
             </button>
           ))}
@@ -113,7 +113,7 @@ export default function FashionEncyclopedia() {
               </div>
               <button
                 onClick={() => setActiveId(null)}
-                className="text-gray-400 hover:text-ink transition-colors shrink-0"
+                className="text-gray-500 hover:text-ink transition-colors shrink-0"
               >
                 <X size={20} />
               </button>
