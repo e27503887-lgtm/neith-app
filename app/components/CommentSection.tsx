@@ -3,9 +3,12 @@
 import { useEffect, useState, type SubmitEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Trash2 } from "lucide-react";
+import { Trash2, Flag } from "lucide-react";
+import ReportDialog from "./ReportDialog";
 import { supabase } from "../utils/supabase";
 import BrandBadge from "./BrandBadge";
+import { excludeBlocked } from "@/lib/feed-mixer";
+import { getBlockedUserIds } from "../utils/blocks";
 
 const MAX_LENGTH = 500;
 
@@ -40,6 +43,7 @@ export default function CommentSection({ productId, outfitId }: Props) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [draft, setDraft] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [reportCommentId, setReportCommentId] = useState<number | string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -48,11 +52,17 @@ export default function CommentSection({ productId, outfitId }: Props) {
       const { data: userData } = await supabase.auth.getUser();
       const uid = userData.user?.id ?? null;
 
-      const { data: rows } = await supabase
-        .from("comments")
-        .select("*")
-        .eq(targetColumn, targetId)
-        .order("created_at", { ascending: false });
+      const [{ data: rowsRaw }, blockedIds] = await Promise.all([
+        supabase
+          .from("comments")
+          .select("*")
+          .eq(targetColumn, targetId)
+          .order("created_at", { ascending: false }),
+        getBlockedUserIds(),
+      ]);
+
+      // Engellenen kullanıcıların yorumları gösterilmez.
+      const rows = excludeBlocked(rowsRaw ?? [], blockedIds, (r) => r.user_id);
 
       const userIds = [...new Set((rows ?? []).map((r) => r.user_id))];
       if (uid && !userIds.includes(uid)) {
@@ -176,17 +186,35 @@ export default function CommentSection({ productId, outfitId }: Props) {
                 <p className="text-sm text-gray-700 break-words">{c.content}</p>
               </div>
 
-              {c.user_id === userId && (
+              {c.user_id === userId ? (
                 <button
                   onClick={() => handleDelete(c.id)}
                   className="text-gray-500 hover:text-accent shrink-0"
                 >
                   <Trash2 size={16} />
                 </button>
+              ) : (
+                <button
+                  onClick={() => setReportCommentId(c.id)}
+                  aria-label="Yorumu şikayet et"
+                  title="Şikayet Et"
+                  className="text-gray-500 hover:text-accent shrink-0"
+                >
+                  <Flag size={14} strokeWidth={1.5} />
+                </button>
               )}
             </div>
           ))}
         </div>
+      )}
+
+      {reportCommentId !== null && (
+        <ReportDialog
+          targetType="comment"
+          targetId={reportCommentId}
+          open
+          onClose={() => setReportCommentId(null)}
+        />
       )}
 
       {userId ? (

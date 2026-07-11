@@ -7,6 +7,10 @@ import { supabase } from "../utils/supabase";
 import { getOutfitCoverTagFlags } from "@/lib/photoTags";
 import { FRESH_WINDOW_MS } from "@/lib/feed-mixer";
 
+// Akış her istekte taze veri çekmeli: sayfa dinamik API kullanmadığı için
+// build'de statik prerender ediliyordu ve yeni kombinler hiç görünmüyordu.
+export const dynamic = "force-dynamic";
+
 export type OutfitPiece = { id: number | string; image_url: string };
 
 // Kombinlerdeki satılık parçalar: outfit_items.product_id + kombin

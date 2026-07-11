@@ -1,6 +1,9 @@
 import { supabase } from "../utils/supabase";
 import FashionWeekClient from "./FashionWeekClient";
 
+// Liste build anında donmasın: en fazla 60 sn eski veriyle sunulur (ISR).
+export const revalidate = 60;
+
 export default async function FashionWeekPage() {
   const now = new Date().toISOString();
 

@@ -2,6 +2,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "../utils/supabase";
 
+// Liste build anında donmasın: en fazla 60 sn eski veriyle sunulur (ISR).
+export const revalidate = 60;
+
 export default async function BrandsPage() {
   const { data: brandProfiles } = await supabase
     .from("profiles")

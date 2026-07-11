@@ -3,6 +3,9 @@ import Image from "next/image";
 import { ERAS } from "@/lib/eras";
 import { supabase } from "../utils/supabase";
 
+// Liste build anında donmasın: en fazla 60 sn eski veriyle sunulur (ISR).
+export const revalidate = 60;
+
 export default async function EraIndexPage() {
   const [{ data: products }, { data: outfits }] = await Promise.all([
     supabase

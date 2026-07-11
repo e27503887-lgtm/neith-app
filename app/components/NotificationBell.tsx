@@ -5,14 +5,18 @@ import { useRouter } from "next/navigation";
 import { Bell } from "lucide-react";
 import { supabase } from "../utils/supabase";
 import { runWhenIdle } from "../utils/idle";
+import { getBadgeInfo } from "@/lib/badges";
 
 type Notification = {
   id: number | string;
-  type: "like" | "comment" | "offer" | "message" | "follow" | "badge" | "deal";
+  // Bilinmeyen tipler de gelebilir (ileriye dönük) — panel çökmez,
+  // genel bir satır gösterilir.
+  type: string;
   actor_username: string;
   badge_key?: string;
   product_id: number | string | null;
   conversation_id: number | string | null;
+  deal_id?: number | string | null;
   is_read: boolean;
   created_at: string;
 };
@@ -29,12 +33,16 @@ function formatMessage(n: Notification) {
       return `${n.actor_username} sana mesaj gönderdi`;
     case "follow":
       return `${n.actor_username} seni takip etmeye başladı`;
-    case "badge":
-      return `🏅 Yeni rozet kazandın!`;
+    case "badge": {
+      // Rozet bildirimlerinde actor_username alanı rozet anahtarını taşır.
+      const badgeLabel =
+        getBadgeInfo(n.badge_key ?? n.actor_username)?.label ?? n.actor_username;
+      return `🏅 Yeni rozet kazandın: ${badgeLabel}`;
+    }
     case "deal":
-      return `🤝 Anlaşmanda bir gelişme var`;
+      return `🤝 ${n.actor_username} ile anlaşmanda gelişme var`;
     default:
-      return "";
+      return "Yeni bildirim";
   }
 }
 
@@ -157,15 +165,15 @@ export default function NotificationBell() {
     setOpen(false);
 
     if (n.type === "deal") {
-      router.push("/deals");
+      router.push(n.deal_id ? `/deals/${n.deal_id}` : "/deals");
+    } else if (n.type === "badge") {
+      router.push("/achievements");
     } else if (n.product_id) {
       router.push(`/product/${n.product_id}`);
     } else if (n.conversation_id) {
       router.push(`/messages/${n.conversation_id}`);
     } else if (n.type === "follow") {
       router.push(`/profile/${n.actor_username}`);
-    } else if (n.type === "badge") {
-      router.push("/achievements");
     }
   }
 

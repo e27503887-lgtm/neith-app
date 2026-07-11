@@ -4,6 +4,9 @@ import { supabase } from "../utils/supabase";
 import EditorialHub from "../components/EditorialHub";
 import { getArticleCategoryLabel } from "@/lib/articleCategories";
 
+// Liste build anında donmasın: en fazla 60 sn eski veriyle sunulur (ISR).
+export const revalidate = 60;
+
 type ArticleCard = {
   kind: "article";
   id: string;

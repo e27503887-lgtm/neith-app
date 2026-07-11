@@ -6,6 +6,8 @@ import OutfitCard from "./OutfitCard";
 import PostCard from "./PostCard";
 import { supabase } from "../utils/supabase";
 import { enrichPostsWithMedia } from "@/lib/posts";
+import { excludeBlocked } from "@/lib/feed-mixer";
+import { getBlockedUserIds } from "../utils/blocks";
 
 const BATCH_SIZE = 10;
 
@@ -56,7 +58,9 @@ export default function FeedLoadMore({
 
     setLoading(true);
 
-    const [{ data: products }, { data: outfits }, { data: postsRaw }] = await Promise.all([
+    const blockedIds = await getBlockedUserIds();
+
+    const [{ data: productsRaw }, { data: outfitsRaw }, { data: postsRawAll }] = await Promise.all([
       supabase
         .from("products")
         .select("*")
@@ -78,7 +82,12 @@ export default function FeedLoadMore({
         .limit(BATCH_SIZE),
     ]);
 
-    const enrichedPosts = await enrichPostsWithMedia(postsRaw ?? [], { includeLikes: false });
+    // Engellenen kullanıcıların içerikleri sonraki sayfalarda da elenir.
+    const products = excludeBlocked(productsRaw ?? [], blockedIds, (p) => p.user_id);
+    const outfits = excludeBlocked(outfitsRaw ?? [], blockedIds, (o) => o.user_id);
+    const postsRaw = excludeBlocked(postsRawAll ?? [], blockedIds, (p) => p.user_id);
+
+    const enrichedPosts = await enrichPostsWithMedia(postsRaw, { includeLikes: false });
 
     const userIds = [
       ...new Set([

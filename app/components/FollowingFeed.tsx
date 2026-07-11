@@ -9,6 +9,7 @@ import PostCardSkeleton from "./PostCardSkeleton";
 import { supabase } from "../utils/supabase";
 import { enrichPostsWithMedia } from "@/lib/posts";
 import { getOutfitCoverTagFlags, getTaggedMediaIds } from "@/lib/photoTags";
+import { getBlockedUserIds } from "../utils/blocks";
 
 type ProductItem = {
   id: number | string;
@@ -75,12 +76,15 @@ export default function FollowingFeed() {
         return;
       }
 
-      const { data: followRows } = await supabase
-        .from("follows")
-        .select("following_id")
-        .eq("follower_id", uid);
+      const [{ data: followRows }, blockedIds] = await Promise.all([
+        supabase.from("follows").select("following_id").eq("follower_id", uid),
+        getBlockedUserIds(),
+      ]);
 
-      const followingIds = (followRows ?? []).map((r) => r.following_id);
+      // Engellenen kullanıcılar takip listesinde kalsa bile akışa girmez.
+      const followingIds = (followRows ?? [])
+        .map((r) => r.following_id)
+        .filter((fid) => !blockedIds.has(fid));
 
       if (!active) return;
 

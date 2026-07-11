@@ -2,6 +2,7 @@ import FollowButton from "../../components/FollowButton";
 import { supabase } from "../../utils/supabase";
 import UserProfileCard from "../../components/UserProfileCard";
 import ProfileReviews from "../../components/ProfileReviews";
+import ProfileMenu from "../../components/ProfileMenu";
 import EditorialHub from "../../components/EditorialHub";
 import StyleTags from "../../components/StyleTags";
 import ProfileTabs from "../../components/ProfileTabs";
@@ -230,7 +231,10 @@ export default async function ProfilePage({ params }: Props) {
                 <p className="section-label">Tarz Defteri</p>
                 <h2 className="mt-2 font-serif text-2xl text-ink">Paylaşımlar</h2>
               </div>
-              <FollowButton targetUserId={profile.id} />
+              <div className="flex items-center gap-2">
+                <FollowButton targetUserId={profile.id} />
+                <ProfileMenu targetUserId={profile.id} />
+              </div>
             </div>
 
             <ProfileTabs

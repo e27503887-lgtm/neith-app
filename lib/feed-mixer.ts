@@ -66,6 +66,21 @@ export function applyFreshQuota<T>(
   return result;
 }
 
+// Merkezi engelleme filtresi: engellenen kullanıcıların içerikleri
+// (ürün/kombin/gönderi/yorum) akışlarda gösterilmez. Sahibi bilinmeyen
+// öğeler elenmez.
+export function excludeBlocked<T>(
+  items: T[],
+  blockedIds: Set<string>,
+  getUserId: (item: T) => string | null | undefined
+): T[] {
+  if (blockedIds.size === 0) return items;
+  return items.filter((item) => {
+    const uid = getUserId(item);
+    return !uid || !blockedIds.has(uid);
+  });
+}
+
 function normalizeTag(tag: string | null | undefined): string | null {
   return tag ? tag.trim().toLowerCase() : null;
 }

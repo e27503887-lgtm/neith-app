@@ -17,8 +17,9 @@ import EmptyState from "./EmptyState";
 import type { DuelOutfit } from "@/lib/duel";
 import { STYLE_TAGS } from "@/lib/styleTags";
 import { ERAS } from "@/lib/eras";
-import { mixFeed } from "@/lib/feed-mixer";
+import { excludeBlocked, mixFeed } from "@/lib/feed-mixer";
 import { supabase } from "../utils/supabase";
+import { getBlockedUserIds } from "../utils/blocks";
 
 const PAGE_SIZE = 10;
 const LOW_RESULT_THRESHOLD = 4;
@@ -43,7 +44,18 @@ export default function OutfitsFeed({ outfits }: { outfits: FeedOutfit[] }) {
 
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [userStyleTags, setUserStyleTags] = useState<string[]>([]);
+  const [blockedIds, setBlockedIds] = useState<Set<string>>(new Set());
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    getBlockedUserIds().then((ids) => {
+      if (active && ids.size > 0) setBlockedIds(ids);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Stil DNA lite: profil etiketleri doluysa eşleşenler öne çekilir.
   useEffect(() => {
@@ -85,13 +97,16 @@ export default function OutfitsFeed({ outfits }: { outfits: FeedOutfit[] }) {
 
   const mixed = useMemo(
     () =>
-      mixFeed(outfits, {
-        getCreatedAt: (o) => o.created_at,
-        getLikeCount: (o) => o.like_count,
-        getStyleTag: (o) => o.style_tag,
-        userStyleTags,
-      }),
-    [outfits, userStyleTags]
+      mixFeed(
+        excludeBlocked(outfits, blockedIds, (o) => o.user_id),
+        {
+          getCreatedAt: (o) => o.created_at,
+          getLikeCount: (o) => o.like_count,
+          getStyleTag: (o) => o.style_tag,
+          userStyleTags,
+        }
+      ),
+    [outfits, userStyleTags, blockedIds]
   );
 
   // Filtreler AND ile birlikte çalışır.

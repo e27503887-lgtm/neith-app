@@ -25,6 +25,8 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [touched, setTouched] = useState({ email: false, password: false });
+  const [resetMode, setResetMode] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   const emailError = validateEmail(email);
   const passwordError = validatePassword(password);
@@ -90,6 +92,24 @@ export default function LoginForm() {
     setLoading(false);
   }
 
+  async function handlePasswordReset() {
+    if (emailError) {
+      setTouched((t) => ({ ...t, email: true }));
+      return;
+    }
+
+    setLoading(true);
+    setMessage(null);
+
+    // Hesap varlığını sızdırmamak için sonuç ne olursa olsun aynı mesaj.
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset`,
+    });
+
+    setResetSent(true);
+    setLoading(false);
+  }
+
   async function handleGoogleSignIn() {
     setLoading(true);
     setMessage(null);
@@ -131,20 +151,28 @@ export default function LoginForm() {
           />
           <FieldHint error={touched.email ? emailError : null} valid={touched.email && !emailError} />
         </div>
-        <div>
-          <input
-            type="password"
-            placeholder="Şifre"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-            className="w-full p-3 border rounded-md"
-          />
-          <FieldHint
-            error={touched.password ? passwordError : null}
-            valid={touched.password && !passwordError}
-          />
-        </div>
+        {!resetMode && (
+          <div>
+            <input
+              type="password"
+              placeholder="Şifre"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+              className="w-full p-3 border rounded-md"
+            />
+            <FieldHint
+              error={touched.password ? passwordError : null}
+              valid={touched.password && !passwordError}
+            />
+          </div>
+        )}
+
+        {resetMode && resetSent && (
+          <p className="text-sm text-green-700 dark:text-green-400">
+            Sıfırlama bağlantısı e-postana gönderildi.
+          </p>
+        )}
 
         {message && (
           <p
@@ -156,22 +184,48 @@ export default function LoginForm() {
           </p>
         )}
 
-        <div className="flex flex-col items-center gap-3 pt-1">
-          <button
-            onClick={() => handleAuth("signin")}
-            disabled={loading}
-            className="btn-primary w-full"
-          >
-            {loading ? "Bekleyin..." : "Giriş Yap"}
-          </button>
-          <button
-            onClick={() => handleAuth("signup")}
-            disabled={loading}
-            className="btn-secondary disabled:opacity-50"
-          >
-            Hesabın yok mu? Kayıt Ol
-          </button>
-        </div>
+        {resetMode ? (
+          <div className="flex flex-col items-center gap-3 pt-1">
+            <button onClick={handlePasswordReset} disabled={loading} className="btn-primary w-full">
+              {loading ? "Gönderiliyor..." : "Sıfırlama Bağlantısı Gönder"}
+            </button>
+            <button
+              onClick={() => {
+                setResetMode(false);
+                setResetSent(false);
+              }}
+              className="btn-secondary"
+            >
+              ← Girişe dön
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3 pt-1">
+            <button
+              onClick={() => handleAuth("signin")}
+              disabled={loading}
+              className="btn-primary w-full"
+            >
+              {loading ? "Bekleyin..." : "Giriş Yap"}
+            </button>
+            <button
+              onClick={() => handleAuth("signup")}
+              disabled={loading}
+              className="btn-secondary disabled:opacity-50"
+            >
+              Hesabın yok mu? Kayıt Ol
+            </button>
+            <button
+              onClick={() => {
+                setResetMode(true);
+                setMessage(null);
+              }}
+              className="text-xs text-gray-500 hover:text-accent transition-colors"
+            >
+              Şifreni mi unuttun?
+            </button>
+          </div>
+        )}
 
         {/* Divider */}
         <div className="flex items-center gap-3 py-2">

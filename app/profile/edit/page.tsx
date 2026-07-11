@@ -9,6 +9,8 @@ import { compressImage, UnsupportedImageError } from "../../utils/compressImage"
 import { STYLE_TAGS } from "@/lib/styleTags";
 import ThemeToggle from "../../components/ThemeToggle";
 import FieldHint from "../../components/FieldHint";
+import DangerZone from "../../components/DangerZone";
+import BlockedUsersList from "../../components/BlockedUsersList";
 
 const BODY_SIZES = ["XS", "S", "M", "L", "XL", "XXL"] as const;
 
@@ -509,6 +511,10 @@ export default function EditProfilePage() {
             {preparing ? "Fotoğraf hazırlanıyor..." : loading ? "Kaydediliyor..." : "Kaydet"}
           </button>
         </form>
+
+        <BlockedUsersList />
+
+        <DangerZone username={username} />
       </div>
     </main>
   );

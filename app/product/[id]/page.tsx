@@ -10,6 +10,7 @@ import ProductActions from "./ProductActions";
 import ProductGallery from "./ProductGallery";
 import CompleteTheLook from "../../components/CompleteTheLook";
 import SocialProofLine from "../../components/SocialProofLine";
+import ReportTrigger from "../../components/ReportTrigger";
 import type { EngineProduct } from "@/lib/outfit-engine";
 import { formatSustainabilityLine, getSustainabilityEstimate } from "@/lib/sustainability";
 
@@ -119,6 +120,7 @@ export default async function ProductDetailPage({ params }: Props) {
               <div className="ml-auto flex items-center gap-3">
                 <LikeButton productId={product.id} />
                 <SaveButton productId={product.id} />
+                <ReportTrigger targetType="product" targetId={product.id} />
               </div>
             </div>
 

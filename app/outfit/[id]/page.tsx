@@ -5,6 +5,7 @@ import ProductGallery from "../../product/[id]/ProductGallery";
 import BrandBadge from "../../components/BrandBadge";
 import OutfitActions from "./OutfitActions";
 import OutfitLikeButton from "../../components/OutfitLikeButton";
+import ReportTrigger from "../../components/ReportTrigger";
 import { getEraLabel } from "@/lib/eras";
 import { supabase } from "../../utils/supabase";
 import { fetchPhotoTagsByMedia } from "@/lib/photoTags";
@@ -134,8 +135,9 @@ export default async function OutfitDetailPage({ params }: Props) {
             </Link>
 
             <OutfitActions outfitId={outfit.id} ownerId={outfit.user_id} />
-            <div className="mt-2">
+            <div className="mt-2 flex items-center gap-4">
               <OutfitLikeButton outfitId={outfit.id} />
+              <ReportTrigger targetType="outfit" targetId={outfit.id} />
             </div>
           </div>
         </div>
