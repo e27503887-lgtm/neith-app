@@ -30,6 +30,7 @@ type FeedOutfit = FeedCardOutfit & {
   created_at?: string | null;
   like_count?: number | null;
   user_id?: string | null;
+  elo_rating?: number | null;
 };
 
 const DUEL_INTERVAL = 6;
@@ -103,6 +104,7 @@ export default function OutfitsFeed({ outfits }: { outfits: FeedOutfit[] }) {
           getCreatedAt: (o) => o.created_at,
           getLikeCount: (o) => o.like_count,
           getStyleTag: (o) => o.style_tag,
+          getEloRating: (o) => o.elo_rating,
           userStyleTags,
         }
       ),
@@ -197,6 +199,10 @@ export default function OutfitsFeed({ outfits }: { outfits: FeedOutfit[] }) {
     image_url: o.image_url,
     style_tag: o.style_tag,
     user_id: o.user_id ?? null,
+    elo_rating: o.elo_rating ?? null,
+    // Kör oylama: OutfitDuelCard bunu yalnızca oy verildikten sonra gösterir.
+    username: o.username ?? null,
+    avatar_url: o.avatar_url ?? null,
   }));
 
   // withDuels: her ~DUEL_INTERVAL kartta bir tam satırlık düello kartı.

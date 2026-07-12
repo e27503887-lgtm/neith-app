@@ -3,6 +3,7 @@ import Image from "next/image";
 import { ShoppingBag } from "lucide-react";
 import BrandBadge from "./BrandBadge";
 import OutfitLikeButton from "./OutfitLikeButton";
+import EloTierBadge from "./EloTierBadge";
 
 type Outfit = {
   id: number | string;
@@ -12,6 +13,7 @@ type Outfit = {
   avatar_url?: string | null;
   account_type?: string | null;
   has_tag?: boolean;
+  elo_rating?: number | null;
 };
 
 export default function OutfitCard({
@@ -55,6 +57,7 @@ export default function OutfitCard({
         <span className="absolute top-2 left-2 z-10 bg-paper/90 text-accent text-xs uppercase tracking-wide font-medium px-2 py-1">
           Kombin
         </span>
+        <EloTierBadge eloRating={outfit.elo_rating} className="absolute top-2 right-2 z-10" />
         {outfit.has_tag && (
           <span className="absolute bottom-2 left-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-paper/90 text-ink">
             <ShoppingBag size={13} strokeWidth={1.5} />

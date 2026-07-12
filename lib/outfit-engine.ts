@@ -176,7 +176,7 @@ export type ReasonId =
   | "layering_balance"
   | "profile_match";
 
-type ScoredCandidate = {
+export type ScoredCandidate = {
   product: EngineProduct;
   score: number;
   reasons: ReasonId[];
@@ -212,11 +212,16 @@ function scoreGeneral(
     } else if ((a === "notr" && c === "canli") || (a === "canli" && c === "notr")) {
       score += 30;
       reasons.push("color_neutral_accent");
+    } else if (a === "canli" && c === "canli") {
+      // İki farklı canlı renk — çatışma cezası. "a === c" (monokrom) kuralından
+      // ÖNCE kontrol edilmeli: color_group yalnızca 4 kovaya ayırdığı için
+      // iki canlı ürün her zaman a===c===("canli") olur; sıralama ters olsaydı
+      // bu ceza hiçbir zaman tetiklenmeyen ölü kod olurdu (scripts/test-outfit-engine.ts
+      // Senaryo 2 bu regresyonu yakalar).
+      score -= 30;
     } else if (a === c) {
       score += 20;
       reasons.push("color_monochrome");
-    } else if (a === "canli" && c === "canli") {
-      score -= 30;
     }
   }
 
@@ -332,7 +337,12 @@ function scorePersonalization(
   return { score, reasons };
 }
 
-function scoreCandidate(
+// Tek çiftin tam skoru (genel + kişiselleştirme, yön belirtilerek —
+// anchor/candidate rolleri scorePairDetails'in aksine sabit kalır).
+// Export edilme amacı: scripts/test-outfit-engine.ts'in kişiselleştirme
+// katmanlarını (vücut tipi/cilt tonu) izole biçimde test edebilmesi —
+// scorePairDetails bu parametreleri dışarıya açmıyor.
+export function scoreCandidate(
   anchor: EngineProduct,
   candidate: EngineProduct,
   userStyleTags: string[],

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { supabase } from "../utils/supabase";
 import ArticleManager from "./ArticleManager";
 import AdminReports from "../components/AdminReports";
+import AdminTournamentPanel from "../components/AdminTournamentPanel";
 
 type Product = {
   id: number | string;
@@ -38,7 +39,7 @@ type BrandApplication = {
   username: string;
 };
 
-type Tab = "products" | "outfits" | "applications" | "articles" | "reports";
+type Tab = "products" | "outfits" | "applications" | "articles" | "reports" | "tournament";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -249,6 +250,7 @@ export default function AdminPage() {
     { key: "applications", label: `Marka Başvuruları${pendingCount > 0 ? ` (${pendingCount})` : ""}` },
     { key: "articles", label: "Makaleler" },
     { key: "reports", label: "Şikayetler" },
+    { key: "tournament", label: "Turnuva" },
   ];
 
   return (
@@ -292,6 +294,8 @@ export default function AdminPage() {
           <ArticleManager />
         ) : tab === "reports" ? (
           <AdminReports />
+        ) : tab === "tournament" ? (
+          <AdminTournamentPanel />
         ) : loadingData ? (
           <p className="text-sm text-gray-500">Yükleniyor...</p>
         ) : (

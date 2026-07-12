@@ -67,6 +67,7 @@ export default async function Home({ searchParams }: Props) {
     { data: postsRaw },
     { data: activeWeeks },
     { data: ootdRows },
+    { data: activeTournaments },
   ] = await Promise.all([
       supabase
         .from("products")
@@ -86,7 +87,10 @@ export default async function Home({ searchParams }: Props) {
         .limit(POST_LIMIT),
       supabase.from("fashion_weeks").select("*").lte("starts_at", now).gte("ends_at", now).limit(1),
       supabase.from("outfit_of_the_day").select("*").limit(1),
+      supabase.from("duel_tournaments").select("id").eq("status", "active").limit(1),
     ]);
+
+  const activeTournament = activeTournaments?.[0] ?? null;
 
   // Sorgu 5: gönderi medyaları (beğeni sayıları kartta istemciden gelir)
   const enrichedPostRows = await enrichPostsWithMedia(postsRaw ?? [], { includeLikes: false });
@@ -265,6 +269,19 @@ export default async function Home({ searchParams }: Props) {
           <div className="max-w-6xl mx-auto py-2 px-6 flex items-center justify-center">
             <Link href="/fashion-week" className="underline">
               🎪 {activeWeek.title} başladı — Katıl →
+            </Link>
+          </div>
+        </div>
+      )}
+      {activeTournament && (
+        <div
+          className={`fixed left-0 right-0 bg-paper border-b border-neutral-200 text-sm text-ink z-40 ${
+            activeWeek ? "top-[6.25rem]" : "top-16"
+          }`}
+        >
+          <div className="max-w-6xl mx-auto py-2 px-6 flex items-center justify-center">
+            <Link href="/tournament" className="underline hover:text-accent transition-colors">
+              ⚔ Haftalık Turnuva başladı, oy ver →
             </Link>
           </div>
         </div>

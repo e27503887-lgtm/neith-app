@@ -2,7 +2,9 @@
 // Eşleştirme kuralları: aynı stil etiketinden iki AKTİF kombin, farklı
 // kullanıcılardan; oylayanın kendi kombini havuza girmez. Kayıt öncesi
 // çift normalize edilir (küçük id = outfit_a) ki aynı ikili tek satırda
-// birleşsin ve unique kısıtı çalışsın.
+// birleşsin ve unique kısıtı çalışsın. Elo hesaplaması tamamen DB
+// tetikleyicisinde (update_elo_ratings) yapılır — burada yalnızca
+// SONUÇLARI (elo_rating) adil eşleştirme için okunur.
 
 export type DuelOutfit = {
   id: number | string;
@@ -10,7 +12,16 @@ export type DuelOutfit = {
   image_url: string;
   style_tag: string | null;
   user_id: string | null;
+  elo_rating?: number | null;
+  // Kör oylama: yalnızca oy verildikten SONRA gösterilir (bkz. OutfitDuelCard).
+  username?: string | null;
+  avatar_url?: string | null;
 };
+
+const DEFAULT_ELO = 1200;
+// "Rastgele bir kombin seç, ona en yakın elo'lu 5-10 kombinden birini
+// rastgele eşleştir" — adil eşleşme için yakınlık havuzunun boyutu.
+const CLOSE_ELO_POOL_SIZE = 8;
 
 export type DuelPair = { a: DuelOutfit; b: DuelOutfit };
 
@@ -63,15 +74,28 @@ export function pickDuelPair(
   // Rastgele stil sırasıyla dene; tükenmeyen ilk geçerli çifti döndür.
   const shuffledStyles = [...candidateStyles].sort(() => random() - 0.5);
   for (const [, list] of shuffledStyles) {
-    const shuffled = [...list].sort(() => random() - 0.5);
-    for (let i = 0; i < shuffled.length; i++) {
-      for (let j = i + 1; j < shuffled.length; j++) {
-        const x = shuffled[i];
-        const y = shuffled[j];
-        if (x.user_id === y.user_id) continue;
-        if (options.excludePairs?.has(pairKey(x.id, y.id))) continue;
-        return normalizePair(x, y);
-      }
+    // Adil eşleşme: rastgele bir "çekirdek" kombin seç, elo_rating'i ona en
+    // yakın olan CLOSE_ELO_POOL_SIZE adaydan birini rastgele eşleştir.
+    // Çekirdek uygun bir rakip bulamazsa (hepsi dışlanmışsa) sıradaki
+    // çekirdeğe geçilir — tamamen rastgele seçime düşülmez.
+    const seeds = [...list].sort(() => random() - 0.5);
+    for (const seed of seeds) {
+      const seedElo = seed.elo_rating ?? DEFAULT_ELO;
+
+      const closeOpponents = list
+        .filter((o) => o.id !== seed.id && o.user_id !== seed.user_id)
+        .sort((a, b) => {
+          const da = Math.abs((a.elo_rating ?? DEFAULT_ELO) - seedElo);
+          const db = Math.abs((b.elo_rating ?? DEFAULT_ELO) - seedElo);
+          return da - db;
+        })
+        .slice(0, CLOSE_ELO_POOL_SIZE)
+        .filter((o) => !options.excludePairs?.has(pairKey(seed.id, o.id)));
+
+      if (closeOpponents.length === 0) continue;
+
+      const opponent = closeOpponents[Math.floor(random() * closeOpponents.length)];
+      return normalizePair(seed, opponent);
     }
   }
   return null;

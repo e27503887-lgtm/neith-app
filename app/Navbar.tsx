@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
@@ -41,6 +41,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const exploreRef = useRef<HTMLDivElement>(null);
   const [messagesOpen, setMessagesOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [cartCount, setCartCount] = useState(0);
@@ -111,6 +112,21 @@ export default function Navbar() {
     setMounted(true);
   }, []);
 
+  // Keşfet menüsü: onBlur ile kapatma masaüstünde güvenilir değildi —
+  // butonun blur'u, içindeki bir Link'e tıklandığında navigasyondan ÖNCE
+  // tetiklenip menüyü kapatabiliyor, tıklamayı bazen yutuyordu. Dış
+  // tıklamayı dinleyen aynı desen NotificationBell'te de kullanılıyor.
+  useEffect(() => {
+    if (!open) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (exploreRef.current && !exploreRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
   async function handleLogout() {
     await supabase.auth.signOut();
     router.push("/");
@@ -133,11 +149,10 @@ export default function Navbar() {
         </Link>
 
         {/* Explore dropdown — ikon odaklı kompakt tetikleyici */}
-        <div className="relative">
+        <div className="relative" ref={exploreRef}>
           <button
             aria-expanded={open}
             onClick={() => setOpen((s) => !s)}
-            onBlur={() => setTimeout(() => setOpen(false), 150)}
             className="flex items-center p-1.5 text-gray-500 hover:text-accent transition-colors"
             aria-label="Keşfet"
             title="Keşfet"
@@ -148,14 +163,13 @@ export default function Navbar() {
           {open && (
             <div className="absolute left-0 mt-2 w-56 bg-surface border border-neutral-200 rounded shadow-lg z-50" role="menu" aria-label="Keşfet menüsü">
               <nav className="flex flex-col py-2" role="menu">
-                <Link href="/outfits" role="menuitem" className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Kombin Akışı</Link>
-                <Link href="/era" role="menuitem" className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Dönemler</Link>
-                <Link href="/fashion-week" role="menuitem" className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Moda Haftası</Link>
-                <Link href="/#recommendations" role="menuitem" className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Kombin Önerileri</Link>
-                <Link href="/live" role="menuitem" className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Canlı Akış</Link>
-                <Link href="/#feed" role="menuitem" className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Sosyal Akış</Link>
-                <Link href="/brands" role="menuitem" className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Marka Vitrini</Link>
-                <Link href="/editorial" role="menuitem" className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Moda Dergisi</Link>
+                <Link href="/outfits" role="menuitem" onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Kombin Akışı</Link>
+                <Link href="/era" role="menuitem" onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Dönemler</Link>
+                <Link href="/fashion-week" role="menuitem" onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Moda Haftası</Link>
+                <Link href="/#recommendations" role="menuitem" onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Kombin Önerileri</Link>
+                <Link href="/live" role="menuitem" onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Canlı Akış</Link>
+                <Link href="/brands" role="menuitem" onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Marka Vitrini</Link>
+                <Link href="/editorial" role="menuitem" onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Moda Dergisi</Link>
               </nav>
             </div>
           )}

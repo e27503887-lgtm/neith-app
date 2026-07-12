@@ -5,6 +5,14 @@
 // kendi kombini havuza girmez. Oy duel_votes'a normalize edilmiş çiftle
 // yazılır (küçük id = outfit_a); unique ihlali "zaten oylamış" demektir,
 // doğrudan sonuçlar gösterilir. Girişsiz dokunuş /login'e gider.
+//
+// KÖR OYLAMA: paylaşan kullanıcının adı/avatarı/profil linki oy verilene
+// kadar KESİNLİKLE render edilmez — yalnızca fotoğraf/kolaj ve stil
+// etiketi görünür. Oy verildikten sonra aynı kartta ortaya çıkar.
+//
+// DWELL TIME: yeni bir çift gösterildikten sonra 400ms boyunca oy butonları
+// devre dışı — botların anlık tıklamalarını yavaşlatan, client tarafı bir
+// önlem (DB'deki hız sınırı asıl güvenlik katmanı).
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -20,6 +28,8 @@ import {
 } from "@/lib/duel";
 
 const RESULT_MS = 2200;
+const DWELL_MS = 400;
+const RATE_LIMIT_LOCK_MS = 10_000;
 
 type Phase = "idle" | "reveal";
 
@@ -40,8 +50,12 @@ export default function OutfitDuelCard({
   const [chosenId, setChosenId] = useState<number | string | null>(null);
   const [percents, setPercents] = useState<{ a: number; b: number } | null>(null);
   const [exhausted, setExhausted] = useState(false);
+  const [canVote, setCanVote] = useState(false);
+  const [rateLimited, setRateLimited] = useState(false);
   const seenPairs = useRef(new Set<string>());
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dwellTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lockTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -51,10 +65,19 @@ export default function OutfitDuelCard({
     return () => {
       active = false;
       if (advanceTimer.current) clearTimeout(advanceTimer.current);
+      if (dwellTimer.current) clearTimeout(dwellTimer.current);
+      if (lockTimer.current) clearTimeout(lockTimer.current);
     };
   }, []);
 
   const excludeUserId = userId ?? null;
+
+  // Yeni çift her belirdiğinde dwell time yeniden başlar.
+  function armDwell() {
+    setCanVote(false);
+    if (dwellTimer.current) clearTimeout(dwellTimer.current);
+    dwellTimer.current = setTimeout(() => setCanVote(true), DWELL_MS);
+  }
 
   // İlk çift: auth durumu belli olunca seç (kendi kombinleri dışlansın diye).
   useEffect(() => {
@@ -63,6 +86,7 @@ export default function OutfitDuelCard({
     if (first) seenPairs.current.add(pairKey(first.a.id, first.b.id));
     setPair(first);
     setExhausted(!first);
+    if (first) armDwell();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, pool]);
 
@@ -78,6 +102,7 @@ export default function OutfitDuelCard({
     setPhase("idle");
     setChosenId(null);
     setPercents(null);
+    armDwell();
   }
 
   async function loadResults(current: DuelPair) {
@@ -95,7 +120,7 @@ export default function OutfitDuelCard({
   }
 
   async function handlePick(winner: DuelOutfit) {
-    if (!pair || phase !== "idle") return;
+    if (!pair || phase !== "idle" || !canVote || rateLimited) return;
     if (!userId) {
       router.push("/login");
       return;
@@ -110,10 +135,22 @@ export default function OutfitDuelCard({
     ]);
 
     // 23505: bu çifti zaten oylamış — doğrudan sonuçları göster.
-    if (!error) onVoted?.();
-    if (!error || error.code === "23505") {
-      await loadResults({ a, b });
+    if (!error) {
+      onVoted?.();
+    } else if (error.code !== "23505") {
+      // DB hız sınırı tetikleyicisi (veya başka bir sunucu hatası): sert
+      // hata göstermek yerine oylamayı geçici olarak kilitle.
+      setRateLimited(true);
+      setPhase("idle");
+      setChosenId(null);
+      lockTimer.current = setTimeout(() => {
+        setRateLimited(false);
+        armDwell();
+      }, RATE_LIMIT_LOCK_MS);
+      return;
     }
+
+    await loadResults({ a, b });
 
     if (autoAdvance) {
       advanceTimer.current = setTimeout(nextDuel, RESULT_MS);
@@ -125,6 +162,7 @@ export default function OutfitDuelCard({
   if (exhausted || !pair) return null;
 
   const normalized = normalizePair(pair.a, pair.b);
+  const revealed = phase === "reveal";
 
   return (
     <article className="bg-surface border border-neutral-200 p-4 md:p-6">
@@ -136,6 +174,12 @@ export default function OutfitDuelCard({
           </span>
         )}
       </div>
+
+      {rateLimited && (
+        <p className="mb-4 text-sm text-gray-600 border border-neutral-200 bg-paper px-4 py-3">
+          Biraz mola ver, birazdan devam edebilirsin 🙂
+        </p>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         {sides.map((outfit) => {
@@ -152,13 +196,15 @@ export default function OutfitDuelCard({
               key={String(outfit.id)}
               type="button"
               onClick={() => handlePick(outfit)}
-              disabled={phase !== "idle"}
+              disabled={phase !== "idle" || !canVote || rateLimited}
               aria-label={`${outfit.title} kombinine oy ver`}
               className={`group relative overflow-hidden border text-left transition-all duration-300 ${
                 isChosen
                   ? "border-accent ring-1 ring-accent scale-[1.02]"
                   : "border-neutral-200"
-              } ${phase === "reveal" && !isChosen ? "opacity-70" : ""}`}
+              } ${phase === "reveal" && !isChosen ? "opacity-70" : ""} ${
+                !canVote && phase === "idle" ? "opacity-60 cursor-wait" : ""
+              }`}
             >
               <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100">
                 <Image
@@ -168,6 +214,11 @@ export default function OutfitDuelCard({
                   sizes="(min-width: 768px) 25vw, 50vw"
                   className="object-cover"
                 />
+                {!canVote && phase === "idle" && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/5">
+                    <span className="h-4 w-4 rounded-full border border-neutral-300 border-t-accent animate-spin" />
+                  </span>
+                )}
               </div>
 
               {pct !== null && (
@@ -180,12 +231,39 @@ export default function OutfitDuelCard({
                       </span>
                     )}
                   </div>
-                  <div className="h-1 w-full bg-neutral-100 overflow-hidden">
+                  <div className="h-1 w-full bg-neutral-100 overflow-hidden mb-2">
                     <div
                       className="h-full bg-accent transition-[width] duration-500 ease-out"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
+
+                  {/* Kör oylama: paylaşan bilgisi yalnızca burada, oy
+                      verildikten sonra ortaya çıkar. */}
+                  {revealed && (
+                    <Link
+                      href={outfit.username ? `/profile/${outfit.username}` : "#"}
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-1.5 pt-1.5 border-t border-neutral-100 animate-fade-in"
+                    >
+                      {outfit.avatar_url ? (
+                        <Image
+                          src={outfit.avatar_url}
+                          alt={outfit.username ?? ""}
+                          width={18}
+                          height={18}
+                          className="w-[18px] h-[18px] rounded-full object-cover"
+                        />
+                      ) : (
+                        <span className="flex w-[18px] h-[18px] items-center justify-center rounded-full bg-gray-200 text-[9px] font-semibold text-gray-600">
+                          {outfit.username?.[0]?.toUpperCase() ?? "?"}
+                        </span>
+                      )}
+                      <span className="text-[11px] text-gray-600 truncate hover:text-accent transition-colors">
+                        @{outfit.username ?? "bilinmeyen"}
+                      </span>
+                    </Link>
+                  )}
                 </div>
               )}
             </button>

@@ -14,6 +14,7 @@ import { Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import BrandBadge from "./BrandBadge";
 import OutfitCollage from "./OutfitCollage";
+import EloTierBadge from "./EloTierBadge";
 import { supabase } from "../utils/supabase";
 import type { OutfitPiece } from "../outfits/page";
 
@@ -31,6 +32,7 @@ export type FeedCardOutfit = {
   // Kolaj için TÜM parçalar (satılık olsun olmasın) — `pieces` (satılık
   // şerit) ile karıştırılmaz, ayrı bir alan.
   collage_pieces?: OutfitPiece[];
+  elo_rating?: number | null;
 };
 
 export default function OutfitFeedCard({
@@ -180,6 +182,7 @@ export default function OutfitFeedCard({
         <span className="absolute top-2 left-2 z-10 bg-paper/90 text-accent text-xs uppercase tracking-wide font-medium px-2 py-1">
           Kombin
         </span>
+        <EloTierBadge eloRating={outfit.elo_rating} className="absolute top-2 right-2 z-10" />
         {showCollage ? (
           <OutfitCollage pieces={collagePieces} seedKey={outfit.id} alt={outfit.title} />
         ) : (

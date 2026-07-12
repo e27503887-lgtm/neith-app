@@ -6,6 +6,7 @@ import BrandBadge from "../../components/BrandBadge";
 import OutfitActions from "./OutfitActions";
 import OutfitLikeButton from "../../components/OutfitLikeButton";
 import ReportTrigger from "../../components/ReportTrigger";
+import EloTierBadge from "../../components/EloTierBadge";
 import { getEraLabel } from "@/lib/eras";
 import { supabase } from "../../utils/supabase";
 import { fetchPhotoTagsByMedia } from "@/lib/photoTags";
@@ -112,7 +113,10 @@ export default async function OutfitDetailPage({ params }: Props) {
 
           <div className="flex-1 flex flex-col gap-4">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">{outfit.title}</h1>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-2xl font-bold tracking-tight">{outfit.title}</h1>
+                <EloTierBadge eloRating={outfit.elo_rating} />
+              </div>
               {outfit.description && (
                 <p className="text-gray-600 mt-2">{outfit.description}</p>
               )}

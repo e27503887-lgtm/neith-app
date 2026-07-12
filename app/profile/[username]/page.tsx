@@ -14,6 +14,18 @@ import PostShelf from "../../components/PostShelf";
 import { CATEGORIES } from "@/lib/categories";
 import { enrichPostsWithMedia } from "@/lib/posts";
 
+// Bu sayfa dinamik API kullanmadığı için Next.js onu build/ilk istekte
+// statik olarak prerender edip cache'leyebiliyordu (aynı kök neden daha
+// önce /outfits'te bulunup düzeltilmişti). profiles satırı hesap
+// oluşturma sonrası CLIENT tarafında (LoginForm.tsx) eklendiği için, bir
+// kullanıcının profiline ilk ziyaret bu satır henüz yazılmadan (ör.
+// signup'ın hemen ardından, ya da botlar/önbellek ısıtma sırasında)
+// gerçekleşirse "Kullanıcı bulunamadı" HTML'i o path için KALICI olarak
+// önbelleğe yazılıyor ve profil gerçekten var olsa bile bir sonraki
+// deploy'a kadar herkese (kullanıcının kendisi dahil) o hatalı sayfa
+// gösteriliyordu. force-dynamic bunu önler, her istekte taze veri çeker.
+export const dynamic = "force-dynamic";
+
 type Props = {
   params: Promise<{ username: string }>;
 };

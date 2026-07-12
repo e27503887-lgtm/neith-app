@@ -106,6 +106,27 @@ export function boostByStyleDna<T>(
   return [...matched, ...others];
 }
 
+// Kombin Düellosu'ndan gelen elo_rating'i akışta küçük, ölçüsüz olmayan bir
+// sinyal olarak kullanır: yalnızca "Trend" eşiği ve üzerindeki kombinler
+// stabil biçimde hafifçe öne çekilir (tam bir elo sıralaması değil — aksi
+// halde tazelik/stil önceliği boğulurdu).
+export const ELO_BOOST_THRESHOLD = 1300;
+
+export function boostByElo<T>(
+  items: T[],
+  getEloRating: (item: T) => number | null | undefined,
+  threshold: number = ELO_BOOST_THRESHOLD
+): T[] {
+  const boosted: T[] = [];
+  const rest: T[] = [];
+  for (const item of items) {
+    const elo = getEloRating(item);
+    (elo != null && elo >= threshold ? boosted : rest).push(item);
+  }
+  if (boosted.length === 0) return items;
+  return [...boosted, ...rest];
+}
+
 // Tipik kullanım: önce Stil DNA ile temel sıralamayı kişiselleştir, sonra
 // taze içerik kotasını uygula (kota her koşulda garanti kalır).
 export function mixFeed<T>(
@@ -114,18 +135,23 @@ export function mixFeed<T>(
     getCreatedAt: (item: T) => string | null | undefined;
     getLikeCount: (item: T) => number | null | undefined;
     getStyleTag?: (item: T) => string | null | undefined;
+    getEloRating?: (item: T) => number | null | undefined;
     userStyleTags?: string[];
     now?: number;
   }
 ): T[] {
   const now = options.now ?? Date.now();
 
-  const personalized =
+  let ranked =
     options.getStyleTag && options.userStyleTags?.length
       ? boostByStyleDna(items, options.userStyleTags, options.getStyleTag)
       : items;
 
-  return applyFreshQuota(personalized, {
+  if (options.getEloRating) {
+    ranked = boostByElo(ranked, options.getEloRating);
+  }
+
+  return applyFreshQuota(ranked, {
     isFresh: (item) =>
       isFreshLowEngagement(options.getCreatedAt(item), options.getLikeCount(item), now),
     getCreatedAt: options.getCreatedAt,

@@ -1,10 +1,79 @@
+"use client";
+
+// NOT: Bu sayfa önceden bir SERVER component'ti ve auth kontrolü için
+// sunucu tarafında `supabase.auth.getUser()` çağırıyordu. Ancak
+// app/utils/supabase.ts'teki istemci düz bir tarayıcı istemcisi — oturum
+// yalnızca localStorage'da tutuluyor ve sunucu render'ında hiç görünmüyor.
+// Sonuç: kullanıcı gerçekten giriş yapmış olsa bile sunucu her zaman
+// "kullanıcı yok" görüyordu ("Önce giriş yapmalısın" hatası). Diğer tüm
+// auth kontrollü sayfalar (invite/twins/profile/edit/admin) zaten client
+// component + useEffect deseniyle doğru çalışıyor — aynı desene çevrildi.
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
 import { supabase } from "@/app/utils/supabase";
 import { BADGES, getBadgeInfo, type BadgeKey } from "@/lib/badges";
 
-export default async function AchievementsPage() {
-  const { data } = await supabase.auth.getUser();
-  const userId = data.user?.id;
+type Card = {
+  key: BadgeKey;
+  label: string;
+  description: string;
+  icon: LucideIcon | undefined;
+  earned: boolean;
+};
+
+export default function AchievementsPage() {
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [cards, setCards] = useState<Card[]>([]);
+
+  useEffect(() => {
+    let active = true;
+
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!active) return;
+
+      const uid = data.user?.id ?? null;
+      setUserId(uid);
+
+      if (uid) {
+        const { data: badgeRows } = await supabase
+          .from("badges")
+          .select("badge_key")
+          .eq("user_id", uid);
+
+        if (!active) return;
+
+        const earnedBadges = new Set<string>(
+          (badgeRows ?? []).map((badge: { badge_key: string }) => badge.badge_key)
+        );
+
+        setCards(
+          (Object.keys(BADGES) as BadgeKey[]).map((key) => {
+            const badge = getBadgeInfo(key);
+            return {
+              key,
+              label: badge?.label ?? key,
+              description: badge?.description ?? "",
+              icon: badge?.icon,
+              earned: earnedBadges.has(key),
+            };
+          })
+        );
+      }
+
+      setCheckingAuth(false);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (checkingAuth) {
+    return null;
+  }
 
   if (!userId) {
     return (
@@ -18,25 +87,6 @@ export default async function AchievementsPage() {
       </main>
     );
   }
-
-  const { data: badgeRows } = await supabase
-    .from("badges")
-    .select("badge_key")
-    .eq("user_id", userId);
-
-  const earnedBadges = new Set<string>((badgeRows ?? []).map((badge: { badge_key: string }) => badge.badge_key));
-
-  const cards = (Object.keys(BADGES) as BadgeKey[]).map((key) => {
-    const badge = getBadgeInfo(key);
-    const earned = earnedBadges.has(key);
-    return {
-      key,
-      label: badge?.label ?? key,
-      description: badge?.description ?? "",
-      icon: badge?.icon,
-      earned,
-    };
-  });
 
   return (
     <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
