@@ -5,6 +5,7 @@ import { supabase } from "../utils/supabase";
 import { useRouter, useSearchParams } from "next/navigation";
 import { consumePendingInviteCode } from "@/lib/invites";
 import FieldHint from "../components/FieldHint";
+import Link from "next/link";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD = 6;
@@ -249,6 +250,18 @@ export default function LoginForm() {
           </svg>
           <span className="text-sm font-medium text-neutral-700">Google ile Devam Et</span>
         </button>
+
+        <p className="text-center text-[11px] text-gray-500 leading-relaxed">
+          Kayıt olarak{" "}
+          <Link href="/legal/kullanim-kosullari" className="underline hover:text-accent">
+            Kullanım Koşulları
+          </Link>
+          &apos;nı ve{" "}
+          <Link href="/legal/kvkk" className="underline hover:text-accent">
+            KVKK Aydınlatma Metni
+          </Link>
+          &apos;ni kabul etmiş olursun.
+        </p>
       </div>
     </main>
   );

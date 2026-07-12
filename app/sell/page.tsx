@@ -8,6 +8,7 @@ import { supabase } from "../utils/supabase";
 import {
   compressImage,
   getVideoDurationSeconds,
+  isImageFile,
   UnsupportedImageError,
 } from "../utils/compressImage";
 import { useRouter } from "next/navigation";
@@ -43,7 +44,6 @@ import type { Fit } from "@/lib/outfit-engine";
 import type { Fabric } from "@/lib/fabric";
 
 const MAX_FILES = 5;
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 25 * 1024 * 1024;
 const MAX_VIDEO_SECONDS = 60;
 const MAX_DESCRIPTION = 2000;
@@ -114,12 +114,11 @@ export default function SellPage() {
       }
 
       const isVideo = file.type.startsWith("video/");
-      const isImage = file.type.startsWith("image/");
+      const isImage = isImageFile(file);
       if (!isVideo && !isImage) continue;
 
-      const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
-      if (file.size > maxSize) {
-        setError(isVideo ? "Video 25MB'dan büyük olamaz." : "Fotoğraf 5MB'dan büyük olamaz.");
+      if (isVideo && file.size > MAX_VIDEO_SIZE) {
+        setError("Video 25MB'dan büyük olamaz.");
         continue;
       }
 
@@ -395,7 +394,7 @@ export default function SellPage() {
               className="w-full p-3 border rounded-md disabled:opacity-50"
             />
             <p className="text-xs text-gray-500 mt-1">
-              En fazla {MAX_FILES} medya · fotoğraf başına 5MB · video başına 50MB.
+              En fazla {MAX_FILES} medya · video başına 25MB.
             </p>
 
             {dominantColor && (

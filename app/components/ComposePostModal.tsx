@@ -6,7 +6,7 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { ImagePlus, X } from "lucide-react";
 import { supabase } from "../utils/supabase";
-import { compressImage, UnsupportedImageError } from "../utils/compressImage";
+import { compressImage, isImageFile, UnsupportedImageError } from "../utils/compressImage";
 import {
   COMPOSE_POST_OPEN_EVENT,
   POST_CREATED_EVENT,
@@ -14,7 +14,6 @@ import {
 } from "../utils/composeEvents";
 
 const MAX_PHOTOS = 6;
-const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
 const MAX_CHARS = 2000;
 
 type PhotoItem = {
@@ -134,12 +133,8 @@ export default function ComposePostModal({ initialOpen = false }: { initialOpen?
         setError(`En fazla ${MAX_PHOTOS} fotoğraf ekleyebilirsin.`);
         break;
       }
-      if (!file.type.startsWith("image")) {
+      if (!isImageFile(file)) {
         setError("Sadece fotoğraf ekleyebilirsin.");
-        continue;
-      }
-      if (file.size > MAX_IMAGE_SIZE) {
-        setError("Her fotoğraf 8MB'dan küçük olmalı.");
         continue;
       }
 

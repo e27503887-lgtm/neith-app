@@ -163,6 +163,14 @@ export default function Navbar() {
           {open && (
             <div className="absolute left-0 mt-2 w-56 bg-surface border border-neutral-200 rounded shadow-lg z-50" role="menu" aria-label="Keşfet menüsü">
               <nav className="flex flex-col py-2" role="menu">
+                <Link
+                  href={profile?.username ? `/profile/${profile.username}#outfits` : "/login"}
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  Profilim
+                </Link>
                 <Link href="/outfits" role="menuitem" onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Kombin Akışı</Link>
                 <Link href="/era" role="menuitem" onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Dönemler</Link>
                 <Link href="/fashion-week" role="menuitem" onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Moda Haftası</Link>

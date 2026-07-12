@@ -30,17 +30,13 @@ export default function AddPersonalOutfitModal({
   const [selectedIds, setSelectedIds] = useState<Set<number | string>>(new Set());
 
   const [busy, setBusy] = useState(false);
+  const [preparing, setPreparing] = useState(false);
   const [error, setError] = useState("");
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = e.target.files?.[0] ?? null;
     e.target.value = "";
     if (!selected) return;
-
-    if (selected.size > 5 * 1024 * 1024) {
-      setError("Fotoğraf 5MB'dan büyük olamaz.");
-      return;
-    }
 
     setError("");
     if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -71,14 +67,17 @@ export default function AddPersonalOutfitModal({
     if (file) {
       let prepared: File;
       try {
+        setPreparing(true);
         prepared = await compressImage(file, "main");
       } catch (err) {
         setError(
           err instanceof UnsupportedImageError ? err.message : "Fotoğraf hazırlanırken bir hata oluştu."
         );
+        setPreparing(false);
         setBusy(false);
         return;
       }
+      setPreparing(false);
 
       const extension = prepared.name.split(".").pop() || "webp";
       const path = `${user.id}/personal-outfits/${Date.now()}.${extension}`;
@@ -230,7 +229,7 @@ export default function AddPersonalOutfitModal({
           {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
 
           <button type="button" onClick={handleSubmit} disabled={busy} className="btn-primary w-full">
-            {busy ? "Kaydediliyor..." : "Kaydet"}
+            {preparing ? "Fotoğraf hazırlanıyor..." : busy ? "Kaydediliyor..." : "Kaydet"}
           </button>
         </div>
       </div>

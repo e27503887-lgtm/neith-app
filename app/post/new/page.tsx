@@ -17,7 +17,6 @@ import ProductGalleryUploader, {
 import PhotoTipCard from "../../components/PhotoTipCard";
 
 const MAX_FILES = 6;
-const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 25 * 1024 * 1024;
 const MAX_VIDEO_SECONDS = 60;
 
@@ -79,9 +78,8 @@ export default function NewPostPage() {
       }
 
       const isVideo = file.type.startsWith("video");
-      const limit = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
-      if (file.size > limit) {
-        setError(isVideo ? "Her video 25MB'dan küçük olmalı." : "Her fotoğraf 8MB'dan küçük olmalı.");
+      if (isVideo && file.size > MAX_VIDEO_SIZE) {
+        setError("Her video 25MB'dan küçük olmalı.");
         continue;
       }
 
@@ -251,8 +249,8 @@ export default function NewPostPage() {
               onTagsChange={handleTagsChange}
             />
             <p className="text-xs text-gray-500 mt-1">
-              1-6 fotoğraf/video · fotoğraflar 8MB&apos;dan, videolar 25MB&apos;dan küçük ve en
-              fazla 60 saniye olmalı. Fotoğraflar yüklenmeden önce otomatik küçültülür.
+              1-6 fotoğraf/video · videolar 25MB&apos;dan küçük ve en fazla 60 saniye olmalı.
+              Fotoğraflar yüklenmeden önce otomatik küçültülür.
             </p>
           </div>
 

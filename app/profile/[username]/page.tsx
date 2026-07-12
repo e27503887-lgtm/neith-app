@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import FollowButton from "../../components/FollowButton";
 import { supabase } from "../../utils/supabase";
 import UserProfileCard from "../../components/UserProfileCard";
@@ -29,6 +30,45 @@ export const dynamic = "force-dynamic";
 type Props = {
   params: Promise<{ username: string }>;
 };
+
+const FALLBACK_METADATA: Metadata = {
+  title: "Profil — Neith",
+  description: "Neith'te ikinci el moda ve stil topluluğu.",
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  try {
+    const { username } = await params;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("username, bio, avatar_url")
+      .eq("username", username)
+      .single();
+
+    if (!profile) return FALLBACK_METADATA;
+
+    const title = `${profile.username} — Neith`;
+    const description = profile.bio?.trim() || `Neith'te ${profile.username}'in profili`;
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images: [{ url: profile.avatar_url || "/og-default.png" }],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: [profile.avatar_url || "/og-default.png"],
+      },
+    };
+  } catch {
+    return FALLBACK_METADATA;
+  }
+}
 
 export default async function ProfilePage({ params }: Props) {
   const { username } = await params;

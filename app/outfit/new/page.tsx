@@ -14,7 +14,6 @@ import ProductGalleryUploader, { type GalleryItem, type LocalTag } from "../../c
 import PhotoTipCard from "../../components/PhotoTipCard";
 
 const MAX_FILES = 6;
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const MAX_LABEL_LENGTH = 100;
 
 type OwnProduct = {
@@ -112,11 +111,6 @@ export default function NewOutfitPage() {
         break;
       }
 
-      if (file.size > MAX_FILE_SIZE) {
-        setError("Her fotoğraf 5MB'dan küçük olmalı.");
-        continue;
-      }
-
       accepted.push({
         id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
         file,
@@ -151,11 +145,6 @@ export default function NewOutfitPage() {
     const file = e.target.files?.[0] ?? null;
     e.target.value = "";
     if (!file) return;
-
-    if (file.size > MAX_FILE_SIZE) {
-      setError("Fotoğraf 5MB'dan küçük olmalı.");
-      return;
-    }
 
     setError("");
     if (customPreview) URL.revokeObjectURL(customPreview);
@@ -406,7 +395,7 @@ export default function NewOutfitPage() {
               onTagsChange={handleTagsChange}
             />
             <p className="text-xs text-gray-500 mt-1">
-              En fazla {MAX_FILES} fotoğraf · her biri 5MB'dan küçük olmalı.
+              En fazla {MAX_FILES} fotoğraf.
             </p>
           </div>
 

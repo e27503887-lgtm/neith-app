@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getEraLabel } from "@/lib/eras";
 import { getCategoryLabel } from "@/lib/categories";
 import { getFabricLabel } from "@/lib/fabric";
@@ -18,6 +19,47 @@ import { formatSustainabilityLine, getSustainabilityEstimate } from "@/lib/susta
 type Props = {
   params: Promise<{ id: string }>;
 };
+
+const FALLBACK_METADATA: Metadata = {
+  title: "İlan — Neith",
+  description: "Neith'te ikinci el moda ve stil topluluğu.",
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  try {
+    const { id } = await params;
+    const { data: product } = await supabase
+      .from("products")
+      .select("title, description, price, image_url, username")
+      .eq("id", id)
+      .single();
+
+    if (!product) return FALLBACK_METADATA;
+
+    const title = `${product.title} — ${product.username} | Neith`;
+    const description = product.description
+      ? product.description.slice(0, 150)
+      : `₺${product.price} — Neith'te satışta`;
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images: product.image_url ? [{ url: product.image_url }] : undefined,
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: product.image_url ? [product.image_url] : undefined,
+      },
+    };
+  } catch {
+    return FALLBACK_METADATA;
+  }
+}
 
 export default async function ProductDetailPage({ params }: Props) {
   const { id } = await params;

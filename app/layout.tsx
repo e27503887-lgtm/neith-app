@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
 import { Playfair_Display, Inter } from "next/font/google";
 import Navbar from "./Navbar";
 import Sidebar from "./components/Sidebar";
+import Footer from "./components/Footer";
 import MobileTabBar from "./components/MobileTabBar";
 import PageTransition from "./components/PageTransition";
 import NotificationSystem from "./components/NotificationSystem";
@@ -20,9 +22,30 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+const SITE_URL = "https://neithapp.com.tr";
+const DEFAULT_TITLE = "Neith — Stilini Paylaş, Gardırobunu Sat";
+const DEFAULT_DESCRIPTION =
+  "Kombinlerini paylaş, ilham al, ikinci el gardırobunu sat. Moda ve sosyal ticaretin buluştuğu yer.";
+
 export const metadata: Metadata = {
-  title: "Neith — Stilini Paylaş",
-  description: "Kombinlerini paylaş, gardırobunu keşfet: ikinci el moda ve stil topluluğu.",
+  metadataBase: new URL(SITE_URL),
+  title: DEFAULT_TITLE,
+  description: DEFAULT_DESCRIPTION,
+  openGraph: {
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    url: SITE_URL,
+    siteName: "Neith",
+    locale: "tr_TR",
+    type: "website",
+    images: [{ url: "/og-default.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    images: ["/og-default.png"],
+  },
 };
 
 // Tema cookie'sini ilk boyamadan önce okuyup .dark sınıfını basar — SSR
@@ -36,14 +59,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <Navbar />
         <Sidebar />
-        <div className="lg:ml-16">
-          <PageTransition>{children}</PageTransition>
+        <div className="lg:ml-16 flex min-h-screen flex-col">
+          <div className="flex-1">
+            <PageTransition>{children}</PageTransition>
+          </div>
+          <Footer />
         </div>
         <NotificationSystem />
         <MobileTabBar />
         <BrandSplash />
         <InviteConsumer />
         <ComposePostHost />
+        <Analytics />
       </body>
     </html>
   );

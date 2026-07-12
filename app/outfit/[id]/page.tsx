@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import ProductCard from "../../components/ProductCard";
 import ProductGallery from "../../product/[id]/ProductGallery";
 import BrandBadge from "../../components/BrandBadge";
@@ -22,6 +23,51 @@ type ProductRow = {
   image_url: string;
   username: string;
 };
+
+const FALLBACK_METADATA: Metadata = {
+  title: "Kombin — Neith",
+  description: "Neith'te ikinci el moda ve stil topluluğu.",
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  try {
+    const { id } = await params;
+    const { data: outfit } = await supabase
+      .from("outfits")
+      .select("title, image_url, user_id")
+      .eq("id", id)
+      .single();
+
+    if (!outfit) return FALLBACK_METADATA;
+
+    const { data: owner } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", outfit.user_id)
+      .single();
+
+    const title = `${outfit.title ?? "Kombin"} — ${owner?.username ?? "Neith"} | Neith`;
+    const description = "Neith'te paylaşılan bir kombin.";
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images: outfit.image_url ? [{ url: outfit.image_url }] : undefined,
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: outfit.image_url ? [outfit.image_url] : undefined,
+      },
+    };
+  } catch {
+    return FALLBACK_METADATA;
+  }
+}
 
 export default async function OutfitDetailPage({ params }: Props) {
   const { id } = await params;

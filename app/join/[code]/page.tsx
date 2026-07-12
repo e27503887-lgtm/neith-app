@@ -1,11 +1,51 @@
 import { redirect } from "next/navigation";
 import Image from "next/image";
+import type { Metadata } from "next";
 import { supabase } from "../../utils/supabase";
 import JoinClient from "./JoinClient";
 
 type Props = {
   params: Promise<{ code: string }>;
 };
+
+const FALLBACK_METADATA: Metadata = {
+  title: "Neith'e Katıl",
+  description: "Stilini paylaş, gardırobunu sat. Neith'e katıl.",
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  try {
+    const { code } = await params;
+    const { data: inviter } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("invite_code", code)
+      .maybeSingle();
+
+    if (!inviter) return FALLBACK_METADATA;
+
+    const title = `${inviter.username} seni Neith'e davet etti!`;
+    const description = "Stilini paylaş, gardırobunu sat. Neith'e katıl.";
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images: [{ url: "/og-default.png", width: 1200, height: 630 }],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: ["/og-default.png"],
+      },
+    };
+  } catch {
+    return FALLBACK_METADATA;
+  }
+}
 
 export default async function JoinPage({ params }: Props) {
   const { code } = await params;
