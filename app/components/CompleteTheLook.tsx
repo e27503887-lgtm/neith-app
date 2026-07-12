@@ -14,11 +14,13 @@ import {
   type EngineProduct,
   type OutfitSuggestion,
 } from "@/lib/outfit-engine";
+import type { BodyType } from "@/lib/bodyType";
+import type { SkinUndertone } from "@/lib/skinTone";
 
 const CANDIDATE_LIMIT = 80;
 
 const ENGINE_FIELDS =
-  "id, title, price, category, era, style_tag, fit, color_group, image_url, user_id, is_sold";
+  "id, title, price, category, era, style_tag, fit, fabric, color_group, image_url, user_id, is_sold";
 
 export default function CompleteTheLook({ anchor }: { anchor: EngineProduct }) {
   const [suggestions, setSuggestions] = useState<OutfitSuggestion[] | null>(null);
@@ -48,13 +50,20 @@ export default function CompleteTheLook({ anchor }: { anchor: EngineProduct }) {
       ]);
 
       let userStyleTags: string[] = [];
+      // Yalnızca görüntüleyen kullanıcının kendi vücut tipi — kimseye
+      // gösterilmez, hiçbir yere yazılmaz, sadece bu tarayıcıda hesaplanan
+      // öneri sıralamasını sessizce etkiler.
+      let userBodyType: BodyType | null = null;
+      let userSkinUndertone: SkinUndertone | null = null;
       if (auth.user) {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("style_tags")
+          .select("style_tags, body_type, skin_undertone")
           .eq("id", auth.user.id)
           .maybeSingle();
         userStyleTags = profile?.style_tags ?? [];
+        userBodyType = profile?.body_type ?? null;
+        userSkinUndertone = profile?.skin_undertone ?? null;
       }
 
       if (!active) return;
@@ -64,6 +73,8 @@ export default function CompleteTheLook({ anchor }: { anchor: EngineProduct }) {
           anchor,
           candidates: (candidates ?? []) as EngineProduct[],
           userStyleTags,
+          userBodyType,
+          userSkinUndertone,
         })
       );
     }

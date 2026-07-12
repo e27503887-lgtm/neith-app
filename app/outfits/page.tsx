@@ -71,6 +71,40 @@ async function fetchPiecesByOutfit(outfitIds: (number | string)[]) {
   return result;
 }
 
+// Kolaj için TÜM parçalar (satılık/satılmış farketmez — kombinin gerçek
+// bileşimini yansıtır) + custom_image_url'li özel parçalar. "Satın
+// Alınabilir" şeridi (fetchPiecesByOutfit) ile karıştırılmaz; o yalnızca
+// satılık ürünleri sayar.
+async function fetchCollagePiecesByOutfit(outfitIds: (number | string)[]) {
+  const result = new Map<number | string, OutfitPiece[]>();
+  if (outfitIds.length === 0) return result;
+
+  const { data: items } = await supabase
+    .from("outfit_items")
+    .select("id, outfit_id, product_id, custom_image_url")
+    .in("outfit_id", outfitIds)
+    .order("id", { ascending: true });
+
+  const productIds = [...new Set((items ?? []).map((i) => i.product_id).filter((id): id is number | string => id !== null))];
+  const { data: products } = productIds.length
+    ? await supabase.from("products").select("id, image_url").in("id", productIds)
+    : { data: [] as { id: number | string; image_url: string }[] };
+  const productById = new Map((products ?? []).map((p) => [p.id, p]));
+
+  for (const item of items ?? []) {
+    const imageUrl = item.product_id
+      ? productById.get(item.product_id)?.image_url
+      : item.custom_image_url;
+    if (!imageUrl) continue;
+
+    const list = result.get(item.outfit_id) ?? [];
+    list.push({ id: item.id, image_url: imageUrl });
+    result.set(item.outfit_id, list);
+  }
+
+  return result;
+}
+
 export default async function OutfitsPage() {
   const [{ data: outfits }, { data: ootdRows }] = await Promise.all([
     supabase.from("outfits").select("*").order("created_at", { ascending: false }),
@@ -88,9 +122,10 @@ export default async function OutfitsPage() {
 
   const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
   const outfitIds = (outfits ?? []).map((o) => o.id);
-  const [tagFlags, piecesByOutfit] = await Promise.all([
+  const [tagFlags, piecesByOutfit, collagePiecesByOutfit] = await Promise.all([
     getOutfitCoverTagFlags(outfitIds),
     fetchPiecesByOutfit(outfitIds),
+    fetchCollagePiecesByOutfit(outfitIds),
   ]);
 
   // Hibrit kota için yalnızca son 24 saatin kombinlerine beğeni sayısı
@@ -118,6 +153,7 @@ export default async function OutfitsPage() {
     created_at: o.created_at,
     like_count: likeCountById.get(o.id) ?? 0,
     pieces: piecesByOutfit.get(o.id) ?? [],
+    collage_pieces: collagePiecesByOutfit.get(o.id) ?? [],
     username: profileById.get(o.user_id)?.username ?? "Bilinmeyen kullanıcı",
     avatar_url: profileById.get(o.user_id)?.avatar_url ?? null,
     account_type: profileById.get(o.user_id)?.account_type ?? null,

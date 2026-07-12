@@ -29,11 +29,15 @@ export async function POST(request: NextRequest) {
     supabase
       .from("products")
       .select(
-        "id, title, price, era, category, style_tag, fit, color_group, image_url, user_id, is_sold"
+        "id, title, price, era, category, style_tag, fit, fabric, color_group, image_url, user_id, is_sold"
       )
       .eq("user_id", user.id),
     supabase.from("outfits").select("id, title, era").eq("user_id", user.id),
-    supabase.from("profiles").select("style_tags").eq("id", user.id).maybeSingle(),
+    supabase
+      .from("profiles")
+      .select("style_tags, body_type, skin_undertone")
+      .eq("id", user.id)
+      .maybeSingle(),
   ]);
 
   const productList = products ?? [];
@@ -51,6 +55,8 @@ export async function POST(request: NextRequest) {
     userId: user.id,
     products: productList,
     userStyleTags: profile?.style_tags ?? [],
+    userBodyType: profile?.body_type ?? null,
+    userSkinUndertone: profile?.skin_undertone ?? null,
   });
   const generatedAt = new Date().toISOString();
 

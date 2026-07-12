@@ -16,6 +16,7 @@ import EraPicker from "../components/EraPicker";
 import CategoryPicker from "../components/CategoryPicker";
 import StyleTagPicker from "../components/StyleTagPicker";
 import FitPicker from "../components/FitPicker";
+import FabricPicker from "../components/FabricPicker";
 import PhotoTipCard from "../components/PhotoTipCard";
 import FieldHint from "../components/FieldHint";
 
@@ -39,6 +40,7 @@ import {
   type ColorGroup,
 } from "@/lib/colors";
 import type { Fit } from "@/lib/outfit-engine";
+import type { Fabric } from "@/lib/fabric";
 
 const MAX_FILES = 5;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
@@ -65,6 +67,7 @@ export default function SellPage() {
   const [category, setCategory] = useState<string | null>(null);
   const [styleTag, setStyleTag] = useState<string | null>(null);
   const [fit, setFit] = useState<Fit | null>(null);
+  const [fabric, setFabric] = useState<Fabric | null>(null);
   const [dominantColor, setDominantColor] = useState<string | null>(null);
   const [colorGroup, setColorGroup] = useState<ColorGroup | null>(null);
   const [colorManual, setColorManual] = useState(false);
@@ -253,6 +256,7 @@ export default function SellPage() {
           category,
           style_tag: styleTag,
           fit,
+          fabric,
           dominant_color: dominantColor,
           color_group: colorGroup,
           image_url: coverImage,
@@ -297,6 +301,7 @@ export default function SellPage() {
     setCategory(null);
     setStyleTag(null);
     setFit(null);
+    setFabric(null);
     setDominantColor(null);
     setColorGroup(null);
     setColorManual(false);
@@ -375,6 +380,8 @@ export default function SellPage() {
           <FitPicker value={fit} onChange={setFit} />
 
           <StyleTagPicker value={styleTag} onChange={setStyleTag} />
+
+          <FabricPicker value={fabric} onChange={setFabric} />
 
           <PhotoTipCard />
 

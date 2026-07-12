@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Pencil } from "lucide-react";
 import { supabase } from "../utils/supabase";
-import { STYLE_TAGS } from "@/lib/styleTags";
+import { STYLE_TAGS } from "@/lib/styles";
 
 export default function StyleTags({
   profileId,

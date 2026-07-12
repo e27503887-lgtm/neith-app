@@ -15,7 +15,7 @@ import OutfitFeedCard, { type FeedCardOutfit } from "./OutfitFeedCard";
 import OutfitDuelCard from "./OutfitDuelCard";
 import EmptyState from "./EmptyState";
 import type { DuelOutfit } from "@/lib/duel";
-import { STYLE_TAGS } from "@/lib/styleTags";
+import { STYLE_TAGS } from "@/lib/styles";
 import { ERAS } from "@/lib/eras";
 import { excludeBlocked, mixFeed } from "@/lib/feed-mixer";
 import { supabase } from "../utils/supabase";

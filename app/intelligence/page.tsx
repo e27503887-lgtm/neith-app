@@ -2,10 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
 import { supabase } from "../utils/supabase";
 import StyleReport from "../components/StyleReport";
 import CapsulePlanner from "../components/CapsulePlanner";
 import StyleAssistantPanel from "../components/StyleAssistantPanel";
+import WardrobeSection from "../components/WardrobeSection";
+import PersonalOutfitsSection from "../components/PersonalOutfitsSection";
+import RecommendationsSection from "../components/RecommendationsSection";
 
 type OwnOutfit = { style_tag: string | null };
 type OwnProduct = { id: number | string; title: string; image_url: string };
@@ -13,6 +17,7 @@ type OwnProduct = { id: number | string; title: string; image_url: string };
 export default function IntelligencePage() {
   const router = useRouter();
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
   const [outfits, setOutfits] = useState<OwnOutfit[]>([]);
   const [products, setProducts] = useState<OwnProduct[]>([]);
 
@@ -32,13 +37,14 @@ export default function IntelligencePage() {
           .order("created_at", { ascending: false }),
       ]);
 
+      setUser(data.user);
       setOutfits(outfitRows ?? []);
       setProducts(productRows ?? []);
       setCheckingAuth(false);
     });
   }, [router]);
 
-  if (checkingAuth) {
+  if (checkingAuth || !user) {
     return null;
   }
 
@@ -55,6 +61,9 @@ export default function IntelligencePage() {
         </div>
 
         <div className="space-y-8">
+          <WardrobeSection user={user} />
+          <PersonalOutfitsSection user={user} />
+          <RecommendationsSection user={user} />
           <StyleAssistantPanel products={products} totalItemCount={outfits.length + products.length} />
           <StyleReport outfits={outfits} />
           <CapsulePlanner products={products} />

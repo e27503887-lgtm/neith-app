@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getEraLabel } from "@/lib/eras";
 import { getCategoryLabel } from "@/lib/categories";
+import { getFabricLabel } from "@/lib/fabric";
 import { supabase } from "../../utils/supabase";
 import LikeButton from "../../components/LikeButton";
 import SaveButton from "../../components/SaveButton";
@@ -90,7 +91,7 @@ export default async function ProductDetailPage({ params }: Props) {
                   {product.description}
                 </p>
               )}
-              {(product.era || product.category) && (
+              {(product.era || product.category || product.fabric) && (
                 <div className="flex flex-wrap items-center gap-2 mt-3">
                   {product.era && (
                     <Link
@@ -103,6 +104,11 @@ export default async function ProductDetailPage({ params }: Props) {
                   {product.category && (
                     <span className="inline-block text-xs uppercase tracking-wide text-gray-600 border border-neutral-300 px-2 py-0.5">
                       {getCategoryLabel(product.category)}
+                    </span>
+                  )}
+                  {product.fabric && (
+                    <span className="inline-block text-xs uppercase tracking-wide text-gray-600 border border-neutral-300 px-2 py-0.5">
+                      {getFabricLabel(product.fabric)}
                     </span>
                   )}
                 </div>
@@ -143,6 +149,7 @@ export default async function ProductDetailPage({ params }: Props) {
               era: product.era,
               style_tag: product.style_tag ?? null,
               fit: product.fit ?? null,
+              fabric: product.fabric ?? null,
               color_group: product.color_group ?? null,
               image_url: product.image_url,
               user_id: product.user_id,

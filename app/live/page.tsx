@@ -6,7 +6,7 @@ import Image from "next/image";
 import { MessageCircle, X } from "lucide-react";
 import EmptyState from "../components/EmptyState";
 import { supabase } from "../utils/supabase";
-import { STYLE_TAGS } from "@/lib/styleTags";
+import { STYLE_TAGS } from "@/lib/styles";
 import OutfitLikeButton from "../components/OutfitLikeButton";
 import SaveButton from "../components/SaveButton";
 import CommentSection from "../components/CommentSection";

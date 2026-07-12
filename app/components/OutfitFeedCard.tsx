@@ -13,6 +13,7 @@ import Image from "next/image";
 import { Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import BrandBadge from "./BrandBadge";
+import OutfitCollage from "./OutfitCollage";
 import { supabase } from "../utils/supabase";
 import type { OutfitPiece } from "../outfits/page";
 
@@ -27,6 +28,9 @@ export type FeedCardOutfit = {
   avatar_url?: string | null;
   account_type?: string | null;
   pieces?: OutfitPiece[];
+  // Kolaj için TÜM parçalar (satılık olsun olmasın) — `pieces` (satılık
+  // şerit) ile karıştırılmaz, ayrı bir alan.
+  collage_pieces?: OutfitPiece[];
 };
 
 export default function OutfitFeedCard({
@@ -124,6 +128,10 @@ export default function OutfitFeedCard({
 
   const pieces = outfit.pieces ?? [];
   const shownPieces = pieces.slice(0, 3);
+  // Kolaj yalnızca en az 2 gerçek parçası olan kombinlerde devreye girer;
+  // aksi halde (0-1 parça) mevcut tekil kombin fotoğrafı kartı kullanılır.
+  const collagePieces = outfit.collage_pieces ?? [];
+  const showCollage = collagePieces.length >= 2;
 
   return (
     <article className="card-hover bg-surface border border-neutral-200 overflow-hidden">
@@ -165,18 +173,24 @@ export default function OutfitFeedCard({
         type="button"
         onClick={handleImageTap}
         aria-label={`${outfit.title} — detaya git, çift dokunuşla beğen`}
-        className="relative block w-full aspect-[3/4] overflow-hidden text-left"
+        className={`relative block w-full overflow-hidden text-left ${
+          showCollage ? "" : "aspect-[3/4]"
+        }`}
       >
         <span className="absolute top-2 left-2 z-10 bg-paper/90 text-accent text-xs uppercase tracking-wide font-medium px-2 py-1">
           Kombin
         </span>
-        <Image
-          src={outfit.image_url}
-          alt={outfit.title}
-          fill
-          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-          className="object-cover transition-transform duration-500 ease-out md:hover:scale-105"
-        />
+        {showCollage ? (
+          <OutfitCollage pieces={collagePieces} seedKey={outfit.id} alt={outfit.title} />
+        ) : (
+          <Image
+            src={outfit.image_url}
+            alt={outfit.title}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+            className="object-cover transition-transform duration-500 ease-out md:hover:scale-105"
+          />
+        )}
         {burstKey > 0 && (
           <span
             key={burstKey}

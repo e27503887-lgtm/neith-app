@@ -1,5 +1,7 @@
 import { getEraLabel } from "./eras";
 import { buildOutfitSuggestions, type EngineProduct } from "./outfit-engine";
+import type { BodyType } from "./bodyType";
+import type { SkinUndertone } from "./skinTone";
 
 // Deterministic, rule-based "Stil Asistanı" engine — no external API calls.
 // Every function here is a pure computation over the user's own products/outfits.
@@ -190,10 +192,16 @@ export function buildWeeklyCalendar({
   userId,
   products,
   userStyleTags = [],
+  userBodyType = null,
+  userSkinUndertone = null,
 }: {
   userId: string;
   products: (EngineProduct | { id: number | string })[];
   userStyleTags?: string[];
+  // Takvimin sahibi zaten bu kullanıcı — kendi vücut tipi/cilt alt tonu,
+  // kendi haftalık planını sessizce kişiselleştirir.
+  userBodyType?: BodyType | null;
+  userSkinUndertone?: SkinUndertone | null;
 }): WeeklyCalendarDay[] {
   const seed = hashString(`${userId}:${getISOWeekKey(new Date())}`);
   const rng = mulberry32(seed);
@@ -223,6 +231,8 @@ export function buildWeeklyCalendar({
         anchor,
         candidates: engineProducts,
         userStyleTags,
+        userBodyType,
+        userSkinUndertone,
         maxOutfits: 1,
         wardrobeMode: true,
       });

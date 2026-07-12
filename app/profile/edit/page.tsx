@@ -6,11 +6,15 @@ import Image from "next/image";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "../../utils/supabase";
 import { compressImage, UnsupportedImageError } from "../../utils/compressImage";
-import { STYLE_TAGS } from "@/lib/styleTags";
+import { STYLE_TAGS } from "@/lib/styles";
 import ThemeToggle from "../../components/ThemeToggle";
 import FieldHint from "../../components/FieldHint";
 import DangerZone from "../../components/DangerZone";
 import BlockedUsersList from "../../components/BlockedUsersList";
+import BodyTypePicker from "../../components/BodyTypePicker";
+import SkinTonePicker from "../../components/SkinTonePicker";
+import type { BodyType } from "@/lib/bodyType";
+import type { SkinUndertone } from "@/lib/skinTone";
 
 const BODY_SIZES = ["XS", "S", "M", "L", "XL", "XXL"] as const;
 
@@ -46,6 +50,10 @@ export default function EditProfilePage() {
   const [sizeBottom, setSizeBottom] = useState<string | null>(null);
   const [sizeShoe, setSizeShoe] = useState<number | null>(null);
   const [styleTags, setStyleTags] = useState<string[]>([]);
+  // Bu bilgi asla profilde gösterilmez; yalnızca kombin motorunun kendi
+  // önerilerini kişiselleştirmesi için kullanılır.
+  const [bodyType, setBodyType] = useState<BodyType | null>(null);
+  const [skinUndertone, setSkinUndertone] = useState<SkinUndertone | null>(null);
   const [showSizes, setShowSizes] = useState(true);
   const [showWardrobeValue, setShowWardrobeValue] = useState(true);
 
@@ -66,7 +74,7 @@ export default function EditProfilePage() {
       const { data: profile } = await supabase
         .from("profiles")
         .select(
-          "username, bio, avatar_url, banner_url, account_type, allow_dms, size_top, size_bottom, size_shoe, style_tags, show_sizes, show_wardrobe_value"
+          "username, bio, avatar_url, banner_url, account_type, allow_dms, size_top, size_bottom, size_shoe, style_tags, show_sizes, show_wardrobe_value, body_type, skin_undertone"
         )
         .eq("id", data.user.id)
         .single();
@@ -84,6 +92,8 @@ export default function EditProfilePage() {
         setStyleTags(profile.style_tags ?? []);
         setShowSizes(profile.show_sizes ?? true);
         setShowWardrobeValue(profile.show_wardrobe_value ?? true);
+        setBodyType(profile.body_type ?? null);
+        setSkinUndertone(profile.skin_undertone ?? null);
       }
 
       setCheckingAuth(false);
@@ -235,6 +245,8 @@ export default function EditProfilePage() {
         style_tags: styleTags,
         show_sizes: showSizes,
         show_wardrobe_value: showWardrobeValue,
+        body_type: bodyType,
+        skin_undertone: skinUndertone,
       })
       .eq("id", user.id);
 
@@ -418,6 +430,13 @@ export default function EditProfilePage() {
               <p className="text-xs text-gray-500 mt-2">
                 En fazla 4 stil etiketi seçebilirsiniz.
               </p>
+            </div>
+
+            <div className="mt-4 border border-neutral-200 p-4 space-y-4">
+              <BodyTypePicker value={bodyType} onChange={setBodyType} />
+              <div className="border-t border-neutral-200 pt-4">
+                <SkinTonePicker value={skinUndertone} onChange={setSkinUndertone} />
+              </div>
             </div>
 
             <div className="mt-4 flex items-center justify-between gap-4">

@@ -8,6 +8,11 @@ import type { Category } from "./categories";
 import type { ColorGroup } from "./colors";
 import { getCategoryLabel } from "./categories";
 import { getEraLabel } from "./eras";
+import { getStyleSlug, normalizeStyleLabel, type StyleSlug } from "./styles";
+import { getStyleCompatibility } from "./style-compatibility";
+import { compareFabricWeight, getFabricLabel, getFabricWeight, type Fabric } from "./fabric";
+import type { BodyType } from "./bodyType";
+import type { SkinUndertone } from "./skinTone";
 
 export type Fit = "dar" | "normal" | "bol" | "oversize";
 
@@ -27,6 +32,7 @@ export type EngineProduct = {
   style_tag: string | null;
   color_group: ColorGroup | null;
   fit: Fit | null;
+  fabric?: Fabric | null;
   image_url: string | null;
   user_id?: string | null;
   is_sold?: boolean | null;
@@ -55,80 +61,139 @@ const SLOT_RULES: Partial<Record<Category, Slot[]>> = {
   ],
 };
 
-// Stil uyum matrisi. Aynı etiket +30 zaten ayrı kural; buradaki çiftler
-// "farklı ama uyumlu" (+15) ya da "çatışan" (−15) kombinasyonlar.
-// Etiketler karşılaştırmadan önce küçük harfe indirgenir.
-const STYLE_HARMONY: [string, string][] = [
-  ["minimalist", "old money"],
-  ["minimalist", "sporty"],
-  ["minimalist", "oversize"],
-  ["vintage", "old money"],
-  ["vintage", "grunge"],
-  ["vintage", "y2k"],
-  ["streetwear", "sporty"],
-  ["streetwear", "y2k"],
-  ["streetwear", "oversize"],
-  ["streetwear", "grunge"],
-  ["sporty", "blokecore"],
-  ["y2k", "blokecore"],
-  ["oversize", "grunge"],
-];
+// Dönemsel/vintage karakterli stiller — belirgin bir tarihsel estetiğe
+// gönderme yapar. "Vintage dengeleme" kuralında ana ürünün bu gruptan
+// olup olmadığına bakılır.
+const PERIOD_STYLE_SLUGS = new Set<StyleSlug>([
+  "vintage",
+  "grunge",
+  "y2k",
+  "boho_chic",
+  "dark_academia",
+]);
 
-const STYLE_CLASH: [string, string][] = [
-  ["y2k", "old money"],
-  ["grunge", "old money"],
-  ["blokecore", "old money"],
-  ["grunge", "minimalist"],
-  ["y2k", "minimalist"],
-];
+// Güncel/sade karşı ağırlık — dönemli bir parçayı dengelemek için aranan
+// aday stilleri.
+const MODERN_NEUTRAL_SLUGS = new Set<StyleSlug>(["minimalist", "quiet_luxury"]);
 
 function normalizeStyle(tag: string | null): string | null {
-  return tag ? tag.trim().toLowerCase() : null;
+  return normalizeStyleLabel(tag);
 }
 
-function inPairList(list: [string, string][], a: string, b: string): boolean {
-  return list.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
+const TOP_OR_BOTTOM_CATEGORIES = new Set(["ust_giyim", "alt_giyim"]);
+const TOP_OR_OUTER_CATEGORIES = new Set(["ust_giyim", "dis_giyim"]);
+const VOLUMINOUS_FITS = new Set(["bol", "oversize"]);
+const SLIM_OR_NORMAL_FITS = new Set(["dar", "normal"]);
+
+// Vücut tipi katmanı — SESSİZ (açıklamaya asla yansımaz, bkz. çağrı yeri).
+// Kullanıcının kendi profilinden gelir, null ise tamamen atlanır (nötr).
+function bodyTypeAdjustment(
+  bodyType: BodyType | null | undefined,
+  anchor: EngineProduct,
+  candidate: EngineProduct
+): number {
+  if (!bodyType) return 0;
+  let adj = 0;
+
+  if (bodyType === "kum_saati") {
+    const bothDar = anchor.fit === "dar" && candidate.fit === "dar";
+    const bothTopOrBottom =
+      TOP_OR_BOTTOM_CATEGORIES.has(anchor.category ?? "") &&
+      TOP_OR_BOTTOM_CATEGORIES.has(candidate.category ?? "");
+    if (bothDar && bothTopOrBottom) adj += 10;
+  }
+
+  if (bodyType === "armut") {
+    const topVoluminous =
+      (TOP_OR_OUTER_CATEGORIES.has(anchor.category ?? "") && VOLUMINOUS_FITS.has(anchor.fit ?? "")) ||
+      (TOP_OR_OUTER_CATEGORIES.has(candidate.category ?? "") && VOLUMINOUS_FITS.has(candidate.fit ?? ""));
+    if (topVoluminous) adj += 10;
+
+    const bottomOversize =
+      (anchor.category === "alt_giyim" && anchor.fit === "oversize") ||
+      (candidate.category === "alt_giyim" && candidate.fit === "oversize");
+    if (bottomOversize) adj -= 10;
+  }
+
+  if (bodyType === "ters_ucgen") {
+    const topSlim =
+      (TOP_OR_OUTER_CATEGORIES.has(anchor.category ?? "") && SLIM_OR_NORMAL_FITS.has(anchor.fit ?? "")) ||
+      (TOP_OR_OUTER_CATEGORIES.has(candidate.category ?? "") && SLIM_OR_NORMAL_FITS.has(candidate.fit ?? ""));
+    if (topSlim) adj += 10;
+
+    const bottomVoluminous =
+      (anchor.category === "alt_giyim" && anchor.fit === "bol") ||
+      (candidate.category === "alt_giyim" && candidate.fit === "bol");
+    if (bottomVoluminous) adj += 10;
+  }
+
+  if (bodyType === "dikdortgen") {
+    const hasDress = anchor.category === "elbise" || candidate.category === "elbise";
+    if (hasDress) adj += 10;
+
+    const bottomBol =
+      (anchor.category === "alt_giyim" && anchor.fit === "bol") ||
+      (candidate.category === "alt_giyim" && candidate.fit === "bol");
+    if (bottomBol) adj += 5;
+  }
+
+  return adj;
+}
+
+// "Yüz yakını" kategoriler — ayakkabı/çanta/aksesuar yüzden uzak olduğu
+// için cilt alt tonu kuralı onları etkilemez.
+const FACE_NEAR_CATEGORIES = new Set(["ust_giyim", "dis_giyim", "elbise"]);
+
+// Cilt alt tonu katmanı — en hassas kişisel katman, SESSİZ (açıklamaya
+// asla yansımaz). Mevcut genel renk uyumu kuralının ÜZERİNE eklenir, onu
+// değiştirmez. Kullanıcı 'notr' ya da null ise tamamen atlanır.
+function skinToneAdjustment(
+  skinUndertone: SkinUndertone | null | undefined,
+  anchor: EngineProduct,
+  candidate: EngineProduct
+): number {
+  if (!skinUndertone || skinUndertone === "notr") return 0;
+
+  let adj = 0;
+  for (const item of [anchor, candidate]) {
+    if (FACE_NEAR_CATEGORIES.has(item.category ?? "") && item.color_group === skinUndertone) {
+      adj += 8;
+    }
+  }
+  return adj;
 }
 
 // Açıklama cümlesi için puan kazandıran kuralların kimlikleri.
-type ReasonId =
+export type ReasonId =
   | "style_match"
   | "style_harmony"
+  | "vintage_balance"
   | "era_match"
   | "color_both_neutral"
   | "color_neutral_accent"
   | "color_monochrome"
   | "fit_balance"
+  | "layering_balance"
   | "profile_match";
 
 type ScoredCandidate = {
   product: EngineProduct;
   score: number;
   reasons: ReasonId[];
+  // İleride bir "kişiselleştirmeyi kapat" ayarıyla bu katmanı tek yerden
+  // açıp kapatabilmek için genel/kişisel skor ayrı tutulur (bkz. madde 4).
+  generalScore: number;
+  personalizationScore: number;
 };
 
-function scoreCandidate(
+// GENEL KURALLAR — kullanıcı profiline bakmaz, ürünlerin kendi
+// nitelikleriyle çalışır: dönem, renk uyumu, silüet dengesi, fiyat.
+function scoreGeneral(
   anchor: EngineProduct,
-  candidate: EngineProduct,
-  userStyleTags: string[]
-): ScoredCandidate {
+  candidate: EngineProduct
+): { score: number; reasons: ReasonId[] } {
   let score = 0;
   const reasons: ReasonId[] = [];
-
-  // Stil
-  const anchorStyle = normalizeStyle(anchor.style_tag);
-  const candidateStyle = normalizeStyle(candidate.style_tag);
-  if (anchorStyle && candidateStyle) {
-    if (anchorStyle === candidateStyle) {
-      score += 30;
-      reasons.push("style_match");
-    } else if (inPairList(STYLE_HARMONY, anchorStyle, candidateStyle)) {
-      score += 15;
-      reasons.push("style_harmony");
-    } else if (inPairList(STYLE_CLASH, anchorStyle, candidateStyle)) {
-      score -= 15;
-    }
-  }
 
   // Dönem
   if (anchor.era && candidate.era && anchor.era === candidate.era) {
@@ -167,12 +232,6 @@ function scoreCandidate(
     }
   }
 
-  // Kullanıcı profili stil örtüşmesi
-  if (candidateStyle && userStyleTags.some((t) => normalizeStyle(t) === candidateStyle)) {
-    score += 10;
-    reasons.push("profile_match");
-  }
-
   // Fiyat dengesi: aday, ana ürünün 0.3x-3x aralığındaysa küçük bonus.
   if (
     typeof anchor.price === "number" &&
@@ -184,13 +243,153 @@ function scoreCandidate(
     score += 5;
   }
 
-  return { product: candidate, score, reasons };
+  return { score, reasons };
+}
+
+// KİŞİSELLEŞTİRME KATMANI — stil eşleşmesi, vintage denge, kumaş
+// (katmanlama), vücut tipi ve cilt alt tonu; ayrıca kullanıcının kendi
+// seçtiği stil etiketleriyle örtüşme. Hepsi ya ürünün kendi stil/kumaş
+// niteliklerinden ya da GİRİŞ YAPAN KULLANICININ kendi profilinden gelir —
+// ileride tek bir anahtarla topluca kapatılabilmesi için ayrı tutulur.
+function scorePersonalization(
+  anchor: EngineProduct,
+  candidate: EngineProduct,
+  userStyleTags: string[],
+  userBodyType?: BodyType | null,
+  userSkinUndertone?: SkinUndertone | null
+): { score: number; reasons: ReasonId[] } {
+  let score = 0;
+  const reasons: ReasonId[] = [];
+
+  // Stil
+  const anchorStyle = normalizeStyle(anchor.style_tag);
+  const candidateStyle = normalizeStyle(candidate.style_tag);
+  if (anchorStyle && candidateStyle) {
+    if (anchorStyle === candidateStyle) {
+      score += 30;
+      reasons.push("style_match");
+    } else {
+      const compat = getStyleCompatibility(anchor.style_tag, candidate.style_tag);
+      if (compat === "uyumlu") {
+        score += 12;
+        reasons.push("style_harmony");
+      } else if (compat === "catisir") {
+        score -= 25;
+      }
+      // 'notr' → ne bonus ne ceza, açıklamaya yansımaz.
+    }
+  }
+
+  // Vintage dengeleme: ana ürün dönemli/vintage karakterliyse (ve kendisi
+  // zaten güncel/sade değilse), güncel + sade bir adayla dengelenmesi ekstra
+  // puan alır ("dönem parçasını modern parçayla dengele").
+  if (anchor.era && anchor.era !== "guncel") {
+    const anchorSlug = getStyleSlug(anchor.style_tag);
+    const candidateSlug = getStyleSlug(candidate.style_tag);
+    const anchorIsPeriod = !!anchorSlug && PERIOD_STYLE_SLUGS.has(anchorSlug);
+    const anchorIsModernNeutral = !!anchorSlug && MODERN_NEUTRAL_SLUGS.has(anchorSlug);
+    const candidateIsModernNeutral = !!candidateSlug && MODERN_NEUTRAL_SLUGS.has(candidateSlug);
+
+    if (
+      anchorIsPeriod &&
+      !anchorIsModernNeutral &&
+      candidate.era === "guncel" &&
+      candidateIsModernNeutral
+    ) {
+      score += 15;
+      reasons.push("vintage_balance");
+    }
+  }
+
+  // Katmanlama dengesi: ana ürün dış giyim, aday iç giyimse (dış üstte,
+  // içteki altında giyilir), dış giyim en az iç giyim kadar ağır/yapılandırılmış
+  // olmalı. Ana dıştaki daha hafifse (ince ceket + kalın kazak) ceza.
+  const anchorFabricWeight = getFabricWeight(anchor.fabric);
+  const candidateFabricWeight = getFabricWeight(candidate.fabric);
+  if (anchorFabricWeight && candidateFabricWeight && anchor.category === "dis_giyim" && candidate.category === "ust_giyim") {
+    const cmp = compareFabricWeight(anchorFabricWeight, candidateFabricWeight);
+    if (cmp >= 0) {
+      score += 15;
+      reasons.push("layering_balance");
+    } else {
+      score -= 20;
+    }
+  }
+
+  // Vücut tipi (sessiz — açıklamaya asla eklenmez).
+  score += bodyTypeAdjustment(userBodyType, anchor, candidate);
+
+  // Cilt alt tonu (sessiz — en hassas katman, açıklamaya asla eklenmez;
+  // mevcut genel renk uyumu kuralının üzerine eklenir, onu değiştirmez).
+  score += skinToneAdjustment(userSkinUndertone, anchor, candidate);
+
+  // Kullanıcı profili stil örtüşmesi — bu da kullanıcının kendi tercihi.
+  if (candidateStyle && userStyleTags.some((t) => normalizeStyle(t) === candidateStyle)) {
+    score += 10;
+    reasons.push("profile_match");
+  }
+
+  return { score, reasons };
+}
+
+function scoreCandidate(
+  anchor: EngineProduct,
+  candidate: EngineProduct,
+  userStyleTags: string[],
+  userBodyType?: BodyType | null,
+  userSkinUndertone?: SkinUndertone | null
+): ScoredCandidate {
+  const general = scoreGeneral(anchor, candidate);
+  const personalization = scorePersonalization(
+    anchor,
+    candidate,
+    userStyleTags,
+    userBodyType,
+    userSkinUndertone
+  );
+
+  return {
+    product: candidate,
+    score: general.score + personalization.score,
+    reasons: [...general.reasons, ...personalization.reasons],
+    generalScore: general.score,
+    personalizationScore: personalization.score,
+  };
+}
+
+// İki parçanın YÖNSÜZ nesnel uyumu — "Dolabım / Kombinlerim" uyum skorunda
+// kullanılır. Kullanıcıya özel katmanlar (vücut tipi/cilt tonu/kendi stil
+// etiketleri) kasıtlı olarak dışarıda bırakılır: bu iki parçanın kendi
+// aralarındaki uyumu, kimin baktığından bağımsız olmalı. Slot kuralları
+// (anchor/candidate) yön belirttiği için iki yönde de hesaplanıp yüksek
+// olan (daha anlamlı yönlenme) alınır.
+export function scorePairDetails(
+  a: EngineProduct,
+  b: EngineProduct
+): { score: number; reasons: ReasonId[] } {
+  const forwardGeneral = scoreGeneral(a, b);
+  const forwardPersonalization = scorePersonalization(a, b, []);
+  const forward = {
+    score: forwardGeneral.score + forwardPersonalization.score,
+    reasons: [...forwardGeneral.reasons, ...forwardPersonalization.reasons],
+  };
+
+  const backwardGeneral = scoreGeneral(b, a);
+  const backwardPersonalization = scorePersonalization(b, a, []);
+  const backward = {
+    score: backwardGeneral.score + backwardPersonalization.score,
+    reasons: [...backwardGeneral.reasons, ...backwardPersonalization.reasons],
+  };
+
+  return forward.score >= backward.score ? forward : backward;
 }
 
 // --- Açıklama cümlesi (şablonlu, dergi stilist notu tonunda) ---
 
 const REASON_PRIORITY: ReasonId[] = [
+  "layering_balance",
   "fit_balance",
+  "vintage_balance",
   "color_neutral_accent",
   "color_monochrome",
   "color_both_neutral",
@@ -213,6 +412,14 @@ function reasonPhrase(
         slotLabel ? `daha dar kesim bir ${slotLabel}` : "daha dar kesim parçalar"
       } seçtik`;
     }
+    case "layering_balance": {
+      const layered = items.find((i) => i.reasons.includes("layering_balance"));
+      const anchorFabricLabel = getFabricLabel(anchor.fabric)?.toLowerCase();
+      const candidateFabricLabel = layered ? getFabricLabel(layered.product.fabric)?.toLowerCase() : null;
+      return `kalın${anchorFabricLabel ? ` ${anchorFabricLabel}` : ""} dış giyim, ince${
+        candidateFabricLabel ? ` ${candidateFabricLabel}` : ""
+      } bir parçanın üzerine kusursuz oturuyor`;
+    }
     case "color_neutral_accent":
       return "nötr bir tuval üzerine tek bir canlı vurgu yerleştirdik";
     case "color_monochrome":
@@ -226,10 +433,12 @@ function reasonPhrase(
     case "style_harmony": {
       const other = items.find((i) => i.reasons.includes("style_harmony"));
       if (anchor.style_tag && other?.product.style_tag) {
-        return `${anchor.style_tag} ile ${other.product.style_tag} birbirini tamamlayan iki karakter`;
+        return `${anchor.style_tag} ile ${other.product.style_tag} bir arada şıklık katıyor`;
       }
       return "farklı ama birbirini tamamlayan stiller bir arada";
     }
+    case "vintage_balance":
+      return "dönem parçasını güncel, sade bir seçimle dengeledik";
     case "era_match": {
       const eraLabel = anchor.era ? getEraLabel(anchor.era) : null;
       return eraLabel ? `${eraLabel} dönem ruhu görünümün tamamına yayılıyor` : null;
@@ -290,12 +499,19 @@ export function buildOutfitSuggestions({
   anchor,
   candidates,
   userStyleTags = [],
+  userBodyType = null,
+  userSkinUndertone = null,
   maxOutfits = 3,
   wardrobeMode = false,
 }: {
   anchor: EngineProduct;
   candidates: EngineProduct[];
   userStyleTags?: string[];
+  // Giriş yapmış GÖRÜNTÜLEYEN kullanıcının kendi vücut tipi/cilt alt tonu —
+  // yalnızca onun gördüğü önerileri etkiler, ürüne/kombine hiçbir şekilde
+  // yazılmaz ve başka kullanıcının önerilerinde asla kullanılmaz.
+  userBodyType?: BodyType | null;
+  userSkinUndertone?: SkinUndertone | null;
   maxOutfits?: number;
   // Stil Asistanı takvimi kullanıcının kendi gardırobundan kombin kurar;
   // orada "kendi ilanı olmayan" kısıtı uygulanmaz.
@@ -319,7 +535,7 @@ export function buildOutfitSuggestions({
   for (const slot of slots) {
     const ranked = eligible
       .filter((c) => c.category === slot.category)
-      .map((c) => scoreCandidate(anchor, c, userStyleTags))
+      .map((c) => scoreCandidate(anchor, c, userStyleTags, userBodyType, userSkinUndertone))
       .sort((x, y) => y.score - x.score);
     rankedBySlot.set(slot.category, ranked);
   }
