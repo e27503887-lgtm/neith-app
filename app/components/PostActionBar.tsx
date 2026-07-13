@@ -106,9 +106,19 @@ export default function PostActionBar({
     <div className="mt-2 flex items-center gap-8">
       <button
         type="button"
+        onClick={() => router.push(`/post/${postId}`)}
+        aria-label="Yorumlar"
+        className="flex min-h-11 items-center gap-1.5 text-sm text-gray-500 hover:text-accent transition-colors"
+      >
+        <MessageCircle size={18} strokeWidth={1.5} />
+        {commentCount > 0 && <span>{commentCount}</span>}
+      </button>
+
+      <button
+        type="button"
         onClick={handleLike}
         aria-label={liked ? "Beğenmekten vazgeç" : "Beğen"}
-        className={`flex items-center gap-1.5 text-sm transition-colors ${
+        className={`flex min-h-11 items-center gap-1.5 text-sm transition-colors ${
           liked ? "text-accent" : "text-gray-500 hover:text-accent"
         }`}
       >
@@ -123,19 +133,9 @@ export default function PostActionBar({
 
       <button
         type="button"
-        onClick={() => router.push(`/post/${postId}`)}
-        aria-label="Yorumlar"
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-accent transition-colors"
-      >
-        <MessageCircle size={18} strokeWidth={1.5} />
-        {commentCount > 0 && <span>{commentCount}</span>}
-      </button>
-
-      <button
-        type="button"
         onClick={() => setQuickViewOpen(true)}
         aria-label="Hızlı görünüm ve paylaş"
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-accent transition-colors"
+        className="flex min-h-11 items-center gap-1.5 text-sm text-gray-500 hover:text-accent transition-colors"
       >
         <Share2 size={18} strokeWidth={1.5} />
       </button>
