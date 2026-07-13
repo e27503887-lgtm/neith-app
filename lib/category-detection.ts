@@ -147,7 +147,9 @@ export async function detectCategory(file: File): Promise<CategoryPrediction | n
       }
     }
     return null;
-  } catch {
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("[detectCategory] başarısız:", err, { fileType: file.type, fileName: file.name });
     return null;
   }
 }

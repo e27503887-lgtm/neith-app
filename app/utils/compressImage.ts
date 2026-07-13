@@ -32,11 +32,17 @@ export class UnsupportedImageError extends Error {
 // tipi veriyor — bu yüzden uzantıdan da tanıma yapılır. Dosya seçici
 // input'larındaki "resim mi?" kontrolleri de bunu kullanmalı, aksi halde
 // HEIC dosyaları compressImage'a hiç ulaşmadan sessizce elenir.
+// image/webp, image/jpeg, image/png, image/gif vb. tüm tarayıcı-native
+// formatlar burada zaten "image/" ön ekiyle yakalanır — özel bir liste
+// gerekmez. Yalnızca HEIC/HEIF için ek uzantı kontrolü var (aşağıya bak).
 export function isImageFile(file: File): boolean {
   if (file.type.startsWith("image/")) return true;
   return /\.(heic|heif)$/i.test(file.name);
 }
 
+// Yalnızca gerçek HEIC/HEIF dosyaları burada eşleşir — WEBP/JPEG/PNG gibi
+// tarayıcı-native formatlar bu kontrolden hiçbir zaman geçmez ve doğrudan
+// sıkıştırma adımına gider (aşağıdaki compressImage'a bakın).
 function isHeicFile(file: File): boolean {
   const type = file.type.toLowerCase();
   return type === "image/heic" || type === "image/heif" || /\.(heic|heif)$/i.test(file.name);
@@ -68,8 +74,10 @@ export async function compressImage(
   if (isHeicFile(file)) {
     try {
       source = await convertHeicToJpeg(file);
-    } catch {
+    } catch (err) {
       // Bozuk/işlenemeyen HEIC — ancak bu durumda kullanıcıya mesaj gösterilir.
+      // eslint-disable-next-line no-console
+      console.error("[compressImage] HEIC dönüştürme başarısız:", err);
       throw new UnsupportedImageError();
     }
   }
@@ -87,7 +95,16 @@ export async function compressImage(
 
     const baseName = source.name.replace(/\.[^.]+$/, "") || "photo";
     return new File([compressed], `${baseName}.webp`, { type: "image/webp" });
-  } catch {
+  } catch (err) {
+    // Geçici debug logu: gerçek hata mesajı burada görünür (ör. tarayıcı
+    // konsolu), kullanıcıya gösterilen mesaj hâlâ jenerik kalır.
+    // eslint-disable-next-line no-console
+    console.error("[compressImage] Sıkıştırma başarısız:", err, {
+      fileName: source.name,
+      fileType: source.type,
+      fileSize: source.size,
+      preset,
+    });
     throw new UnsupportedImageError();
   }
 }

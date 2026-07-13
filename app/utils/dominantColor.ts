@@ -78,7 +78,9 @@ export async function extractDominantColor(file: File): Promise<string | null> {
     if (!best || best.w === 0) return null;
 
     return rgbToHex(best.r / best.w, best.g / best.w, best.b / best.w);
-  } catch {
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("[extractDominantColor] başarısız:", err, { fileType: file.type, fileName: file.name });
     return null;
   }
 }
