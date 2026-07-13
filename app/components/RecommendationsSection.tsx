@@ -99,7 +99,8 @@ function ScratchTab({ user, wardrobeItems }: { user: User; wardrobeItems: Wardro
   }
 
   return (
-    <div className="border border-neutral-200 bg-paper p-5">
+    <div className="relative border border-neutral-200 bg-paper p-5">
+      <span className="intel-strip intel-strip--suggestions" aria-hidden />
       <div className="flex items-center justify-between gap-4 mb-4">
         <MiniStrip items={current.items} />
         <p className="font-serif text-xl text-ink shrink-0">Uyum: {current.score}/100</p>
@@ -114,7 +115,7 @@ function ScratchTab({ user, wardrobeItems }: { user: User; wardrobeItems: Wardro
           type="button"
           onClick={handleSave}
           disabled={busy}
-          className="btn-primary"
+          className="intel-btn--suggestions btn-primary"
         >
           {busy ? "Kaydediliyor..." : "Bu Kombini Kaydet"}
         </button>
@@ -209,6 +210,7 @@ function CompleteTab({ user, wardrobeItems }: { user: User; wardrobeItems: Wardr
                   <div key={s.item.id} className="border border-neutral-200 bg-surface p-3">
                     <div className="relative aspect-square w-full overflow-hidden bg-neutral-50 mb-2">
                       <Image src={s.item.image_url} alt="" fill sizes="200px" className="object-cover" />
+                      <span className="intel-strip intel-strip--suggestions" aria-hidden />
                       <span className="absolute bottom-1 left-1 bg-paper/90 text-ink text-[9px] uppercase tracking-wide px-1.5 py-0.5">
                         {getCategoryLabel(s.category)}
                       </span>
@@ -229,7 +231,12 @@ function CompleteTab({ user, wardrobeItems }: { user: User; wardrobeItems: Wardr
                 <p className="text-sm text-green-700 dark:text-green-400 mb-3">Kombinlerim'e eklendi.</p>
               )}
 
-              <button type="button" onClick={handleSave} disabled={busy} className="btn-primary">
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={busy}
+                className="intel-btn--suggestions btn-primary"
+              >
                 {busy ? "Kaydediliyor..." : "Bu Kombinasyonu Kaydet"}
               </button>
             </>
@@ -266,7 +273,7 @@ export default function RecommendationsSection({ user }: { user: User }) {
 
   return (
     <section className="border border-neutral-200 bg-surface p-6 md:p-8">
-      <div className="mb-6">
+      <div className="intel-header intel-header--suggestions mb-6">
         <p className="section-label mb-2">Kişisel</p>
         <h2 className="font-serif italic text-3xl text-ink">Öneriler</h2>
       </div>

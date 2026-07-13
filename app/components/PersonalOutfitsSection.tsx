@@ -113,7 +113,7 @@ export default function PersonalOutfitsSection({ user }: { user: User }) {
 
   return (
     <section className="border border-neutral-200 bg-surface p-6 md:p-8">
-      <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="intel-header intel-header--outfits flex items-center justify-between gap-4 mb-6">
         <div>
           <p className="section-label mb-2">Kişisel</p>
           <h2 className="font-serif italic text-3xl text-ink">Kombinlerim</h2>
@@ -121,7 +121,7 @@ export default function PersonalOutfitsSection({ user }: { user: User }) {
         <button
           type="button"
           onClick={handleAddClick}
-          className="inline-flex items-center gap-1.5 bg-ink text-paper text-xs uppercase tracking-widest font-medium px-5 py-2.5 transition-colors hover:bg-accent shrink-0"
+          className="intel-btn--outfits inline-flex items-center gap-1.5 bg-ink text-paper text-xs uppercase tracking-widest font-medium px-5 py-2.5 transition-colors hover:bg-accent shrink-0"
         >
           <Plus size={14} strokeWidth={2} />
           Kombin Ekle
@@ -145,7 +145,7 @@ export default function PersonalOutfitsSection({ user }: { user: User }) {
           <button
             type="button"
             onClick={handleAddClick}
-            className="mt-2 inline-flex items-center gap-1.5 bg-ink text-paper text-xs uppercase tracking-widest font-medium px-6 py-3 transition-colors hover:bg-accent"
+            className="intel-btn--outfits mt-2 inline-flex items-center gap-1.5 bg-ink text-paper text-xs uppercase tracking-widest font-medium px-6 py-3 transition-colors hover:bg-accent"
           >
             <Plus size={14} strokeWidth={2} />
             Kombin Ekle
@@ -204,6 +204,7 @@ export default function PersonalOutfitsSection({ user }: { user: User }) {
                           <span className="font-serif">Uyum: {outfit.compatibility_score}/100</span>
                         </span>
                       )}
+                      <span className="intel-strip intel-strip--outfits" aria-hidden />
                     </div>
 
                     {expanded && (

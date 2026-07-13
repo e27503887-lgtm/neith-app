@@ -62,7 +62,9 @@ export default function IntelligencePage() {
 
         <div className="space-y-8">
           <WardrobeSection user={user} />
+          <div className="intel-fade intel-fade--wardrobe-outfits md:hidden" aria-hidden />
           <PersonalOutfitsSection user={user} />
+          <div className="intel-fade intel-fade--outfits-suggestions md:hidden" aria-hidden />
           <RecommendationsSection user={user} />
           <StyleAssistantPanel products={products} totalItemCount={outfits.length + products.length} />
           <StyleReport outfits={outfits} />

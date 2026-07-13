@@ -249,4 +249,90 @@ h2 {
     padding-top: 0.875rem;
     padding-bottom: 0.875rem;
   }
+
+  /* Stil Asistanı (/intelligence) — pastel bölüm temaları. Yalnızca mobilde;
+     bu kural bloğu md breakpoint'inde hiç uygulanmadığından masaüstü
+     (siyah-beyaz-bordo editoryal hal) dokunulmamış kalır. Unlayered kurallar
+     olduğundan Tailwind utility sınıflarını (bg-ink, text-ink vb.) ezer. */
+  .intel-header {
+    background-size: 100% 100%;
+    border-radius: 1rem;
+    margin: -0.5rem -0.5rem 1.25rem;
+    padding: 1rem 1.25rem;
+    transition: background-color 400ms ease, background-image 400ms ease;
+  }
+  .intel-header--wardrobe {
+    background-image: linear-gradient(135deg, #e8d9f5 0%, #f3e8ff 100%);
+  }
+  .intel-header--outfits {
+    background-image: linear-gradient(135deg, #ffe0d6 0%, #fff0e8 100%);
+  }
+  .intel-header--suggestions {
+    background-image: linear-gradient(135deg, #d9f5e8 0%, #e8fff3 100%);
+  }
+  .intel-header h1,
+  .intel-header h2,
+  .intel-header .section-label {
+    color: #2a2320 !important;
+  }
+  .intel-header .section-label::before {
+    background-color: #6b4f5f;
+  }
+
+  .intel-btn--wardrobe,
+  .intel-btn--outfits,
+  .intel-btn--suggestions {
+    border: none !important;
+    color: #2a2320 !important;
+  }
+  .intel-btn--wardrobe {
+    background-image: linear-gradient(135deg, #c9a6ea 0%, #e0c7f2 100%) !important;
+  }
+  .intel-btn--outfits {
+    background-image: linear-gradient(135deg, #ffaf92 0%, #ffd3c0 100%) !important;
+  }
+  .intel-btn--suggestions {
+    background-image: linear-gradient(135deg, #7fdba8 0%, #bdefd3 100%) !important;
+  }
+  .intel-btn--wardrobe:hover,
+  .intel-btn--outfits:hover,
+  .intel-btn--suggestions:hover {
+    filter: brightness(0.96);
+  }
+
+  /* İnce üst kenar şeridi: kart konteynerine `relative` ile birlikte
+     eklenir, kendi padding'ini yok sayarak kenardan kenara uzanır. */
+  .intel-strip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .intel-strip--wardrobe {
+    background-image: linear-gradient(90deg, #c9a6ea, #e8d9f5);
+  }
+  .intel-strip--outfits {
+    background-image: linear-gradient(90deg, #ffb59e, #ffe0d6);
+  }
+  .intel-strip--suggestions {
+    background-image: linear-gradient(90deg, #8fe0b8, #d9f5e8);
+  }
+
+  /* Bölümler arası yumuşak geçiş: iki komşu paletin harmanlandığı, hafifçe
+     bulanıklaştırılmış bir bağlayıcı şerit. */
+  .intel-fade {
+    height: 1.75rem;
+    margin: -0.5rem 0;
+    filter: blur(8px);
+    opacity: 0.8;
+  }
+  .intel-fade--wardrobe-outfits {
+    background-image: linear-gradient(180deg, #f3e8ff 0%, #ffe0d6 100%);
+  }
+  .intel-fade--outfits-suggestions {
+    background-image: linear-gradient(180deg, #fff0e8 0%, #d9f5e8 100%);
+  }
 }

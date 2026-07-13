@@ -88,7 +88,7 @@ export default function WardrobeSection({ user }: { user: User }) {
 
   return (
     <section id="dolabim" className="border border-neutral-200 bg-surface p-6 md:p-8 scroll-mt-24">
-      <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="intel-header intel-header--wardrobe flex items-center justify-between gap-4 mb-6">
         <div>
           <p className="section-label mb-2">Kişisel</p>
           <h2 className="font-serif italic text-3xl text-ink">Dolabım</h2>
@@ -96,7 +96,7 @@ export default function WardrobeSection({ user }: { user: User }) {
         <button
           type="button"
           onClick={openAddModal}
-          className="inline-flex items-center gap-1.5 bg-ink text-paper text-xs uppercase tracking-widest font-medium px-5 py-2.5 transition-colors hover:bg-accent shrink-0"
+          className="intel-btn--wardrobe inline-flex items-center gap-1.5 bg-ink text-paper text-xs uppercase tracking-widest font-medium px-5 py-2.5 transition-colors hover:bg-accent shrink-0"
         >
           <Plus size={14} strokeWidth={2} />
           Parça Ekle
@@ -110,7 +110,7 @@ export default function WardrobeSection({ user }: { user: User }) {
           <button
             type="button"
             onClick={openAddModal}
-            className="mt-2 inline-flex items-center gap-1.5 bg-ink text-paper text-xs uppercase tracking-widest font-medium px-6 py-3 transition-colors hover:bg-accent"
+            className="intel-btn--wardrobe mt-2 inline-flex items-center gap-1.5 bg-ink text-paper text-xs uppercase tracking-widest font-medium px-6 py-3 transition-colors hover:bg-accent"
           >
             <Plus size={14} strokeWidth={2} />
             Parça Ekle
@@ -138,6 +138,7 @@ export default function WardrobeSection({ user }: { user: User }) {
                           sizes="96px"
                           className="object-cover"
                         />
+                        <span className="intel-strip intel-strip--wardrobe" aria-hidden />
                         {item.category && (
                           <span className="absolute bottom-1 left-1 bg-paper/90 text-ink text-[9px] uppercase tracking-wide px-1.5 py-0.5">
                             {getCategoryLabel(item.category)}
