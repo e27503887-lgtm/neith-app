@@ -34,6 +34,7 @@ function validatePrice(value: string): string | null {
   return null;
 }
 import { extractDominantColor } from "../utils/dominantColor";
+import { detectCategory } from "@/lib/category-detection";
 import {
   COLOR_GROUP_LABELS,
   PRESET_COLORS,
@@ -72,6 +73,8 @@ export default function SellPage() {
   const [colorGroup, setColorGroup] = useState<ColorGroup | null>(null);
   const [colorManual, setColorManual] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [categoryAutoDetected, setCategoryAutoDetected] = useState(false);
+  const [analyzingPhoto, setAnalyzingPhoto] = useState(false);
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(
     null
@@ -142,6 +145,7 @@ export default function SellPage() {
       const next = [...media, ...accepted];
       setMedia(next);
       void updateAutoColor(next);
+      void updateAutoCategory(next);
     }
   }
 
@@ -159,6 +163,22 @@ export default function SellPage() {
     if (hex) {
       setDominantColor(hex);
       setColorGroup(deriveColorGroup(hex));
+    }
+  }
+
+  // Kapak fotoğrafından kategori tahmin eder (MobileNet, tamamen istemci
+  // tarafında). Kullanıcı kategoriyi elle değiştirdiyse üzerine yazmaz.
+  async function updateAutoCategory(items: MediaItem[]) {
+    const firstImage = items.find((m) => m.type === "image");
+    if (!firstImage) return;
+
+    setAnalyzingPhoto(true);
+    const prediction = await detectCategory(firstImage.file);
+    setAnalyzingPhoto(false);
+
+    if (prediction) {
+      setCategory(prediction.category);
+      setCategoryAutoDetected(true);
     }
   }
 
@@ -305,6 +325,7 @@ export default function SellPage() {
     setColorGroup(null);
     setColorManual(false);
     setPaletteOpen(false);
+    setCategoryAutoDetected(false);
   }
 
   if (checkingAuth) {
@@ -374,7 +395,14 @@ export default function SellPage() {
 
           <EraPicker value={era} onChange={setEra} />
 
-          <CategoryPicker value={category} onChange={setCategory} />
+          <CategoryPicker
+            value={category}
+            onChange={(v) => {
+              setCategory(v);
+              setCategoryAutoDetected(false);
+            }}
+            autoDetected={categoryAutoDetected}
+          />
 
           <FitPicker value={fit} onChange={setFit} />
 
@@ -396,6 +424,12 @@ export default function SellPage() {
             <p className="text-xs text-gray-500 mt-1">
               En fazla {MAX_FILES} medya · video başına 25MB.
             </p>
+
+            {analyzingPhoto && (
+              <p className="text-xs text-gray-500 mt-2">
+                Fotoğraf işleniyor... (ilk kullanımda birkaç saniye sürebilir)
+              </p>
+            )}
 
             {dominantColor && (
               <div className="mt-3">

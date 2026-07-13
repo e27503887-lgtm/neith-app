@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.0",
+    "@tensorflow-models/mobilenet": "^2.1.1",
+    "@tensorflow/tfjs": "^4.22.0",
     "@vercel/analytics": "^2.0.1",
     "browser-image-compression": "^2.0.2",
     "date-fns": "^4.4.0",

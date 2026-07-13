@@ -5,13 +5,22 @@ import { CATEGORIES } from "@/lib/categories";
 export default function CategoryPicker({
   value,
   onChange,
+  autoDetected = false,
 }: {
   value: string | null;
   onChange: (value: string | null) => void;
+  autoDetected?: boolean;
 }) {
   return (
     <div>
-      <p className="text-sm font-medium text-gray-700 mb-2">Kategori</p>
+      <div className="flex items-center gap-2 mb-2">
+        <p className="text-sm font-medium text-gray-700">Kategori</p>
+        {autoDetected && value && (
+          <span className="inline-flex items-center gap-1 text-[11px] text-accent">
+            ✨ Otomatik algılandı
+          </span>
+        )}
+      </div>
       <div className="flex flex-wrap gap-2">
         {CATEGORIES.map((category) => {
           const selected = value === category.value;

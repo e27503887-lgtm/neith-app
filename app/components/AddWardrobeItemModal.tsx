@@ -13,6 +13,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "../utils/supabase";
 import { compressImage, UnsupportedImageError } from "../utils/compressImage";
 import { extractDominantColor } from "../utils/dominantColor";
+import { detectCategory } from "@/lib/category-detection";
 import { deriveColorGroup, type ColorGroup } from "@/lib/colors";
 import type { Fit } from "@/lib/outfit-engine";
 import type { Fabric } from "@/lib/fabric";
@@ -66,6 +67,7 @@ export default function AddWardrobeItemModal({
 
   const [label, setLabel] = useState(editingItem?.label ?? "");
   const [category, setCategory] = useState<string | null>(editingItem?.category ?? null);
+  const [categoryAutoDetected, setCategoryAutoDetected] = useState(false);
   const [fit, setFit] = useState<Fit | null>(editingItem?.fit ?? null);
   const [fabric, setFabric] = useState<Fabric | null>(editingItem?.fabric ?? null);
   const [styleTag, setStyleTag] = useState<string | null>(editingItem?.style_tag ?? null);
@@ -74,6 +76,7 @@ export default function AddWardrobeItemModal({
 
   const [busy, setBusy] = useState(false);
   const [preparing, setPreparing] = useState(false);
+  const [analyzingPhoto, setAnalyzingPhoto] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -111,11 +114,22 @@ export default function AddWardrobeItemModal({
     setFile(selected);
     setPreviewUrl(nextPreview);
     setChoosingSource(false);
+    setCategoryAutoDetected(false);
 
-    const hex = await extractDominantColor(selected);
+    setAnalyzingPhoto(true);
+    const [hex, prediction] = await Promise.all([
+      extractDominantColor(selected),
+      detectCategory(selected),
+    ]);
+    setAnalyzingPhoto(false);
+
     if (hex) {
       setDominantColor(hex);
       setColorGroup(deriveColorGroup(hex));
+    }
+    if (prediction) {
+      setCategory(prediction.category);
+      setCategoryAutoDetected(true);
     }
   }
 
@@ -126,6 +140,7 @@ export default function AddWardrobeItemModal({
     setPreviewUrl(product.image_url);
     setDominantColor(product.dominant_color);
     setColorGroup(product.color_group);
+    setCategoryAutoDetected(false);
     setCategory((prev) => prev ?? product.category);
     setFit((prev) => prev ?? product.fit);
     setFabric((prev) => prev ?? product.fabric);
@@ -342,6 +357,12 @@ export default function AddWardrobeItemModal({
                 </button>
               </div>
 
+              {analyzingPhoto && (
+                <p className="text-xs text-gray-500">
+                  Fotoğraf işleniyor... (ilk kullanımda birkaç saniye sürebilir)
+                </p>
+              )}
+
               {dominantColor && (
                 <p className="flex items-center gap-2 text-xs text-gray-500">
                   <span
@@ -359,7 +380,14 @@ export default function AddWardrobeItemModal({
                 className="w-full p-3 border border-neutral-300 bg-surface text-sm"
               />
 
-              <CategoryPicker value={category} onChange={setCategory} />
+              <CategoryPicker
+                value={category}
+                onChange={(v) => {
+                  setCategory(v);
+                  setCategoryAutoDetected(false);
+                }}
+                autoDetected={categoryAutoDetected}
+              />
 
               <div className="border-t border-neutral-200 pt-3">
                 <button
