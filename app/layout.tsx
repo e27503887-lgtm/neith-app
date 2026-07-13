@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { Playfair_Display, Inter } from "next/font/google";
 import Navbar from "./Navbar";
@@ -10,6 +10,8 @@ import NotificationSystem from "./components/NotificationSystem";
 import BrandSplash from "./components/BrandSplash";
 import InviteConsumer from "./components/InviteConsumer";
 import ComposePostHost from "./components/ComposePostHost";
+import ServiceWorkerRegister from "./components/ServiceWorkerRegister";
+import InstallPWAButton from "./components/InstallPWAButton";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -46,6 +48,23 @@ export const metadata: Metadata = {
     description: DEFAULT_DESCRIPTION,
     images: ["/og-default.png"],
   },
+  manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Neith",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#7A2E2E",
 };
 
 // Tema cookie'sini ilk boyamadan önce okuyup .dark sınıfını basar — SSR
@@ -70,6 +89,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <BrandSplash />
         <InviteConsumer />
         <ComposePostHost />
+        <ServiceWorkerRegister />
+        <InstallPWAButton />
         <Analytics />
       </body>
     </html>
