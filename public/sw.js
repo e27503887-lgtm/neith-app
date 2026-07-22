@@ -1,4 +1,4 @@
-const CACHE_NAME = "neith-static-v1";
+const CACHE_NAME = "neith-static-v2";
 const OFFLINE_URL = "/offline.html";
 
 const STATIC_ASSETS = [
@@ -46,17 +46,19 @@ self.addEventListener("fetch", (event) => {
 
   if (!isStaticAsset) return;
 
+  // Stale-while-revalidate: önbellekteki sürümü hemen döndür ama arka planda
+  // ağdan güncelini çekip önbelleği tazele. Böylece bir sonraki yüklemede yeni
+  // sürüm gelir; görsel/CSS güncellemeleri elle önbellek temizliği gerektirmez.
   event.respondWith(
-    caches.match(request).then(
-      (cached) =>
-        cached ||
-        fetch(request)
-          .then((response) => {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-            return response;
-          })
-          .catch(() => cached)
-    )
+    caches.match(request).then((cached) => {
+      const network = fetch(request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          return response;
+        })
+        .catch(() => cached);
+      return cached || network;
+    })
   );
 });
