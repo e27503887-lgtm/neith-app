@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/react";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Syne, Inter } from "next/font/google";
 import Navbar from "./Navbar";
 import Sidebar from "./components/Sidebar";
 import Footer from "./components/Footer";
@@ -14,9 +14,11 @@ import ServiceWorkerRegister from "./components/ServiceWorkerRegister";
 import InstallPWAButton from "./components/InstallPWAButton";
 import "./globals.css";
 
-const playfair = Playfair_Display({
+// Başlık fontu: Syne (700–800). Değişken font olduğundan weight belirtmeye
+// gerek yok; --font-syne değişkeni globals.css'te --font-serif'e bağlanır.
+const syne = Syne({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--font-syne",
 });
 
 const inter = Inter({
@@ -64,7 +66,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#7A2E2E",
+  themeColor: "#303539",
 };
 
 // Tema cookie'sini ilk boyamadan önce okuyup .dark sınıfını basar — SSR
@@ -73,7 +75,7 @@ const THEME_INIT_SCRIPT = `(function(){try{var m=document.cookie.match(/(?:^|; )
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="tr" className={`${playfair.variable} ${inter.variable}`} suppressHydrationWarning>
+    <html lang="tr" className={`${syne.variable} ${inter.variable}`} suppressHydrationWarning>
       <body>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <Navbar />

@@ -232,8 +232,8 @@ export default function OutfitsFeed({ outfits }: { outfits: FeedOutfit[] }) {
           onClick={() => setFilters({ style: null, era: null, buyable: false })}
           className={`shrink-0 text-xs uppercase tracking-wide px-3 py-1.5 border transition-colors duration-300 ${
             !anyFilter
-              ? "bg-ink text-paper border-ink"
-              : "border-neutral-300 text-gray-600 hover:border-ink hover:text-ink"
+              ? "bg-primary text-dark border-primary"
+              : "border-neutral-300 text-gray-600 hover:border-primary hover:text-ink"
           }`}
         >
           Tümü
@@ -246,8 +246,8 @@ export default function OutfitsFeed({ outfits }: { outfits: FeedOutfit[] }) {
             aria-pressed={chip.selected}
             className={`shrink-0 text-xs uppercase tracking-wide px-3 py-1.5 border transition-colors duration-300 ${
               chip.selected
-                ? "bg-ink text-paper border-ink"
-                : "border-neutral-300 text-gray-600 hover:border-ink hover:text-ink"
+                ? "bg-primary text-dark border-primary"
+                : "border-neutral-300 text-gray-600 hover:border-primary hover:text-ink"
             }`}
           >
             {chip.label}

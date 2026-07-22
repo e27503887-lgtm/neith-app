@@ -31,8 +31,8 @@ export default function BodyTypePicker({
               key={option.value}
               className={`inline-flex items-center gap-1 text-xs uppercase tracking-wide px-3 py-1.5 border transition-colors duration-300 ${
                 selected
-                  ? "bg-ink text-paper border-ink"
-                  : "border-neutral-300 text-gray-600 hover:border-ink hover:text-ink"
+                  ? "bg-primary text-dark border-primary"
+                  : "border-neutral-300 text-gray-600 hover:border-primary hover:text-ink"
               }`}
             >
               <button
@@ -52,8 +52,8 @@ export default function BodyTypePicker({
           onClick={() => onChange(null)}
           className={`text-xs uppercase tracking-wide px-3 py-1.5 border transition-colors duration-300 ${
             value === null
-              ? "border-ink text-ink"
-              : "border-neutral-300 text-gray-500 hover:border-ink hover:text-ink"
+              ? "border-primary text-ink"
+              : "border-neutral-300 text-gray-500 hover:border-primary hover:text-ink"
           }`}
         >
           Belirtmek istemiyorum

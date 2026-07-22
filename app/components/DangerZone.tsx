@@ -116,7 +116,7 @@ export default function DangerZone({ username }: { username: string }) {
               type="button"
               onClick={handleDelete}
               disabled={!confirmed || busy}
-              className="bg-ink text-paper text-xs uppercase tracking-widest font-medium px-5 py-2.5 transition-colors hover:bg-accent disabled:opacity-40 disabled:pointer-events-none"
+              className="bg-primary text-dark text-xs uppercase tracking-widest font-medium px-5 py-2.5 transition-colors hover:bg-accent disabled:opacity-40 disabled:pointer-events-none"
             >
               {busy ? "Siliniyor..." : "Hesabımı Kalıcı Olarak Sil"}
             </button>

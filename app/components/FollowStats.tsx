@@ -65,7 +65,7 @@ export default function FollowStats({
           <button
             type="button"
             onClick={() => openModal("followers")}
-            className="rounded-3xl bg-white/90 px-4 py-3 shadow-sm hover:shadow-md transition-all duration-300"
+            className="rounded-3xl bg-dark-2 px-4 py-3 shadow-sm hover:shadow-md transition-all duration-300"
           >
             <p className="text-3xl font-semibold text-ink">{followerCount}</p>
             <p className="text-xs uppercase tracking-[0.22em] text-gray-500">Takipçi</p>
@@ -73,7 +73,7 @@ export default function FollowStats({
           <button
             type="button"
             onClick={() => openModal("following")}
-            className="rounded-3xl bg-white/90 px-4 py-3 shadow-sm hover:shadow-md transition-all duration-300"
+            className="rounded-3xl bg-dark-2 px-4 py-3 shadow-sm hover:shadow-md transition-all duration-300"
           >
             <p className="text-3xl font-semibold text-ink">{followingCount}</p>
             <p className="text-xs uppercase tracking-[0.22em] text-gray-500">Takip</p>

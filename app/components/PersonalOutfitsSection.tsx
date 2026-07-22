@@ -121,7 +121,7 @@ export default function PersonalOutfitsSection({ user }: { user: User }) {
         <button
           type="button"
           onClick={handleAddClick}
-          className="intel-btn--outfits inline-flex items-center gap-1.5 bg-ink text-paper text-xs uppercase tracking-widest font-medium px-5 py-2.5 transition-colors hover:bg-accent shrink-0"
+          className="intel-btn--outfits inline-flex items-center gap-1.5 bg-primary text-dark text-xs uppercase tracking-widest font-medium px-5 py-2.5 transition-colors hover:bg-accent shrink-0"
         >
           <Plus size={14} strokeWidth={2} />
           Kombin Ekle
@@ -145,7 +145,7 @@ export default function PersonalOutfitsSection({ user }: { user: User }) {
           <button
             type="button"
             onClick={handleAddClick}
-            className="intel-btn--outfits mt-2 inline-flex items-center gap-1.5 bg-ink text-paper text-xs uppercase tracking-widest font-medium px-6 py-3 transition-colors hover:bg-accent"
+            className="intel-btn--outfits mt-2 inline-flex items-center gap-1.5 bg-primary text-dark text-xs uppercase tracking-widest font-medium px-6 py-3 transition-colors hover:bg-accent"
           >
             <Plus size={14} strokeWidth={2} />
             Kombin Ekle

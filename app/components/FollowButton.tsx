@@ -109,7 +109,7 @@ export default function FollowButton({
       className={`${sizeClasses} uppercase tracking-wide font-medium border transition-colors duration-300 disabled:opacity-50 ${
         following
           ? "border-neutral-300 text-gray-600 hover:border-accent hover:text-accent"
-          : "border-ink text-ink hover:bg-ink hover:text-paper"
+          : "border-primary text-ink hover:bg-primary hover:text-dark"
       }`}
     >
       {following ? (hovering ? "Takibi Bırak" : "Takiptesin") : "Takip Et"}

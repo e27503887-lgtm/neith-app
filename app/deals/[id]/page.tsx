@@ -210,7 +210,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                     <span
                       className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs transition-colors ${
                         done
-                          ? "bg-ink border-ink text-paper"
+                          ? "bg-primary border-primary text-paper"
                           : current
                             ? "border-accent text-accent"
                             : "border-neutral-300 text-gray-500"
@@ -228,7 +228,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                   </span>
                   {index < DEAL_STEPS.length - 1 && (
                     <span
-                      className={`mx-2 mb-5 h-px flex-1 ${done ? "bg-ink" : "bg-neutral-200"}`}
+                      className={`mx-2 mb-5 h-px flex-1 ${done ? "bg-primary" : "bg-neutral-200"}`}
                     />
                   )}
                 </li>

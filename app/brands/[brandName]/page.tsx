@@ -76,7 +76,7 @@ export default async function BrandDetailPage({ params }: Props) {
                     sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                     className="object-cover grayscale transition-transform duration-500 ease-out group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center bg-ink/0 transition-colors duration-300 group-hover:bg-ink/50">
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-300 group-hover:bg-black/50">
                     <div className="text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                       <p className="font-serif text-xl text-white mb-2">
                         {p.price.toLocaleString("tr-TR")} ₺

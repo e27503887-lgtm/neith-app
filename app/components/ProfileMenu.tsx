@@ -78,7 +78,7 @@ export default function ProfileMenu({ targetUserId }: { targetUserId: string }) 
         onClick={() => setOpen((o) => !o)}
         aria-label="Profil seçenekleri"
         aria-expanded={open}
-        className="flex h-8 w-8 items-center justify-center border border-neutral-200 text-gray-500 hover:text-ink hover:border-ink transition-colors"
+        className="flex h-8 w-8 items-center justify-center border border-neutral-200 text-gray-500 hover:text-ink hover:border-primary transition-colors"
       >
         <MoreHorizontal size={16} />
       </button>

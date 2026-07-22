@@ -69,7 +69,7 @@ export default function ProductGalleryUploader({
 
       <div
         onClick={handleClick}
-        className={`${disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer hover:text-ink hover:border-ink"} bg-neutral-50 border border-neutral-200 flex items-center justify-center gap-2 py-6 text-gray-500 transition-colors duration-300 ${CARD_STYLE}`}
+        className={`${disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer hover:text-ink hover:border-primary"} bg-neutral-50 border border-neutral-200 flex items-center justify-center gap-2 py-6 text-gray-500 transition-colors duration-300 ${CARD_STYLE}`}
       >
         <input
           ref={inputRef}
@@ -106,7 +106,7 @@ export default function ProductGalleryUploader({
                     type="button"
                     onClick={(e) => handleRemove(e, item.id)}
                     title="Kaldır"
-                    className="absolute top-1.5 right-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-ink text-paper opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    className="absolute top-1.5 right-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-dark opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                   >
                     <X size={12} strokeWidth={1.5} />
                   </button>

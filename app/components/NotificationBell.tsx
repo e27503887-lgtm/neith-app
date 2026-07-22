@@ -179,10 +179,10 @@ export default function NotificationBell() {
 
   return (
     <div className="relative" ref={containerRef}>
-      <button onClick={togglePanel} className="relative text-gray-500 hover:text-accent transition-colors">
-        <Bell size={19} strokeWidth={1.5} className={shaking ? "animate-bell-shake" : ""} />
+      <button onClick={togglePanel} className="relative text-light hover:text-primary transition-colors">
+        <Bell size={19} strokeWidth={2} className={shaking ? "animate-bell-shake" : ""} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 bg-ink text-paper text-[10px] leading-none rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
+          <span className="absolute -top-1.5 -right-1.5 bg-accent-yellow text-dark font-semibold text-[10px] leading-none rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}

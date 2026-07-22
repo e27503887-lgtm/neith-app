@@ -94,7 +94,7 @@ export default function WardrobeGrid({
                     onClick={() => togglePin(outfit)}
                     disabled={pinningId === outfit.id}
                     title="Öne çıkanlardan kaldır"
-                    className="absolute top-2 right-2 bg-ink text-paper p-1.5"
+                    className="absolute top-2 right-2 bg-primary text-dark p-1.5"
                   >
                     <Pin size={13} fill="currentColor" />
                   </button>
@@ -123,7 +123,7 @@ export default function WardrobeGrid({
                   className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
-                  <span className="flex items-center gap-1.5 text-paper opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span className="flex items-center gap-1.5 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <Heart size={16} fill="currentColor" />
                     <span className="text-sm font-medium">{outfit.like_count}</span>
                   </span>
@@ -137,7 +137,7 @@ export default function WardrobeGrid({
                   title={outfit.is_highlighted ? "Öne çıkanlardan kaldır" : "Öne çıkar"}
                   className={`absolute top-1.5 right-1.5 z-10 p-1 transition-colors ${
                     outfit.is_highlighted
-                      ? "bg-ink text-paper"
+                      ? "bg-primary text-dark"
                       : "bg-paper/80 text-ink opacity-0 group-hover:opacity-100"
                   }`}
                 >

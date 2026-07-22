@@ -218,7 +218,7 @@ export default async function OutfitDetailPage({ params }: Props) {
                       sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                       className="object-cover"
                     />
-                    <span className="absolute top-2 left-2 bg-ink/80 text-paper text-[10px] uppercase tracking-wide px-2 py-1">
+                    <span className="absolute top-2 left-2 bg-black/80 text-paper text-[10px] uppercase tracking-wide px-2 py-1">
                       Satılık Değil
                     </span>
                   </div>

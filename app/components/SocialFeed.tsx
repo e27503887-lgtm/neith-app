@@ -76,20 +76,20 @@ export default function SocialFeed() {
               <div className="flex items-center justify-center mb-3 gap-6">
                 <button
                   onClick={() => toggleLike(p.id)}
-                  className={`flex items-center gap-2 text-sm text-black transition-transform duration-200 ${animating[p.id] ? "scale-110" : "scale-100"}`}
+                  className={`flex items-center gap-2 text-sm text-light transition-transform duration-200 ${animating[p.id] ? "scale-110" : "scale-100"}`}
                 >
                   <Heart
                     size={20}
-                    className={`transition-transform duration-200 ${liked[p.id] ? "text-accent scale-110" : "text-black"}`}
+                    className={`transition-transform duration-200 ${liked[p.id] ? "text-accent scale-110" : "text-light"}`}
                   />
                   <span className="text-sm">{likes[p.id]}</span>
                 </button>
 
-                <button className="flex items-center gap-2 text-sm text-black">
+                <button className="flex items-center gap-2 text-sm text-light">
                   <MessageCircle size={20} />
                 </button>
 
-                <button className="flex items-center gap-2 text-sm text-black">
+                <button className="flex items-center gap-2 text-sm text-light">
                   <Share2 size={20} />
                 </button>
               </div>

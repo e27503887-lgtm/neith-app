@@ -30,7 +30,7 @@ export default function BrandPickCard({ product }: { product: BrandPickProduct }
           <BrandBadge /> {product.username}
         </span>
         <h2 className="text-sm truncate">{product.title}</h2>
-        <p className="font-semibold text-lg text-ink mt-0.5">{product.price.toLocaleString("tr-TR")} ₺</p>
+        <p className="font-semibold text-lg text-accent-yellow mt-0.5">{product.price.toLocaleString("tr-TR")} ₺</p>
       </div>
     </Link>
   );

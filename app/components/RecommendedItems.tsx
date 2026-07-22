@@ -44,7 +44,7 @@ export default function RecommendedItems({ products }: { products: RecommendedPr
             </div>
             <div className="pt-3">
               <h3 className="text-sm text-ink truncate">{product.title}</h3>
-              <p className="font-semibold text-ink text-lg mt-0.5">
+              <p className="font-semibold text-accent-yellow text-lg mt-0.5">
                 {product.price.toLocaleString("tr-TR")} ₺
               </p>
             </div>

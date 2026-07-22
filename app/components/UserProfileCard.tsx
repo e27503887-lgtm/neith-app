@@ -101,7 +101,7 @@ export default function UserProfileCard({
 
   return (
     <section className="bg-surface border border-neutral-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
-      <div className="relative overflow-hidden bg-ink/5 p-7">
+      <div className="relative overflow-hidden bg-black/5 p-7">
         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white to-amber-100 opacity-60 pointer-events-none" />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           {isOwner ? (
@@ -140,7 +140,7 @@ export default function UserProfileCard({
             <Link
               key={outfit.id}
               href={`/outfit/${outfit.id}`}
-              className="group block overflow-hidden rounded-3xl border border-neutral-200 bg-ink/5 transition-shadow hover:shadow-lg"
+              className="group block overflow-hidden rounded-3xl border border-neutral-200 bg-black/5 transition-shadow hover:shadow-lg"
             >
               <div className="relative h-56 overflow-hidden bg-gray-100">
                 <Image src={outfit.image_url} alt={outfit.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />

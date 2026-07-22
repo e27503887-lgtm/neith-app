@@ -21,7 +21,7 @@ export default function PopularProductCard({
   return (
     <Link
       href={`/product/${product.id}`}
-      className="card-hover block bg-surface border border-neutral-200 overflow-hidden"
+      className="card-hover block bg-dark-2 border border-dark-3 rounded-xl overflow-hidden transition-colors hover:border-primary"
     >
       <div className="relative w-full aspect-[3/4] overflow-hidden">
         <span className="absolute top-2 left-2 z-10 bg-paper/90 px-2 py-1">
@@ -39,7 +39,7 @@ export default function PopularProductCard({
       </div>
       <div className="p-3">
         <h2 className="text-sm truncate">{product.title}</h2>
-        <p className="font-semibold text-lg text-ink mt-0.5">
+        <p className="font-semibold text-lg text-accent-yellow mt-0.5">
           {product.price.toLocaleString("tr-TR")} ₺
         </p>
         <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">

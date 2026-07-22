@@ -164,7 +164,7 @@ export default function AdminReports() {
                     type="button"
                     onClick={() => setStatus(report, "reviewed")}
                     disabled={busyId === report.id}
-                    className="text-xs uppercase tracking-wide border border-neutral-300 text-gray-600 px-3 py-1.5 hover:border-ink hover:text-ink transition-colors disabled:opacity-50"
+                    className="text-xs uppercase tracking-wide border border-neutral-300 text-gray-600 px-3 py-1.5 hover:border-primary hover:text-ink transition-colors disabled:opacity-50"
                   >
                     İncelendi
                   </button>
@@ -174,7 +174,7 @@ export default function AdminReports() {
                     type="button"
                     onClick={() => setStatus(report, "actioned")}
                     disabled={busyId === report.id}
-                    className="text-xs uppercase tracking-wide border border-ink text-ink px-3 py-1.5 hover:bg-ink hover:text-paper transition-colors disabled:opacity-50"
+                    className="text-xs uppercase tracking-wide border border-primary text-ink px-3 py-1.5 hover:bg-primary hover:text-dark transition-colors disabled:opacity-50"
                   >
                     İşlem Yapıldı
                   </button>

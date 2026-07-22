@@ -236,27 +236,27 @@ export default function ArticleManager() {
             value={form.title}
             onChange={(e) => handleTitleChange(e.target.value)}
             placeholder="Başlık"
-            className="w-full p-3 border border-neutral-200 text-sm focus:outline-none focus:border-ink transition-colors"
+            className="w-full p-3 border border-neutral-200 text-sm focus:outline-none focus:border-primary transition-colors"
           />
           <input
             value={form.slug}
             onChange={(e) => handleSlugChange(e.target.value)}
             placeholder="slug"
-            className="w-full p-3 border border-neutral-200 text-sm font-mono focus:outline-none focus:border-ink transition-colors"
+            className="w-full p-3 border border-neutral-200 text-sm font-mono focus:outline-none focus:border-primary transition-colors"
           />
           <textarea
             value={form.excerpt}
             onChange={(e) => setForm((prev) => (prev ? { ...prev, excerpt: e.target.value } : prev))}
             placeholder="Özet"
             rows={2}
-            className="w-full p-3 border border-neutral-200 text-sm resize-none focus:outline-none focus:border-ink transition-colors"
+            className="w-full p-3 border border-neutral-200 text-sm resize-none focus:outline-none focus:border-primary transition-colors"
           />
           <textarea
             value={form.content}
             onChange={(e) => setForm((prev) => (prev ? { ...prev, content: e.target.value } : prev))}
             placeholder="İçerik"
             rows={10}
-            className="w-full p-3 border border-neutral-200 text-sm resize-none focus:outline-none focus:border-ink transition-colors"
+            className="w-full p-3 border border-neutral-200 text-sm resize-none focus:outline-none focus:border-primary transition-colors"
           />
 
           <div>
@@ -264,7 +264,7 @@ export default function ArticleManager() {
             <select
               value={form.category}
               onChange={(e) => setForm((prev) => (prev ? { ...prev, category: e.target.value } : prev))}
-              className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+              className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-primary transition-colors"
             >
               {ARTICLE_CATEGORIES.map((c) => (
                 <option key={c.value} value={c.value}>
@@ -293,7 +293,7 @@ export default function ArticleManager() {
             <button
               onClick={() => handleSave(false)}
               disabled={saving}
-              className="text-xs uppercase tracking-wide text-gray-600 border border-neutral-300 px-6 py-3 hover:border-ink hover:text-ink transition-colors disabled:opacity-50"
+              className="text-xs uppercase tracking-wide text-gray-600 border border-neutral-300 px-6 py-3 hover:border-primary hover:text-ink transition-colors disabled:opacity-50"
             >
               {saving ? "Kaydediliyor..." : "Taslak Kaydet"}
             </button>
@@ -352,7 +352,7 @@ export default function ArticleManager() {
               </span>
               <button
                 onClick={() => openEditForm(article)}
-                className="text-xs uppercase tracking-wide text-gray-500 border border-neutral-300 px-3 py-1.5 hover:border-ink hover:text-ink transition-colors shrink-0"
+                className="text-xs uppercase tracking-wide text-gray-500 border border-neutral-300 px-3 py-1.5 hover:border-primary hover:text-ink transition-colors shrink-0"
               >
                 Düzenle
               </button>

@@ -26,7 +26,7 @@ function EmptyCollageCell({
 }) {
   if (pattern === "diagonal") {
     return (
-      <div className="relative aspect-square overflow-hidden bg-[#faf7f2]" aria-hidden>
+      <div className="relative aspect-square overflow-hidden bg-dark-2" aria-hidden>
         <svg className="absolute inset-0 h-full w-full">
           <defs>
             <pattern
@@ -36,7 +36,7 @@ function EmptyCollageCell({
               patternTransform="rotate(45)"
               patternUnits="userSpaceOnUse"
             >
-              <line x1="0" y1="0" x2="0" y2="7" stroke="#e7e2d6" strokeWidth="1" />
+              <line x1="0" y1="0" x2="0" y2="7" stroke="#454C53" strokeWidth="1" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill={`url(#${patternId})`} />
@@ -47,7 +47,7 @@ function EmptyCollageCell({
 
   return (
     <div
-      className="flex aspect-square items-center justify-center bg-[#faf7f2]"
+      className="flex aspect-square items-center justify-center bg-dark-2"
       aria-hidden
     >
       <span className="font-serif text-2xl text-neutral-300 select-none">N</span>
@@ -71,7 +71,7 @@ export default function OutfitCollage({
 
   return (
     <div
-      className="grid w-full gap-[2px] bg-[#faf7f2]"
+      className="grid w-full gap-[2px] bg-dark-2"
       style={{ gridTemplateColumns: `repeat(${layout.columns}, 1fr)` }}
     >
       {layout.cells.map((cell, index) => {
@@ -79,7 +79,7 @@ export default function OutfitCollage({
           return (
             <div
               key={`piece-${cell.piece.id}`}
-              className="relative aspect-square overflow-hidden bg-white"
+              className="relative aspect-square overflow-hidden bg-dark-2"
             >
               <Image src={cell.piece.image_url} alt={alt} fill sizes={sizes} className="object-cover" />
             </div>
@@ -90,9 +90,9 @@ export default function OutfitCollage({
           return (
             <div
               key="overflow"
-              className="relative flex aspect-square items-center justify-center bg-ink"
+              className="relative flex aspect-square items-center justify-center bg-dark-3"
             >
-              <span className="font-semibold text-base text-paper">+{cell.count}</span>
+              <span className="font-semibold text-base text-light">+{cell.count}</span>
             </div>
           );
         }

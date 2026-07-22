@@ -82,7 +82,7 @@ export default function ProductCard({
   }
 
   return (
-    <article className="group overflow-hidden border border-neutral-200 bg-surface">
+    <article className="group overflow-hidden rounded-xl border border-dark-3 bg-dark-2 transition-colors hover:border-primary">
       <div className="relative">
         <Link href={`/product/${product.id}`} className="block">
           <div className="relative aspect-[4/5] overflow-hidden sm:aspect-[3/4]">
@@ -113,7 +113,7 @@ export default function ProductCard({
           <div onClick={(event) => event.stopPropagation()}>
             <LikeButton
               productId={product.id}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/80 bg-white/80 p-0 text-ink shadow-sm backdrop-blur-sm hover:bg-white"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-dark/70 p-0 text-light shadow-sm backdrop-blur-sm hover:bg-dark"
               showCount={false}
               iconSize={18}
             />
@@ -121,21 +121,21 @@ export default function ProductCard({
           <div onClick={(event) => event.stopPropagation()}>
             <SaveButton
               productId={product.id}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/80 bg-white/80 p-0 text-ink shadow-sm backdrop-blur-sm hover:bg-white"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-dark/70 p-0 text-light shadow-sm backdrop-blur-sm hover:bg-dark"
             />
           </div>
         </div>
 
         <div className="flex items-end justify-between border-t border-neutral-200 px-4 pb-4 pt-3">
-          <p className="font-semibold text-xl text-ink">{product.price.toLocaleString("tr-TR")} ₺</p>
+          <p className="font-semibold text-xl text-accent-yellow">{product.price.toLocaleString("tr-TR")} ₺</p>
           {product.seller_type === "brand" ? (
             <button
               type="button"
               aria-label="Sepete ekle"
               onClick={handleCartClick}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-ink text-paper shadow-sm transition-colors hover:bg-accent"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-dark shadow-sm transition-colors hover:bg-primary-hover"
             >
-              <ShoppingBag size={17} strokeWidth={1.5} />
+              <ShoppingBag size={17} strokeWidth={2} />
             </button>
           ) : (
             <div className="h-10 w-10" />

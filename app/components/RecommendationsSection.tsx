@@ -186,7 +186,7 @@ function CompleteTab({ user, wardrobeItems }: { user: User; wardrobeItems: Wardr
                 setSaved(false);
               }}
               className={`relative w-14 h-14 shrink-0 overflow-hidden border-2 ${
-                selected ? "border-ink" : "border-transparent"
+                selected ? "border-primary" : "border-transparent"
               }`}
             >
               <Image src={item.image_url} alt="" fill sizes="56px" className="object-cover" />

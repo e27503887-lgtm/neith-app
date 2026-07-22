@@ -84,10 +84,10 @@ export default function OutfitBattle() {
                   disabled={!!votedId}
                   className={`w-full flex items-center justify-center gap-2 border text-[11px] uppercase tracking-[0.2em] font-medium px-4 py-2 transition-colors duration-300 ${
                     hasVoted
-                      ? "border-ink bg-ink text-paper"
+                      ? "border-primary bg-primary text-dark"
                       : votedId
                       ? "border-neutral-200 text-gray-500"
-                      : "border-ink text-ink hover:bg-ink hover:text-paper"
+                      : "border-primary text-ink hover:bg-primary hover:text-dark"
                   }`}
                 >
                   {hasVoted ? (

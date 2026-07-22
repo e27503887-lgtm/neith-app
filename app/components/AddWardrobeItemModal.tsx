@@ -110,6 +110,13 @@ export default function AddWardrobeItemModal({
     setError("");
     if (previewUrl && previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
 
+    // eslint-disable-next-line no-console
+    console.log("[wardrobe:diag] dosya seçildi", {
+      name: selected.name,
+      type: selected.type,
+      size: selected.size,
+    });
+
     const nextPreview = URL.createObjectURL(selected);
     setFile(selected);
     setPreviewUrl(nextPreview);
@@ -117,10 +124,14 @@ export default function AddWardrobeItemModal({
     setCategoryAutoDetected(false);
 
     setAnalyzingPhoto(true);
+    // eslint-disable-next-line no-console
+    console.log("[wardrobe:diag] adım: renk + kategori analizi başlıyor");
     const [hex, prediction] = await Promise.all([
       extractDominantColor(selected),
       detectCategory(selected),
     ]);
+    // eslint-disable-next-line no-console
+    console.log("[wardrobe:diag] adım: renk + kategori analizi bitti", { hex, prediction });
     setAnalyzingPhoto(false);
 
     if (hex) {
@@ -170,8 +181,26 @@ export default function AddWardrobeItemModal({
       let prepared: File;
       try {
         setPreparing(true);
+        // eslint-disable-next-line no-console
+        console.log("[wardrobe:diag] adım: compressImage başlıyor", {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+        });
         prepared = await compressImage(file, "main");
+        // eslint-disable-next-line no-console
+        console.log("[wardrobe:diag] adım: compressImage bitti", {
+          name: prepared.name,
+          type: prepared.type,
+          size: prepared.size,
+        });
       } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error("[wardrobe:diag] adım: compressImage HATA", err, {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+        });
         setError(
           err instanceof UnsupportedImageError ? err.message : "Fotoğraf hazırlanırken bir hata oluştu."
         );
@@ -184,15 +213,22 @@ export default function AddWardrobeItemModal({
       const extension = prepared.name.split(".").pop() || "webp";
       const path = `${user.id}/wardrobe/${Date.now()}.${extension}`;
 
+      // eslint-disable-next-line no-console
+      console.log("[wardrobe:diag] adım: Supabase Storage'a yükleniyor", { path });
+
       const { error: uploadError } = await supabase.storage
         .from("product-images")
         .upload(path, prepared);
 
       if (uploadError) {
+        // eslint-disable-next-line no-console
+        console.error("[wardrobe:diag] adım: Storage yükleme HATA", uploadError);
         setError("Fotoğraf yüklenirken bir hata oluştu: " + uploadError.message);
         setBusy(false);
         return;
       }
+      // eslint-disable-next-line no-console
+      console.log("[wardrobe:diag] adım: Storage yükleme bitti");
 
       const { data: publicUrlData } = supabase.storage.from("product-images").getPublicUrl(path);
       imageUrl = publicUrlData.publicUrl;
@@ -292,7 +328,7 @@ export default function AddWardrobeItemModal({
               <button
                 type="button"
                 onClick={() => cameraInputRef.current?.click()}
-                className="w-full flex items-center gap-3 border border-neutral-300 px-4 py-3 text-sm text-ink hover:border-ink transition-colors"
+                className="w-full flex items-center gap-3 border border-neutral-300 px-4 py-3 text-sm text-ink hover:border-primary transition-colors"
               >
                 <Camera size={16} strokeWidth={1.5} />
                 Fotoğraf Çek / Yükle
@@ -300,7 +336,7 @@ export default function AddWardrobeItemModal({
               <button
                 type="button"
                 onClick={() => galleryInputRef.current?.click()}
-                className="w-full flex items-center gap-3 border border-neutral-300 px-4 py-3 text-sm text-ink hover:border-ink transition-colors"
+                className="w-full flex items-center gap-3 border border-neutral-300 px-4 py-3 text-sm text-ink hover:border-primary transition-colors"
               >
                 <Images size={16} strokeWidth={1.5} />
                 Galeriden Seç
@@ -309,7 +345,7 @@ export default function AddWardrobeItemModal({
                 type="button"
                 onClick={loadOwnProducts}
                 disabled={ownProducts !== null && ownProducts.length === 0}
-                className="w-full flex items-center gap-3 border border-neutral-300 px-4 py-3 text-sm text-ink hover:border-ink transition-colors disabled:opacity-40 disabled:pointer-events-none"
+                className="w-full flex items-center gap-3 border border-neutral-300 px-4 py-3 text-sm text-ink hover:border-primary transition-colors disabled:opacity-40 disabled:pointer-events-none"
               >
                 <Tag size={16} strokeWidth={1.5} />
                 {ownProducts !== null && ownProducts.length === 0
@@ -324,7 +360,7 @@ export default function AddWardrobeItemModal({
                       type="button"
                       key={product.id}
                       onClick={() => handlePickProduct(product)}
-                      className="relative aspect-square overflow-hidden border border-neutral-200 hover:border-ink transition-colors"
+                      className="relative aspect-square overflow-hidden border border-neutral-200 hover:border-primary transition-colors"
                     >
                       <Image
                         src={product.image_url}

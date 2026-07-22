@@ -174,7 +174,7 @@ export default function CartPage() {
                         {item.product.title}
                       </Link>
                       <p className="mt-1 text-xs uppercase tracking-[0.2em] text-gray-500">{item.product.username}</p>
-                      <p className="mt-2 font-semibold text-lg text-ink">{item.product.price.toLocaleString("tr-TR")} ₺</p>
+                      <p className="mt-2 font-semibold text-lg text-accent-yellow">{item.product.price.toLocaleString("tr-TR")} ₺</p>
                     </div>
 
                     <div className="flex items-center justify-between gap-3 sm:ml-auto sm:flex-col sm:items-end">
@@ -198,7 +198,7 @@ export default function CartPage() {
                         </button>
                       </div>
                       <div className="flex items-center gap-3">
-                        <p className="font-semibold text-lg text-ink">{(item.product.price * item.quantity).toLocaleString("tr-TR")} ₺</p>
+                        <p className="font-semibold text-lg text-accent-yellow">{(item.product.price * item.quantity).toLocaleString("tr-TR")} ₺</p>
                         <button
                           type="button"
                           aria-label="Kaldır"
@@ -218,12 +218,12 @@ export default function CartPage() {
               <h2 className="font-serif text-2xl text-ink">Özet</h2>
               <div className="mt-4 flex items-center justify-between border-b border-neutral-200 pb-4 text-sm text-gray-600">
                 <span>Ara Toplam</span>
-                <span className="font-semibold text-lg text-ink">{subtotal.toLocaleString("tr-TR")} ₺</span>
+                <span className="font-semibold text-lg text-accent-yellow">{subtotal.toLocaleString("tr-TR")} ₺</span>
               </div>
               <button
                 type="button"
                 disabled
-                className="mt-6 w-full cursor-not-allowed bg-ink px-4 py-3 text-sm uppercase tracking-[0.2em] text-paper opacity-50"
+                className="mt-6 w-full cursor-not-allowed bg-dark-3 px-4 py-3 text-sm uppercase tracking-[0.2em] text-muted opacity-50"
               >
                 Ödemeye Geç
               </button>
