@@ -218,7 +218,7 @@ export default function SuggestedUsers({
           <Link
             href="/login"
             title="Takip etmek için giriş yap"
-            className="text-[11px] uppercase tracking-wide font-medium border border-ink text-ink px-3 py-1 hover:bg-ink hover:text-paper transition-colors duration-300 shrink-0"
+            className="text-[11px] uppercase tracking-wide font-medium border border-primary text-ink px-3 py-1 hover:bg-primary hover:text-dark transition-colors duration-300 shrink-0"
           >
             Takip Et
           </Link>
@@ -234,7 +234,7 @@ export default function SuggestedUsers({
         {twinPromoProfile && (
           <Link
             href="/twins"
-            className="mb-4 block rounded-3xl border border-ink/10 bg-ink/5 p-4 transition hover:border-ink hover:bg-ink/10"
+            className="mb-4 block rounded-3xl border border-primary/10 bg-black/5 p-4 transition hover:border-primary hover:bg-black/10"
           >
             <p className="text-sm">👯 Stil ikizin @{twinPromoProfile.username} gardırobunu satıyor</p>
             <p className="mt-2 text-xs text-gray-600">Twins sayfasına gidip daha fazla ikiz adayı gör.</p>
@@ -250,7 +250,7 @@ export default function SuggestedUsers({
       {twinPromoProfile && (
         <Link
           href="/twins"
-          className="mb-4 block rounded-3xl border border-ink/10 bg-ink/5 p-4 transition hover:border-ink hover:bg-ink/10"
+          className="mb-4 block rounded-3xl border border-primary/10 bg-black/5 p-4 transition hover:border-primary hover:bg-black/10"
         >
           <p className="text-sm">👯 Stil ikizin @{twinPromoProfile.username} gardırobunu satıyor</p>
           <p className="mt-2 text-xs text-gray-600">Twins sayfasına gidip daha fazla ikiz adayı gör.</p>

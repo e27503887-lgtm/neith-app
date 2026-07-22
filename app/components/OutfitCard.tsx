@@ -24,7 +24,7 @@ export default function OutfitCard({
   priority?: boolean;
 }) {
   return (
-    <article className="card-hover bg-surface border border-neutral-200 overflow-hidden">
+    <article className="card-hover bg-dark-2 border border-dark-3 rounded-xl overflow-hidden transition-colors hover:border-primary">
       <div className="flex items-center gap-3 p-3">
         <Link href={`/profile/${outfit.username}`} className="shrink-0">
           {outfit.avatar_url ? (
@@ -59,8 +59,8 @@ export default function OutfitCard({
         </span>
         <EloTierBadge eloRating={outfit.elo_rating} className="absolute top-2 right-2 z-10" />
         {outfit.has_tag && (
-          <span className="absolute bottom-2 left-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-paper/90 text-ink">
-            <ShoppingBag size={13} strokeWidth={1.5} />
+          <span className="absolute bottom-2 left-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-dark">
+            <ShoppingBag size={13} strokeWidth={2} />
           </span>
         )}
         <Image

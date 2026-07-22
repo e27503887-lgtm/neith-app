@@ -48,7 +48,7 @@ export default function InstallPWAButton() {
   return (
     <button
       onClick={handleInstall}
-      className="fixed bottom-20 right-4 z-40 flex items-center gap-2 rounded-full border border-ink bg-paper px-4 py-2 text-xs uppercase tracking-wide text-ink shadow-lg transition-colors duration-300 hover:bg-ink hover:text-paper lg:bottom-6"
+      className="fixed bottom-20 right-4 z-40 flex items-center gap-2 rounded-full border border-primary bg-paper px-4 py-2 text-xs uppercase tracking-wide text-ink shadow-lg transition-colors duration-300 hover:bg-primary hover:text-dark lg:bottom-6"
     >
       <Download size={15} strokeWidth={1.5} />
       Uygulamayı Yükle

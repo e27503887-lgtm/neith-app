@@ -165,7 +165,7 @@ export default function ConversationPage({ params }: Props) {
               <div
                 key={m.id}
                 className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm ${
-                  isOwn ? "bg-ink text-paper self-end" : "bg-gray-100 text-ink self-start"
+                  isOwn ? "bg-primary text-dark self-end" : "bg-gray-100 text-ink self-start"
                 }`}
               >
                 {m.content}
@@ -184,7 +184,7 @@ export default function ConversationPage({ params }: Props) {
           />
           <button
             disabled={sending || !draft.trim()}
-            className="bg-ink text-paper px-4 py-2.5 md:py-2 rounded-full text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
+            className="bg-primary text-dark px-4 py-2.5 md:py-2 rounded-full text-sm font-medium hover:bg-primary-hover disabled:opacity-50"
           >
             Gönder
           </button>

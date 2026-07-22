@@ -100,7 +100,7 @@ export default function ProductGallery({
                   >
                     <span className="absolute inline-flex h-full w-full rounded-full bg-white/70 animate-ping" />
                     <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md">
-                      <span className="h-2.5 w-2.5 rounded-full bg-ink" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-primary" />
                     </span>
                   </button>
 

@@ -120,7 +120,7 @@ export default function PhotoTagEditor({
               >
                 <span className="absolute inline-flex h-full w-full rounded-full bg-white/70 animate-ping" />
                 <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md">
-                  <span className="h-2.5 w-2.5 rounded-full bg-ink" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-primary" />
                 </span>
               </button>
 
@@ -132,7 +132,7 @@ export default function PhotoTagEditor({
                     onRemove(tag.id);
                     setOpenRemoveId(null);
                   }}
-                  className="absolute left-1/2 top-full mt-1 flex min-h-11 -translate-x-1/2 items-center whitespace-nowrap rounded-full bg-ink px-3 py-2 text-xs text-white"
+                  className="absolute left-1/2 top-full mt-1 flex min-h-11 -translate-x-1/2 items-center whitespace-nowrap rounded-full bg-dark-3 px-3 py-2 text-xs text-white"
                 >
                   Kaldır
                 </button>
@@ -165,7 +165,7 @@ export default function PhotoTagEditor({
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Ürün ara..."
-                    className="mb-2 w-full border border-neutral-200 p-2 text-sm transition-colors focus:border-ink focus:outline-none"
+                    className="mb-2 w-full border border-neutral-200 p-2 text-sm transition-colors focus:border-primary focus:outline-none"
                   />
                   <div className="flex max-h-48 flex-col gap-1 overflow-y-auto">
                     {filteredProducts.length === 0 ? (

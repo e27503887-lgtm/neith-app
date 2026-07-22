@@ -465,7 +465,7 @@ export default function SellPage() {
                         }}
                         className={`w-7 h-7 rounded-full border transition-transform hover:scale-110 ${
                           dominantColor === preset.hex
-                            ? "border-ink ring-1 ring-ink"
+                            ? "border-primary ring-1 ring-ink"
                             : "border-neutral-300"
                         }`}
                         style={{ backgroundColor: preset.hex }}
@@ -497,7 +497,7 @@ export default function SellPage() {
                     <button
                       type="button"
                       onClick={() => removeMedia(index)}
-                      className="absolute top-1 right-1 bg-ink/80 text-paper rounded-full w-5 h-5 flex items-center justify-center"
+                      className="absolute top-1 right-1 bg-black/80 text-paper rounded-full w-5 h-5 flex items-center justify-center"
                     >
                       <X size={12} />
                     </button>

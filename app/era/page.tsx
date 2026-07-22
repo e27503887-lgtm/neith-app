@@ -57,7 +57,7 @@ export default async function EraIndexPage() {
               ) : (
                 <div className="absolute inset-0 bg-neutral-200" />
               )}
-              <div className="absolute inset-0 bg-ink/40" />
+              <div className="absolute inset-0 bg-black/40" />
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
                 <h2 className="font-serif text-3xl text-white">{card.label}</h2>
                 <p className="text-white/80 text-xs uppercase tracking-wide mt-2">

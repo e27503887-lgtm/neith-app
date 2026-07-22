@@ -124,8 +124,8 @@ export default function ReportDialog({
                   onClick={() => setReason(r)}
                   className={`text-xs uppercase tracking-wide px-3 py-1.5 border transition-colors duration-300 ${
                     reason === r
-                      ? "bg-ink text-paper border-ink"
-                      : "border-neutral-300 text-gray-600 hover:border-ink hover:text-ink"
+                      ? "bg-primary text-dark border-primary"
+                      : "border-neutral-300 text-gray-600 hover:border-primary hover:text-ink"
                   }`}
                 >
                   {r}

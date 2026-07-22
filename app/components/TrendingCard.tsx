@@ -30,7 +30,7 @@ export default function TrendingCard({ item }: { item: TrendingItem }) {
             Kombin
           </span>
         )}
-        <span className="absolute top-2 right-2 z-10 flex items-center gap-1 bg-accent-solid text-white text-[11px] uppercase tracking-wide font-medium px-2 py-1">
+        <span className="absolute top-2 right-2 z-10 flex items-center gap-1 bg-accent-solid text-dark text-[11px] uppercase tracking-wide font-medium px-2 py-1">
           <TrendingUp size={11} strokeWidth={2} />
           Trend
         </span>
@@ -45,7 +45,7 @@ export default function TrendingCard({ item }: { item: TrendingItem }) {
       <div className="p-3">
         <h2 className="text-sm truncate">{item.title}</h2>
         {item.kind === "product" && (
-          <p className="font-semibold text-lg text-ink mt-0.5">
+          <p className="font-semibold text-lg text-accent-yellow mt-0.5">
             {item.price.toLocaleString("tr-TR")} ₺
           </p>
         )}

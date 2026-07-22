@@ -364,7 +364,7 @@ export default function MobileMessagesPanel({ onClose }: { onClose: () => void }
                     <div
                       key={m.id}
                       className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm ${
-                        isOwn ? "bg-ink text-paper self-end" : "bg-gray-100 text-ink self-start"
+                        isOwn ? "bg-primary text-dark self-end" : "bg-gray-100 text-ink self-start"
                       }`}
                     >
                       {m.content}
@@ -383,7 +383,7 @@ export default function MobileMessagesPanel({ onClose }: { onClose: () => void }
                 />
                 <button
                   disabled={sending || !draft.trim()}
-                  className="shrink-0 bg-ink text-paper px-4 py-2.5 rounded-full text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
+                  className="shrink-0 bg-primary text-dark px-4 py-2.5 rounded-full text-sm font-medium hover:bg-primary-hover disabled:opacity-50"
                 >
                   Gönder
                 </button>

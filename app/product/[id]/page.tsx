@@ -98,7 +98,7 @@ export default async function ProductDetailPage({ params }: Props) {
     <main className="min-h-screen bg-paper pt-24 pb-12 px-6">
       <div className="max-w-4xl mx-auto flex flex-col gap-6">
         {product.is_sold && (
-          <div className="bg-ink text-paper px-6 py-3">
+          <div className="bg-primary text-dark px-6 py-3">
             <p className="text-xs uppercase tracking-[0.24em]">
               Satıldı — bu parça yeni sahibini buldu
             </p>
@@ -112,7 +112,7 @@ export default async function ProductDetailPage({ params }: Props) {
             <div>
               <h1 className="text-2xl font-bold tracking-tight">{product.title}</h1>
               <div className="flex items-center gap-2 mt-2">
-                <p className="font-semibold text-2xl text-ink">
+                <p className="font-semibold text-2xl text-accent-yellow">
                   {product.price.toLocaleString("tr-TR")} ₺
                 </p>
                 {isBrand && (

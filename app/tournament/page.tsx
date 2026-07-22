@@ -293,7 +293,7 @@ function BracketMatchCard({
     <button
       type="button"
       onClick={onOpen}
-      className="w-full border border-neutral-200 hover:border-ink transition-colors p-2.5 text-left"
+      className="w-full border border-neutral-200 hover:border-primary transition-colors p-2.5 text-left"
     >
       <div className="flex items-center gap-2">
         <span className="relative w-9 h-9 shrink-0 overflow-hidden bg-neutral-100">

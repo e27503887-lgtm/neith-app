@@ -62,7 +62,7 @@ export default async function BrandsPage() {
                 ) : (
                   <div className="absolute inset-0 bg-neutral-200" />
                 )}
-                <div className="absolute inset-0 bg-ink/35 transition-colors duration-500 group-hover:bg-ink/45" />
+                <div className="absolute inset-0 bg-black/35 transition-colors duration-500 group-hover:bg-black/45" />
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
                   <h2 className="font-serif text-4xl md:text-5xl text-white tracking-tight">
                     {brand.username}

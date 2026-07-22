@@ -96,7 +96,7 @@ export default function WardrobeSection({ user }: { user: User }) {
         <button
           type="button"
           onClick={openAddModal}
-          className="intel-btn--wardrobe inline-flex items-center gap-1.5 bg-ink text-paper text-xs uppercase tracking-widest font-medium px-5 py-2.5 transition-colors hover:bg-accent shrink-0"
+          className="intel-btn--wardrobe inline-flex items-center gap-1.5 bg-primary text-dark text-xs uppercase tracking-widest font-medium px-5 py-2.5 transition-colors hover:bg-accent shrink-0"
         >
           <Plus size={14} strokeWidth={2} />
           Parça Ekle
@@ -110,7 +110,7 @@ export default function WardrobeSection({ user }: { user: User }) {
           <button
             type="button"
             onClick={openAddModal}
-            className="intel-btn--wardrobe mt-2 inline-flex items-center gap-1.5 bg-ink text-paper text-xs uppercase tracking-widest font-medium px-6 py-3 transition-colors hover:bg-accent"
+            className="intel-btn--wardrobe mt-2 inline-flex items-center gap-1.5 bg-primary text-dark text-xs uppercase tracking-widest font-medium px-6 py-3 transition-colors hover:bg-accent"
           >
             <Plus size={14} strokeWidth={2} />
             Parça Ekle
@@ -145,7 +145,7 @@ export default function WardrobeSection({ user }: { user: User }) {
                           </span>
                         )}
                         <div
-                          className={`absolute inset-0 flex items-center justify-center gap-2 bg-ink/50 transition-opacity duration-200 ${
+                          className={`absolute inset-0 flex items-center justify-center gap-2 bg-black/50 transition-opacity duration-200 ${
                             revealed ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                           }`}
                         >

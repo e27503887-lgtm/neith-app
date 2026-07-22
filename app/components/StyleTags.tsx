@@ -53,7 +53,7 @@ export default function StyleTags({
         tags.map((tag) => (
           <span
             key={tag}
-            className="border border-ink text-ink text-[11px] uppercase tracking-[0.16em] px-3 py-1"
+            className="border border-primary text-ink text-[11px] uppercase tracking-[0.16em] px-3 py-1"
           >
             {tag}
           </span>
@@ -87,8 +87,8 @@ export default function StyleTags({
                   onClick={() => toggleDraftTag(tag)}
                   className={`text-[11px] uppercase tracking-[0.16em] px-3 py-1 border transition-colors ${
                     selected
-                      ? "bg-ink text-paper border-ink"
-                      : "border-neutral-300 text-gray-600 hover:border-ink"
+                      ? "bg-primary text-dark border-primary"
+                      : "border-neutral-300 text-gray-600 hover:border-primary"
                   }`}
                 >
                   {tag}

@@ -104,7 +104,7 @@ export default function ProfileTabs({
                   className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
-                  <span className="text-paper text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     {product.price.toLocaleString("tr-TR")} ₺
                   </span>
                 </div>
@@ -145,12 +145,12 @@ export default function ProfileTabs({
                   />
                 )}
                 {post.media_count > 1 && (
-                  <span className="absolute top-1.5 right-1.5 z-10 text-white">
+                  <span className="absolute top-1.5 right-1.5 z-10">
                     <Images size={14} strokeWidth={1.5} />
                   </span>
                 )}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
-                  <span className="flex items-center gap-1.5 text-paper opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span className="flex items-center gap-1.5 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <Heart size={16} fill="currentColor" />
                     <span className="text-sm font-medium">{post.like_count}</span>
                   </span>

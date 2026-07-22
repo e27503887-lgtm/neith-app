@@ -83,7 +83,7 @@ export default function StoreCard({
           <FollowButton targetUserId={store.id} compact onFollow={onFollow} onUnfollow={onUnfollow} />
           <Link
             href={`/profile/${store.username}`}
-            className="text-[11px] uppercase tracking-wide font-medium border border-neutral-300 text-gray-600 px-3 py-1 hover:border-ink hover:text-ink transition-colors shrink-0"
+            className="text-[11px] uppercase tracking-wide font-medium border border-neutral-300 text-gray-600 px-3 py-1 hover:border-primary hover:text-ink transition-colors shrink-0"
           >
             Mağazayı Ziyaret Et
           </Link>

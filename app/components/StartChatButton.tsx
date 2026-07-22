@@ -97,7 +97,7 @@ export default function StartChatButton({ otherUserId }: { otherUserId: string |
       <button
         onClick={handleClick}
         disabled={loading}
-        className="border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300 disabled:opacity-50"
+        className="border border-primary text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-primary hover:text-dark transition-colors duration-300 disabled:opacity-50"
       >
         {loading ? "Açılıyor..." : "Mesaj At"}
       </button>

@@ -433,7 +433,7 @@ export default function ComposePostModal({ initialOpen = false }: { initialOpen?
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.2 }}
           >
-            <span className="block whitespace-nowrap rounded-full bg-ink text-white text-sm px-5 py-2.5 shadow-lg">
+            <span className="block whitespace-nowrap rounded-full bg-primary text-dark text-sm px-5 py-2.5 shadow-lg">
               Gönderin paylaşıldı ✓
             </span>
           </motion.div>

@@ -115,14 +115,14 @@ export default function AchievementsPage() {
                 key={card.key}
                 className={`group relative overflow-hidden rounded-3xl border p-6 transition-all duration-300 ${
                   card.earned
-                    ? "border-ink bg-surface shadow-sm"
+                    ? "border-primary bg-surface shadow-sm"
                     : "border-neutral-200 bg-paper text-gray-500"
                 }`}
               >
                 <div className="flex items-center gap-3 mb-4">
                   <span
                     className={`flex h-12 w-12 items-center justify-center rounded-full border ${
-                      card.earned ? "border-ink bg-ink text-paper" : "border-neutral-300 bg-surface text-gray-500"
+                      card.earned ? "border-primary bg-primary text-dark" : "border-neutral-300 bg-surface text-gray-500"
                     }`}
                   >
                     {Icon ? <Icon size={20} strokeWidth={1.5} /> : "🏅"}

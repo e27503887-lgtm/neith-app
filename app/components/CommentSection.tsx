@@ -228,7 +228,7 @@ export default function CommentSection({ productId, outfitId }: Props) {
           />
           <button
             disabled={submitting || !draft.trim()}
-            className="shrink-0 whitespace-nowrap bg-ink text-paper px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
+            className="shrink-0 whitespace-nowrap bg-primary text-dark px-4 py-2 rounded-full text-sm font-medium hover:bg-primary-hover disabled:opacity-50"
           >
             Gönder
           </button>

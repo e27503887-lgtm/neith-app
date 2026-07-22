@@ -3,37 +3,63 @@
 /* Sınıf tabanlı karanlık mod: <html class="dark"> ile açılır. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ============================================================================
+   Neith görsel kimliği: koyu tema + turkuaz/sarı.
+   Tek bir koyu palet — açık/koyu ayrımı kaldırıldı, .dark ile :root aynı.
+   Krem zemin ve bordo tamamen çıkarıldı.
+
+   Ham palet (referans):
+     dark   #303539  ana zemin
+     dark-2 #3A4046  kart / input zeminleri
+     dark-3 #454C53  border
+     primary #00BCF0 (hover #33CBF4)  aktif sekme, link, birincil buton
+     accent  #FFE556 (hover #FFEC85)  CTA, rozet, fiyat, + butonu, streak
+     light  #F7F8F9  ana metin
+     muted  #9AA3AB  ikincil metin
+   Kural: sarı/turkuaz zeminde metin DAİMA #303539 — asla beyaz.
+   ============================================================================ */
 :root {
-  /* Sıcak fildişi zemin; kartlar/paneller saf beyaz kalır (kontrast katmanı). */
-  --background: #faf7f2;
-  --foreground: #1a1a1a;
-  --surface: #ffffff;
-  --line: #e5e5e5; /* neutral-200 */
-  --line-strong: #d4d4d4; /* neutral-300 */
-  --wash: #fafafa; /* neutral-50 */
-  --wash-strong: #f5f5f5; /* neutral-100 */
-  --faint: #99a1af; /* gray-400 (yalnızca dekoratif) */
-  --muted: #6a7282; /* gray-500 */
-  --muted-strong: #4a5565; /* gray-600 */
-  --body-text: #364153; /* gray-700 */
-  --accent-color: #7a2e2e;
+  --background: #303539; /* dark */
+  --foreground: #f7f8f9; /* light — ana metin */
+  --surface: #3a4046; /* dark-2 — kart/input zeminleri */
+  --line: #454c53; /* dark-3 — border */
+  --line-strong: #545c64; /* dark-3'ten bir ton açık, güçlü kenar */
+  --wash: #3a4046; /* dark-2 — hafif katman zeminleri */
+  --wash-strong: #454c53; /* dark-3 — daha belirgin katman */
+  --faint: #6b747c; /* dekoratif gri */
+  --muted: #9aa3ab; /* ikincil metin */
+  --muted-strong: #b6bdc4; /* muted'tan bir ton açık */
+  --body-text: #d5dae0; /* gövde metni */
+  --accent-color: #00bcf0; /* primary turkuaz — link/vurgu için varsayılan */
+
+  /* Yeni adlandırılmış token'lar (semantik). Bunlar sonraki adımlarda
+     buton/rozet/fiyat gibi öğelere elle uygulanır. */
+  --dark: #303539;
+  --dark-2: #3a4046;
+  --dark-3: #454c53;
+  --primary: #00bcf0;
+  --primary-hover: #33cbf4;
+  --accent-yellow: #ffe556;
+  --accent-yellow-hover: #ffec85;
+  --light: #f7f8f9;
+  --muted-text: #9aa3ab;
 }
 
-/* "Gece dergisi": sıcak kömür zemin, koyu deri kartlar, krem metin.
-   Vurgu bordo koyu zeminde okunması için bir ton açık. */
+/* Tema toggle koşulunu bozmamak için .dark aynı paleti taşır (uygulama
+   tek koyu kimlikte kalır). */
 .dark {
-  --background: #16130f;
-  --foreground: #ede7dc;
-  --surface: #1e1a15;
-  --line: #2e2921;
-  --line-strong: #3a342a;
-  --wash: #211d17;
-  --wash-strong: #262019;
-  --faint: #7d7466;
-  --muted: #a89f90;
-  --muted-strong: #c0b7a7;
-  --body-text: #d3cabb;
-  --accent-color: #c47a7a;
+  --background: #303539;
+  --foreground: #f7f8f9;
+  --surface: #3a4046;
+  --line: #454c53;
+  --line-strong: #545c64;
+  --wash: #3a4046;
+  --wash-strong: #454c53;
+  --faint: #6b747c;
+  --muted: #9aa3ab;
+  --muted-strong: #b6bdc4;
+  --body-text: #d5dae0;
+  --accent-color: #00bcf0;
 }
 
 @theme inline {
@@ -42,10 +68,22 @@
   --color-paper: var(--background);
   --color-ink: var(--foreground);
   --color-surface: var(--surface);
-  --color-accent: var(--accent-color);
-  /* Beyaz metinli rozet/badge zeminleri: iki modda da koyu bordo kalır
-     (açılan vurgu tonu üzerinde beyaz 4.5:1'i kaçırıyor). */
-  --color-accent-solid: #7a2e2e;
+  --color-accent: var(--accent-color); /* turkuaz — link/vurgu varsayılanı */
+
+  /* Yeni semantik renkler — bg-primary, text-primary, bg-accent-yellow vb.
+     olarak kullanılır. Kural: sarı/turkuaz zeminde metin daima dark. */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-yellow-hover: var(--accent-yellow-hover);
+  --color-dark: var(--dark);
+  --color-dark-2: var(--dark-2);
+  --color-dark-3: var(--dark-3);
+  --color-light: var(--light);
+  --color-muted: var(--muted-text);
+
+  /* Rozet/badge dolgusu artık turkuaz (üzerine dark metin). */
+  --color-accent-solid: var(--primary);
 
   /* Nötr/gri skalaları semantik değişkenlere bağlanır: aynı sınıflar iki
      modda da doğru tona düşer, sayfa sayfa dark: varyantı gerekmez. */
@@ -65,13 +103,14 @@
   --color-gray-700: var(--body-text);
 
   --font-sans: var(--font-inter);
-  --font-serif: var(--font-playfair);
+  --font-serif: var(--font-syne);
 
-  /* Flatten card/panel/button corners for an editorial, print-like sharpness. */
-  --radius-md: 0.125rem;
-  --radius-lg: 0.125rem;
-  --radius-xl: 0.125rem;
-  --radius-2xl: 0.125rem;
+  /* Yeni kimlik: yumuşak, modern köşeler (eski editoryal sivri köşeler
+     kaldırıldı). Form elemanları ~11–13px'e denk gelir. */
+  --radius-md: 0.625rem; /* 10px */
+  --radius-lg: 0.75rem; /* 12px */
+  --radius-xl: 0.875rem; /* 14px */
+  --radius-2xl: 1rem; /* 16px */
 
   /* Drop drop-shadows in favor of hairline borders. */
   --shadow-sm: none;
@@ -84,9 +123,20 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
+/* Başlıklar: Syne. H1 ekstra kalın (800), açık renk; H2 kalın (700). */
 h1,
 h2 {
   font-family: var(--font-serif), Georgia, serif;
+  color: var(--light);
+}
+
+h1 {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-weight: 700;
 }
 
 /* Klavye kullanıcıları için görünür odak: outline'ı kendisi yöneten
@@ -96,9 +146,41 @@ h2 {
   outline-offset: 2px;
 }
 
+/* Form elemanları — koyu tema varsayılanı. @layer base kullanıldığı için
+   Tailwind utility'leri (bg-transparent, border-b vb.) bu kuralları ezebilir;
+   böylece underline arama inputları kendi görünümünü korur. */
+@layer base {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="submit"]):not([type="button"]),
+  textarea,
+  select {
+    background-color: var(--dark-2); /* #3A4046 */
+    color: var(--light);
+    border-color: var(--dark-3); /* #454C53 */
+    border-radius: var(--radius-lg); /* 12px — rounded-* utility'si varsa o ezer */
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--muted-text); /* #9AA3AB */
+    opacity: 1;
+  }
+
+  /* Select: native oku gizle, turkuaz chevron çiz. */
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2300BCF0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    padding-right: 2.25rem;
+  }
+}
+
 @layer components {
+  /* Eyebrow / kicker etiketi: turkuaz + geniş harf aralığı. */
   .section-label {
-    @apply text-xs uppercase tracking-[0.2em] text-neutral-500 font-medium;
+    @apply text-xs uppercase tracking-[0.25em] text-primary font-semibold;
   }
 
   /* Brand signature: a short maroon dash ahead of every section kicker label. */
@@ -112,12 +194,30 @@ h2 {
     background-color: var(--color-accent);
   }
 
+  /* Birincil buton: turkuaz dolgu + koyu yazı (kural 1). CTA vurgusu için. */
   .btn-primary {
-    @apply inline-flex items-center justify-center border border-ink text-ink bg-transparent text-xs uppercase tracking-widest font-medium px-6 py-3 transition-all duration-[250ms] ease-in-out hover:bg-ink hover:text-paper active:scale-95 active:duration-100 disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center bg-primary text-dark text-xs uppercase tracking-widest font-semibold px-6 py-3 rounded-xl transition-all duration-[250ms] ease-in-out hover:bg-primary-hover active:scale-95 active:duration-100 disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .btn-secondary {
     @apply text-sm underline underline-offset-4 decoration-neutral-400 hover:text-accent transition-colors;
+  }
+
+  /* İkincil/outline buton: şeffaf zemin, dark-3 kenar, hover'da turkuaz. */
+  .btn-outline {
+    @apply inline-flex items-center justify-center bg-transparent border border-dark-3 text-light text-xs uppercase tracking-widest font-medium px-6 py-3 rounded-xl transition-all duration-[250ms] ease-in-out hover:border-primary hover:text-primary active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  /* Segment/pill tab çifti. Aktif = turkuaz dolgu + koyu yazı; pasif =
+     şeffaf + dark-3 kenar + gri yazı (kural 1: turkuaz zeminde koyu metin). */
+  .tab-pill {
+    @apply inline-flex items-center justify-center px-4 py-1.5 rounded-full text-sm font-medium transition-colors;
+  }
+  .tab-pill-active {
+    @apply bg-primary text-dark;
+  }
+  .tab-pill-inactive {
+    @apply bg-transparent border border-dark-3 text-muted hover:text-light;
   }
 
   /* Shared premium hover-lift for card components (ProductCard, OutfitCard,

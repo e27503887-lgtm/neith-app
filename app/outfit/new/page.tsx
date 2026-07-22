@@ -430,7 +430,7 @@ export default function NewOutfitPage() {
                   value={customLabel}
                   onChange={(e) => setCustomLabel(e.target.value.slice(0, MAX_LABEL_LENGTH))}
                   placeholder="Kısa etiket (ör. Annemden kalan kolye)"
-                  className="w-full p-2 border border-neutral-200 text-sm focus:outline-none focus:border-ink transition-colors"
+                  className="w-full p-2 border border-neutral-200 text-sm focus:outline-none focus:border-primary transition-colors"
                 />
                 <p className="text-xs text-gray-500 text-right">
                   {customLabel.length}/{MAX_LABEL_LENGTH}
@@ -438,7 +438,7 @@ export default function NewOutfitPage() {
                 <button
                   type="button"
                   onClick={handleAddCustomPiece}
-                  className="text-xs uppercase tracking-wide border border-ink text-ink px-3 py-1.5 hover:bg-ink hover:text-paper transition-colors"
+                  className="text-xs uppercase tracking-wide border border-primary text-ink px-3 py-1.5 hover:bg-primary hover:text-dark transition-colors"
                 >
                   Ekle
                 </button>
@@ -463,7 +463,7 @@ export default function NewOutfitPage() {
                       key={p.id}
                       onClick={() => toggleProduct(p.id)}
                       className={`relative aspect-square rounded-md overflow-hidden border-2 ${
-                        selected ? "border-ink" : "border-transparent"
+                        selected ? "border-primary" : "border-transparent"
                       }`}
                     >
                       <Image
@@ -488,13 +488,13 @@ export default function NewOutfitPage() {
                     className="relative aspect-square overflow-hidden rounded-md border-2 border-dashed border-neutral-300"
                   >
                     <Image src={c.previewUrl} alt={c.label} fill sizes="80px" className="object-cover" />
-                    <span className="absolute top-0.5 left-0.5 bg-ink/80 text-paper text-[8px] uppercase tracking-wide px-1 py-0.5">
+                    <span className="absolute top-0.5 left-0.5 bg-black/80 text-paper text-[8px] uppercase tracking-wide px-1 py-0.5">
                       Satılık Değil
                     </span>
                     <button
                       type="button"
                       onClick={() => handleRemoveCustomPiece(c.id)}
-                      className="absolute top-0.5 right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-ink text-paper"
+                      className="absolute top-0.5 right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-dark"
                     >
                       <X size={10} strokeWidth={1.5} />
                     </button>

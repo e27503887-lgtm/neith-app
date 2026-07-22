@@ -135,7 +135,7 @@ export default function DealsPage() {
               <Link
                 key={String(deal.id)}
                 href={`/deals/${deal.id}`}
-                className="flex items-center gap-4 border border-neutral-200 bg-surface p-3 hover:border-ink transition-colors"
+                className="flex items-center gap-4 border border-neutral-200 bg-surface p-3 hover:border-primary transition-colors"
               >
                 <div className="relative h-20 w-16 shrink-0 overflow-hidden bg-neutral-100">
                   {deal.product?.image_url && (

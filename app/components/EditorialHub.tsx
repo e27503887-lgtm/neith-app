@@ -34,7 +34,7 @@ const stories: Story[] = [
 export default function EditorialHub() {
   return (
     <aside className="bg-surface border border-neutral-200 rounded-3xl overflow-hidden">
-      <div className="bg-ink text-paper px-6 py-5">
+      <div className="bg-primary text-dark px-6 py-5">
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.32em] text-neutral-300">Moda Dergisi</p>
@@ -75,10 +75,10 @@ export default function EditorialHub() {
           </div>
           <p className="text-sm text-gray-600 leading-6">Moda Haftası ekibiyle özel sohbetler, güncel röportajlar ve sahne arkası anları için bu panoyu takip edin.</p>
           <div className="mt-6 flex flex-col gap-3">
-            <Link href="/messages" className="inline-flex items-center justify-center rounded-full bg-ink text-paper px-4 py-2 text-sm font-medium hover:bg-gray-900">
+            <Link href="/messages" className="inline-flex items-center justify-center rounded-full bg-primary text-dark px-4 py-2 text-sm font-medium hover:bg-primary-hover">
               Canlı Sohbete Katıl
             </Link>
-            <Link href="/fashion-week" className="text-sm font-medium text-accent hover:text-black">
+            <Link href="/fashion-week" className="text-sm font-medium text-accent hover:text-primary">
               Moda Haftası detaylarına git →
             </Link>
           </div>

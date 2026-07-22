@@ -224,7 +224,7 @@ function EditorialCardView({ card }: { card: EditorialCard }) {
     return (
       <Link
         href={`/editorial/${card.slug}`}
-        className="group block rounded-3xl border border-neutral-200 overflow-hidden bg-ink/5 hover:shadow-lg transition-shadow"
+        className="group block rounded-3xl border border-neutral-200 overflow-hidden bg-black/5 hover:shadow-lg transition-shadow"
       >
         <div className="relative w-full aspect-[16/9] overflow-hidden bg-neutral-100">
           {card.cover_image_url && (
@@ -251,7 +251,7 @@ function EditorialCardView({ card }: { card: EditorialCard }) {
     return (
       <Link
         href="/fashion-week"
-        className="group block rounded-3xl border border-neutral-200 overflow-hidden bg-ink/5 hover:shadow-lg transition-shadow"
+        className="group block rounded-3xl border border-neutral-200 overflow-hidden bg-black/5 hover:shadow-lg transition-shadow"
       >
         <div className="grid grid-cols-3 gap-px bg-neutral-200">
           {[0, 1, 2].map((i) => {
@@ -282,7 +282,7 @@ function EditorialCardView({ card }: { card: EditorialCard }) {
   return (
     <Link
       href="/popular"
-      className="group block rounded-3xl border border-neutral-200 overflow-hidden bg-ink/5 hover:shadow-lg transition-shadow"
+      className="group block rounded-3xl border border-neutral-200 overflow-hidden bg-black/5 hover:shadow-lg transition-shadow"
     >
       <div className="grid grid-cols-3 gap-px bg-neutral-200">
         {[0, 1, 2].map((i) => {

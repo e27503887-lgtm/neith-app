@@ -199,7 +199,7 @@ export default function AddPersonalOutfitModal({
                       key={item.id}
                       onClick={() => toggleItem(item.id)}
                       className={`relative aspect-square overflow-hidden border-2 ${
-                        selected ? "border-ink" : "border-transparent"
+                        selected ? "border-primary" : "border-transparent"
                       }`}
                     >
                       <Image

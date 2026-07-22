@@ -165,7 +165,7 @@ export default function ListingsPage() {
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as Sort)}
-              className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+              className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-primary transition-colors"
             >
               <option value="newest">En Yeni</option>
               <option value="price_asc">Fiyat: Düşükten Yükseğe</option>
@@ -179,7 +179,7 @@ export default function ListingsPage() {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+              className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-primary transition-colors"
             >
               <option value="">Tüm Kategoriler</option>
               {CATEGORIES.map((c) => (
@@ -198,7 +198,7 @@ export default function ListingsPage() {
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
               placeholder="0"
-              className="w-24 border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+              className="w-24 border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-primary transition-colors"
             />
           </div>
 
@@ -210,7 +210,7 @@ export default function ListingsPage() {
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
               placeholder="∞"
-              className="w-24 border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+              className="w-24 border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-primary transition-colors"
             />
           </div>
 

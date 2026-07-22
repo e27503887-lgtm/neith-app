@@ -349,13 +349,13 @@ function StoresPageContent() {
           <div className="mt-6 flex flex-wrap gap-2">
             <button
               onClick={() => setTab("all")}
-              className={`px-4 py-2 text-sm transition-colors ${activeTab === "all" ? "bg-ink text-paper" : "bg-surface text-gray-700 border border-neutral-200 hover:border-ink"}`}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === "all" ? "bg-primary text-dark" : "bg-transparent text-muted border border-dark-3 hover:text-light"}`}
             >
               Tüm Ürünler
             </button>
             <button
               onClick={() => setTab("following")}
-              className={`px-4 py-2 text-sm transition-colors ${activeTab === "following" ? "bg-ink text-paper" : "bg-surface text-gray-700 border border-neutral-200 hover:border-ink"}`}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === "following" ? "bg-primary text-dark" : "bg-transparent text-muted border border-dark-3 hover:text-light"}`}
             >
               Takip Ettiklerim
             </button>
@@ -392,7 +392,7 @@ function StoresPageContent() {
                     <Link
                       key={brand.id}
                       href={`/profile/${brand.username}`}
-                      className="flex items-center gap-3 rounded-full border border-neutral-200 bg-surface px-3 py-2 shadow-sm hover:border-ink transition-colors"
+                      className="flex items-center gap-3 rounded-full border border-neutral-200 bg-surface px-3 py-2 shadow-sm hover:border-primary transition-colors"
                     >
                       {brand.avatar_url ? (
                         <Image
@@ -437,7 +437,7 @@ function StoresPageContent() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Ürün adına göre ara..."
-                className="w-full bg-transparent border-b border-neutral-300 pl-6 pr-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-ink transition-colors"
+                className="w-full bg-transparent border-b border-neutral-300 pl-6 pr-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-primary transition-colors"
               />
             </div>
 
@@ -447,7 +447,7 @@ function StoresPageContent() {
                 <select
                   value={brandFilter}
                   onChange={(e) => setBrandFilter(e.target.value)}
-                  className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+                  className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-primary transition-colors"
                 >
                   <option value="">Tüm Markalar</option>
                   {stores.map((s) => (
@@ -463,7 +463,7 @@ function StoresPageContent() {
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+                  className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-primary transition-colors"
                 >
                   <option value="">Tüm Kategoriler</option>
                   {CATEGORIES.map((c) => (
@@ -482,7 +482,7 @@ function StoresPageContent() {
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
                   placeholder="0"
-                  className="w-24 border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+                  className="w-24 border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-primary transition-colors"
                 />
               </div>
 
@@ -494,7 +494,7 @@ function StoresPageContent() {
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
                   placeholder="∞"
-                  className="w-24 border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+                  className="w-24 border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-primary transition-colors"
                 />
               </div>
 
@@ -503,7 +503,7 @@ function StoresPageContent() {
                 <select
                   value={sort}
                   onChange={(e) => setSort(e.target.value as Sort)}
-                  className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-ink transition-colors"
+                  className="border border-neutral-200 bg-surface text-sm px-3 py-2 focus:outline-none focus:border-primary transition-colors"
                 >
                   {SORT_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>
@@ -533,7 +533,7 @@ function StoresPageContent() {
                 {viewerAccountType && viewerAccountType !== "brand" && (
                   <Link
                     href="/brand/apply"
-                    className="text-xs uppercase tracking-wide text-accent underline underline-offset-4 hover:text-ink transition-colors"
+                    className="inline-flex items-center justify-center bg-accent-yellow text-dark text-xs uppercase tracking-wide font-semibold px-4 py-2 rounded-lg hover:bg-accent-yellow-hover transition-colors"
                   >
                     Markanızı buraya eklemek için başvurun
                   </Link>

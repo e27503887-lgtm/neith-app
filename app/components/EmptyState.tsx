@@ -1,8 +1,8 @@
 import Link from "next/link";
 
-// Tüm boş durumlar için tek editoryal bileşen: ince çizgi illüstrasyon +
-// kısa serif başlık + yönlendiren siyah CTA. Akışlar, favoriler, sepet vb.
-// hepsi aynı dilden konuşsun diye tek yerde.
+// Tüm boş durumlar için tek bileşen: dark-2 ikon kutusu + turkuaz çizgi
+// illüstrasyon + Syne başlık + yönlendiren sarı CTA. Akışlar, favoriler,
+// sepet vb. hepsi aynı dilden konuşsun diye tek yerde.
 
 type IllustrationKind = "hanger" | "frame";
 
@@ -68,17 +68,18 @@ export default function EmptyState({
 }) {
   return (
     <div className={`flex flex-col items-center text-center py-16 px-6 gap-4 ${className}`}>
-      <div className="text-neutral-300">
+      {/* İkon kutusu: dark-2 zemin, turkuaz ikon (stroke currentColor). */}
+      <div className="flex items-center justify-center w-20 h-20 rounded-2xl bg-dark-2 text-primary">
         {illustration === "frame" ? <FrameIllustration /> : <HangerIllustration />}
       </div>
-      <h3 className="font-serif italic text-2xl text-ink">{title}</h3>
+      <h3 className="font-serif text-2xl text-light">{title}</h3>
       {description && (
-        <p className="text-sm text-gray-500 leading-6 max-w-sm">{description}</p>
+        <p className="text-sm text-muted leading-6 max-w-sm">{description}</p>
       )}
       {ctaLabel && ctaHref && (
         <Link
           href={ctaHref}
-          className="mt-2 inline-flex items-center justify-center bg-ink text-paper text-xs uppercase tracking-widest font-medium px-6 py-3 transition-colors duration-300 hover:bg-accent"
+          className="mt-2 inline-flex items-center justify-center bg-accent-yellow text-dark text-xs uppercase tracking-widest font-semibold px-6 py-3 rounded-xl transition-colors duration-300 hover:bg-accent-yellow-hover"
         >
           {ctaLabel}
         </Link>

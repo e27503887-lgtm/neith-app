@@ -286,7 +286,7 @@ export default function AdminPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Başlığa göre ara..."
-            className="w-full max-w-sm mb-6 p-2.5 border border-neutral-200 text-sm focus:outline-none focus:border-ink transition-colors"
+            className="w-full max-w-sm mb-6 p-2.5 border border-neutral-200 text-sm focus:outline-none focus:border-primary transition-colors"
           />
         )}
 
@@ -408,7 +408,7 @@ export default function AdminPage() {
                         <button
                           onClick={() => handleReject(application)}
                           disabled={busyIds.has(`app-${application.id}`)}
-                          className="text-xs uppercase tracking-wide text-gray-500 border border-neutral-300 px-6 py-3 hover:border-ink hover:text-ink transition-colors disabled:opacity-50"
+                          className="text-xs uppercase tracking-wide text-gray-500 border border-neutral-300 px-6 py-3 hover:border-primary hover:text-ink transition-colors disabled:opacity-50"
                         >
                           {busyIds.has(`app-${application.id}`) ? "İşleniyor..." : "Reddet"}
                         </button>

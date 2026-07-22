@@ -117,7 +117,7 @@ export default function InvitePage() {
             <button
               type="button"
               onClick={handleShare}
-              className="flex-1 inline-flex items-center justify-center gap-2 border border-neutral-300 text-ink text-xs uppercase tracking-widest font-medium px-6 py-3 transition-colors hover:border-ink"
+              className="flex-1 inline-flex items-center justify-center gap-2 border border-neutral-300 text-ink text-xs uppercase tracking-widest font-medium px-6 py-3 transition-colors hover:border-primary"
             >
               <Share2 size={14} strokeWidth={1.5} /> Paylaş
             </button>

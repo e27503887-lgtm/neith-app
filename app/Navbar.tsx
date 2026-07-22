@@ -144,8 +144,8 @@ export default function Navbar() {
   return (
     <nav className="fixed w-full z-40 flex items-center gap-4 px-4 py-2.5 md:px-8 md:py-3 bg-paper border-b border-neutral-200">
       <div className="flex items-center gap-3 shrink-0">
-        <Link href="/" className="text-xl font-serif tracking-wide">
-          Neith
+        <Link href="/" className="text-xl font-serif font-extrabold tracking-tight text-light">
+          Neith<span className="text-primary">.</span>
         </Link>
 
         {/* Explore dropdown — ikon odaklı kompakt tetikleyici */}
@@ -153,11 +153,11 @@ export default function Navbar() {
           <button
             aria-expanded={open}
             onClick={() => setOpen((s) => !s)}
-            className="flex items-center p-1.5 text-gray-500 hover:text-accent transition-colors"
+            className="flex items-center p-1.5 text-light hover:text-primary transition-colors"
             aria-label="Keşfet"
             title="Keşfet"
           >
-            <Compass size={19} strokeWidth={1.5} />
+            <Compass size={19} strokeWidth={2} />
           </button>
 
           {open && (
@@ -188,7 +188,7 @@ export default function Navbar() {
         <div className="relative w-full max-w-md">
           <Search
             size={15}
-            strokeWidth={1.5}
+            strokeWidth={2}
             className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-500"
           />
           <input
@@ -197,7 +197,7 @@ export default function Navbar() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleSearchKeyDown}
-            className="w-full bg-transparent border-b border-neutral-300 pl-6 pr-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-ink transition-colors"
+            className="w-full bg-transparent border-b border-neutral-300 pl-6 pr-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-primary transition-colors"
           />
         </div>
       </div>
@@ -206,50 +206,50 @@ export default function Navbar() {
         <button
           onClick={() => setMobileSearchOpen(true)}
           aria-label="Ara"
-          className="md:hidden text-gray-500 hover:text-accent transition-colors"
+          className="md:hidden text-light hover:text-primary transition-colors"
         >
-          <Search size={19} strokeWidth={1.5} />
+          <Search size={19} strokeWidth={2} />
         </button>
 
         <Link
           href="/intelligence"
           aria-label="Stil Asistanı"
           title="Stil Asistanı"
-          className="hidden md:inline text-gray-500 hover:text-accent transition-colors"
+          className="hidden md:inline text-light hover:text-primary transition-colors"
         >
-          <Sparkles size={19} strokeWidth={1.5} />
+          <Sparkles size={19} strokeWidth={2} />
         </Link>
 
         <Link
           href="/achievements"
           aria-label="Başarılarım"
           title="Başarılarım"
-          className="hidden md:inline text-gray-500 hover:text-accent transition-colors"
+          className="hidden md:inline text-light hover:text-primary transition-colors"
         >
-          <Trophy size={19} strokeWidth={1.5} />
+          <Trophy size={19} strokeWidth={2} />
         </Link>
 
         <Link
           href="/deals"
           aria-label="Anlaşmalarım"
           title="Anlaşmalarım"
-          className="hidden md:inline text-gray-500 hover:text-accent transition-colors"
+          className="hidden md:inline text-light hover:text-primary transition-colors"
         >
-          <Handshake size={19} strokeWidth={1.5} />
+          <Handshake size={19} strokeWidth={2} />
         </Link>
 
         <Link
           href="/twins"
           aria-label="Stil İkizlerim"
           title="Stil İkizlerim"
-          className="hidden md:inline text-gray-500 hover:text-accent transition-colors"
+          className="hidden md:inline text-light hover:text-primary transition-colors"
         >
-          <UsersRound size={19} strokeWidth={1.5} />
+          <UsersRound size={19} strokeWidth={2} />
         </Link>
 
         <Link
           href="/sell"
-          className="hidden md:inline-flex border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300"
+          className="hidden md:inline-flex bg-primary text-dark font-semibold text-xs uppercase tracking-wide px-4 py-1.5 rounded-lg hover:bg-primary-hover transition-colors duration-300"
         >
           İlan Ver
         </Link>
@@ -259,18 +259,18 @@ export default function Navbar() {
           onClick={openComposePost}
           aria-label="Gönderi paylaş"
           title="Gönderi Paylaş"
-          className="hidden md:inline text-gray-500 hover:text-accent transition-colors"
+          className="hidden md:inline text-light hover:text-primary transition-colors"
         >
-          <PenLine size={19} strokeWidth={1.5} />
+          <PenLine size={19} strokeWidth={2} />
         </button>
 
         <Link href="/favorites">
-          <Heart size={19} strokeWidth={1.5} className="text-gray-500 hover:text-accent transition-colors" />
+          <Heart size={19} strokeWidth={2} className="text-light hover:text-primary transition-colors" />
         </Link>
         <Link href="/cart" className="relative">
-          <ShoppingBag size={19} strokeWidth={1.5} className="text-gray-500 hover:text-accent transition-colors" />
+          <ShoppingBag size={19} strokeWidth={2} className="text-light hover:text-primary transition-colors" />
           {cartCount > 0 && (
-            <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-solid px-1 text-[10px] font-medium text-white">
+            <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-yellow px-1 text-[10px] font-semibold text-dark">
               {cartCount}
             </span>
           )}
@@ -278,26 +278,26 @@ export default function Navbar() {
         <button
           onClick={() => setMessagesOpen(true)}
           aria-label="Mesajlar"
-          className="md:hidden text-gray-500 hover:text-accent transition-colors"
+          className="md:hidden text-light hover:text-primary transition-colors"
         >
-          <Mail size={19} strokeWidth={1.5} />
+          <Mail size={19} strokeWidth={2} />
         </button>
         <Link href="/messages" className="hidden md:inline">
-          <Mail size={19} strokeWidth={1.5} className="text-gray-500 hover:text-accent transition-colors" />
+          <Mail size={19} strokeWidth={2} className="text-light hover:text-primary transition-colors" />
         </Link>
         <NotificationBell />
 
         {user ? (
           <button
             onClick={handleLogout}
-            className="hidden md:inline-flex border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300"
+            className="hidden md:inline-flex border border-dark-3 text-light text-xs uppercase tracking-wide px-4 py-1.5 rounded-lg hover:border-primary hover:text-primary transition-colors duration-300"
           >
             Çıkış
           </button>
         ) : (
           <Link
             href="/login"
-            className="hidden md:inline-flex border border-ink text-ink text-xs uppercase tracking-wide px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors duration-300"
+            className="hidden md:inline-flex border border-dark-3 text-light text-xs uppercase tracking-wide px-4 py-1.5 rounded-lg hover:border-primary hover:text-primary transition-colors duration-300"
           >
             Giriş Yap
           </Link>
@@ -324,7 +324,7 @@ export default function Navbar() {
                     className="w-7 h-7 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-600">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-accent-yellow flex items-center justify-center text-xs font-semibold text-dark">
                     {(profile?.username ?? user.email ?? "?").charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -404,7 +404,7 @@ export default function Navbar() {
             </>
           ) : (
             <Link href="/login" aria-label="Giriş yap" className="block shrink-0">
-              <UserIcon size={22} strokeWidth={1.5} className="text-gray-500" />
+              <UserIcon size={22} strokeWidth={2} className="text-light" />
             </Link>
           )}
         </div>
@@ -416,7 +416,7 @@ export default function Navbar() {
             <div className="relative flex-1">
               <Search
                 size={16}
-                strokeWidth={1.5}
+                strokeWidth={2}
                 className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-500"
               />
               <input
@@ -426,7 +426,7 @@ export default function Navbar() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleSearchKeyDown}
-                className="w-full bg-transparent border-b border-neutral-300 pl-6 pr-2 py-2 text-base text-gray-700 focus:outline-none focus:border-ink transition-colors"
+                className="w-full bg-transparent border-b border-neutral-300 pl-6 pr-2 py-2 text-base text-gray-700 focus:outline-none focus:border-primary transition-colors"
               />
             </div>
             <button
@@ -434,7 +434,7 @@ export default function Navbar() {
               aria-label="Kapat"
               className="text-gray-500 hover:text-ink transition-colors"
             >
-              <X size={22} strokeWidth={1.5} />
+              <X size={22} strokeWidth={2} />
             </button>
           </div>
         </div>
